@@ -1,0 +1,127 @@
+/* 📚 2. MANGA PAGE STYLES */
+
+.manga-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.cover-image {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 246, 255, 0.2);
+    margin-bottom: 1rem;
+}
+
+.manga-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 10px rgba(0, 246, 255, 0.5);
+}
+
+.manga-author {
+    color: #aaa;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+.tags {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.tag {
+    background: #222;
+    padding: 0.3rem 0.8rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: var(--accent-color);
+    border: 1px solid #333;
+}
+
+.summary {
+    line-height: 1.6;
+    color: #ccc;
+    margin-bottom: 2rem;
+    text-align: left;
+    background: var(--panel-bg);
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 3px solid var(--accent-color);
+}
+
+.chapter-list-title {
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #333;
+    padding-bottom: 0.5rem;
+}
+
+.chapter-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.chapter-tile {
+    display: flex;
+    align-items: center;
+    background: #111;
+    padding: 0.8rem;
+    border-radius: 6px;
+    border: 1px solid #222;
+    transition: transform 0.2s, border-color 0.2s;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+}
+
+.chapter-tile:active {
+    transform: scale(0.98);
+}
+
+.chapter-tile:hover {
+    border-color: var(--accent-color);
+}
+
+.chapter-thumb {
+    width: 60px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 1rem;
+    background: #222;
+}
+
+.chapter-info {
+    flex: 1;
+}
+
+.chapter-number {
+    font-size: 1.1rem;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 0.2rem;
+}
+
+.chapter-date {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.last-read-badge {
+    font-size: 0.7rem;
+    background: var(--accent-color);
+    color: #000;
+    padding: 2px 6px;
+    border-radius: 2px;
+    margin-left: 0.5rem;
+    display: none; /* Toggled by JS */
+}
+.last-read-badge.active {
+    display: inline-block;
+}

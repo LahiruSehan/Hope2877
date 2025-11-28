@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Reader - Beneath the Light</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/reader.css">
+</head>
+<body class="reader-mode">
+
+    <!-- Top Nav -->
+    <nav class="reader-nav">
+        <a href="manga.html" class="nav-back">← Back</a>
+        <span class="nav-title" id="current-chapter-display">Chapter Loading...</span>
+        <button id="btn-pdf" class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.7rem;">PDF</button>
+    </nav>
+
+    <!-- Reading Area -->
+    <div id="reader-container">
+        <div class="zoom-wrapper" id="zoom-wrapper">
+            <!-- Images injected by JS -->
+        </div>
+        
+        <!-- Watermark Overlay (Global across pages in reader) -->
+        <div class="watermark-layer"></div>
+    </div>
+
+    <!-- Bottom Controls -->
+    <div class="reader-controls">
+        <button class="control-btn" id="btn-prev">◀</button>
+        <button class="control-btn" id="btn-top" style="font-size: 1rem; border: 1px solid #444; border-radius: 50%;">▲</button>
+        <button class="control-btn" id="btn-next">▶</button>
+    </div>
+
+    <script src="scripts/main.js"></script>
+    <script src="scripts/reader.js"></script>
+</body>
+</html>
