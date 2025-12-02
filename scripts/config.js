@@ -13,14 +13,14 @@ const APP_CONFIG = {
         copyright: "© 2025 Sehan Karunarathne. All Rights Reserved.",
         warning: "Protected under international copyright law.",
         tracking: "⚠️ SECURITY WARNING: Screenshotting or saving images will trigger an IP address log. This device's IP is being monitored. If these images are found externally, legal action will be taken based on this digital footprint.",
-        origin: "Original novel 'Beneath the Light' adapted to manga format. Artwork generated via sketches refined by AI technology."
+        origin: "Original novel 'Hope 2877' adapted to manga format. Artwork Hand Drawn Digitaly as sketches and refined /  Coloured by AI technology."
     },
 
     chapters: [
         { 
             id: 1, 
             title: "The Beginning", 
-            date: "is everything real..?",
+            date: "Everything is a mess",
             locked: false, 
             thumb: "", // Unused now, we generate stylized numbers
             pages: [
