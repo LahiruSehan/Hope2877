@@ -5,10 +5,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Chapters - Beneath the Light</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Inter:wght@300;400;600&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/manga.css">
 </head>
 <body>
+
+    <!-- Background Particles -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- 🔝 Top Bar -->
+    <div class="top-bar">
+        <div class="legal-notice-ticker">
+            ⚠ PROTECTED UNDER INTERNATIONAL LAW | IP LOGGING ACTIVE | LICENSED IN SRI LANKA
+        </div>
+    </div>
+
+    <!-- 🚨 Blinking Info Badge -->
+    <div class="info-badge" id="legal-trigger">i</div>
+
+    <!-- 🛑 Legal Modal -->
+    <div class="legal-modal" id="legal-modal">
+        <div class="legal-content">
+            <h2 class="legal-title">Official License & Warning</h2>
+            <div id="legal-body-text"></div> <!-- Injected via JS -->
+            <button class="close-legal" id="close-legal">I Acknowledge</button>
+        </div>
+    </div>
 
     <div class="container">
         <header class="manga-header fade-in">
@@ -19,14 +46,18 @@
             
             <div class="tags">
                 <span class="tag">Sci-Fi</span>
+                <span class="tag">Romance</span>
+                <span class="tag">Horror</span>
                 <span class="tag">Mystery</span>
-                <span class="tag">Dystopian</span>
+                <span class="tag">Action</span>
+                <span class="tag">Fantasy</span>
+                <span class="tag">Adventure</span>
             </div>
 
             <div class="summary">
-                The sky has been frozen in twilight for three centuries. 
-                Civilization has retreated underground, fearing the "scorched ones" that roam the surface. 
-                Eren, a young scavenger, finds a relic that predates the Freeze...
+                find the truth.. whos behind all this.. is everythiung real..
+                shadows whisper in the void. the sun never sets, yet darkness approaches.
+                one artifact. infinite lies.
             </div>
         </header>
 

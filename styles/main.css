@@ -5,8 +5,11 @@
     --text-color: #e0e0e0;
     --accent-color: #00F6FF;
     --accent-secondary: #FF003C;
+    --fantasy-gold: #FFD700;
+    --fantasy-purple: #9D00FF;
     --panel-bg: rgba(20, 20, 20, 0.6);
     --glass-border: rgba(255, 255, 255, 0.1);
+    --font-title: 'Aref Ruqaa', serif; /* New Title Font */
     --font-heading: 'Orbitron', sans-serif;
     --font-body: 'Inter', sans-serif;
 }
@@ -26,6 +29,7 @@ body {
     font-family: var(--font-body);
     overflow-x: hidden;
     overscroll-behavior-y: none;
+    padding-top: 40px; /* Space for Top Bar */
     
     /* Deep magical gradient that changes slowly */
     background: linear-gradient(300deg, #020024, #1c0b2e, #092e33, #000000);
@@ -38,6 +42,53 @@ body {
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
 }
+
+/* 🌀 LOADING INTRO OVERLAY */
+#intro-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    transition: opacity 1s ease-out;
+}
+
+.intro-logo {
+    font-family: var(--font-title);
+    font-size: 3rem;
+    color: transparent;
+    background: linear-gradient(45deg, var(--fantasy-gold), var(--accent-color));
+    -webkit-background-clip: text;
+    background-clip: text;
+    opacity: 0;
+    animation: revealLogo 2.5s ease-in-out forwards;
+}
+
+.intro-spinner {
+    width: 40px;
+    height: 40px;
+    border: 2px solid rgba(255,255,255,0.1);
+    border-top: 2px solid var(--accent-color);
+    border-radius: 50%;
+    margin-top: 20px;
+    animation: spin 1s linear infinite;
+    opacity: 0;
+    animation: spin 1s linear infinite, fadeIn 0.5s 0.5s forwards;
+}
+
+@keyframes revealLogo {
+    0% { opacity: 0; transform: scale(0.8); filter: blur(10px); }
+    50% { opacity: 1; transform: scale(1.1); filter: blur(0px); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
 /* Particle Canvas Overlay */
 #particle-canvas {
@@ -63,48 +114,89 @@ img {
 }
 
 /* Typography & UI */
-h1, h2, h3, .btn {
-    font-family: var(--font-heading);
+h1, h2, h3, .manga-title {
+    font-family: var(--font-title); /* Applied new font */
+}
+
+/* 🔝 TOP BAR (SPACER + LEGAL) */
+.top-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(5px);
+    z-index: 1500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.legal-notice-ticker {
+    font-size: 0.65rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 90%;
+    animation: pulseText 3s infinite;
+}
+
+@keyframes pulseText {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; color: var(--accent-secondary); }
 }
 
 .manga-title {
-    font-size: 2rem;
-    text-transform: uppercase;
-    letter-spacing: 2px;
+    font-size: 2.5rem;
+    text-transform: capitalize;
+    letter-spacing: 1px;
     background: linear-gradient(to bottom, #fff, #aaa);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     text-shadow: 0 0 20px rgba(255,255,255,0.1);
+    line-height: 1.2;
 }
 
 .manga-title .subtitle {
-    font-size: 1rem;
+    font-size: 1.2rem;
     color: var(--accent-color);
     -webkit-text-fill-color: var(--accent-color);
     display: block;
     margin-top: 5px;
+    font-family: var(--font-heading); /* Keep subtitle futuristic */
+    text-transform: uppercase;
+    letter-spacing: 3px;
 }
 
 .btn {
     background: rgba(0, 246, 255, 0.05);
     border: 1px solid var(--accent-color);
     color: var(--accent-color);
-    padding: 1rem 2.5rem;
+    padding: 1rem 3rem;
     font-size: 1rem;
     text-transform: uppercase;
-    letter-spacing: 3px;
+    letter-spacing: 2px;
     cursor: pointer;
     transition: all 0.3s ease;
     text-decoration: none;
     display: inline-block;
-    border-radius: 4px;
+    border-radius: 50px; /* ROUND BUTTONS */
     backdrop-filter: blur(4px);
+    font-family: var(--font-heading);
+    position: relative;
+    overflow: hidden;
 }
 
 .btn:hover {
     background: var(--accent-color);
     color: #000;
-    box-shadow: 0 0 20px var(--accent-color);
+    box-shadow: 0 0 30px var(--accent-color);
+    transform: scale(1.05);
 }
 
 .pulse-anim {
@@ -113,7 +205,7 @@ h1, h2, h3, .btn {
 
 @keyframes pulse {
     0% { box-shadow: 0 0 5px rgba(0, 246, 255, 0.3); }
-    50% { box-shadow: 0 0 20px rgba(0, 246, 255, 0.6); border-color: #fff; }
+    50% { box-shadow: 0 0 25px rgba(0, 246, 255, 0.6); border-color: #fff; }
     100% { box-shadow: 0 0 5px rgba(0, 246, 255, 0.3); }
 }
 
@@ -123,22 +215,26 @@ h1, h2, h3, .btn {
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid var(--glass-border);
-    border-radius: 12px;
+    border-radius: 20px; /* Rounder panels */
     padding: 1.5rem;
 }
 
 .summary-panel {
-    border-left: 3px solid var(--accent-color);
-    line-height: 1.6;
+    border-left: none;
+    border-top: 3px solid var(--accent-color);
+    line-height: 1.8;
     color: #ccc;
-    font-size: 0.95rem;
+    font-size: 1rem;
+    text-align: center;
+    font-style: italic;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
 .container {
     max-width: 800px;
     margin: 0 auto;
     padding: 1rem;
-    min-height: 100vh;
+    min-height: calc(100vh - 40px);
     display: flex;
     flex-direction: column;
 }
@@ -167,10 +263,10 @@ footer {
 /* 🚨 BLINKING INFO MARK */
 .info-badge {
     position: fixed;
-    top: 20px;
+    top: 50px; /* Moved down below Top Bar */
     right: 20px;
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
     background: rgba(255, 0, 60, 0.2);
     border: 1px solid var(--accent-secondary);
     border-radius: 50%;
@@ -180,7 +276,7 @@ footer {
     color: var(--accent-secondary);
     font-weight: bold;
     font-family: var(--font-heading);
-    font-size: 1.2rem;
+    font-size: 1rem;
     z-index: 1000;
     cursor: pointer;
     animation: blinkRed 1.5s infinite ease-in-out;
@@ -214,7 +310,7 @@ footer {
     padding: 2rem;
     max-width: 500px;
     text-align: center;
-    border-radius: 8px;
+    border-radius: 20px;
     box-shadow: 0 0 50px rgba(255, 0, 60, 0.2);
     position: relative;
     overflow: hidden;
@@ -257,6 +353,7 @@ footer {
     color: #fff;
     padding: 0.5rem 2rem;
     cursor: pointer;
+    border-radius: 20px;
 }
 
 /* Toast Notifications */

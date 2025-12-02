@@ -5,7 +5,7 @@
 const APP_CONFIG = {
     // 🖼️ GLOBAL ASSETS
     assets: {
-        cover: "images/cover.gif", // Can be .jpg, .png, .gif, or even .mp4 (logic handled in reader)
+        cover: "images/cover.gif", 
     },
 
     legal: {
@@ -20,9 +20,9 @@ const APP_CONFIG = {
         { 
             id: 1, 
             title: "The Beginning", 
-            date: "Available Now",
+            date: "is everything real..?",
             locked: false, 
-            thumb: "images/1.png", // Using first page as thumb
+            thumb: "", // Unused now, we generate stylized numbers
             pages: [
                 "images/1.png", 
                 "images/2.png",
@@ -31,8 +31,6 @@ const APP_CONFIG = {
                 "images/5.png",
                 "images/6.png",
                 "images/7.png"
-                // To add a video page, just add the link: 
-                // "images/animated-scene.mp4"
             ]
         },
         { 
@@ -40,7 +38,7 @@ const APP_CONFIG = {
             title: "Shadows", 
             date: "Coming Soon",
             locked: true, 
-            thumb: "images/cover.gif",
+            thumb: "",
             pages: [] 
         },
         { 
@@ -48,7 +46,7 @@ const APP_CONFIG = {
             title: "Echoes", 
             date: "Coming Soon",
             locked: true, 
-            thumb: "images/cover.gif",
+            thumb: "",
             pages: [] 
         },
         { 
@@ -56,7 +54,7 @@ const APP_CONFIG = {
             title: "The Freeze", 
             date: "Coming Soon",
             locked: true, 
-            thumb: "images/cover.gif",
+            thumb: "",
             pages: [] 
         }
     ]

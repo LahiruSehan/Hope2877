@@ -1,13 +1,27 @@
 
 // 🧠 8. SCRIPT BEHAVIOR - Main
 document.addEventListener('DOMContentLoaded', () => {
+    handleIntro();
     setupProtection();
     setupAnimations();
     initParticles();
-    checkHomeResume();
+    // checkHomeResume(); // Disabled as per user request to only keep Start Reading
     setupLegalModal();
     loadAppCover();
 });
+
+// 🌀 Handle Intro Animation
+function handleIntro() {
+    const intro = document.getElementById('intro-overlay');
+    if (intro) {
+        setTimeout(() => {
+            intro.style.opacity = '0';
+            setTimeout(() => {
+                intro.style.display = 'none';
+            }, 1000);
+        }, 2000); // 2 seconds intro
+    }
+}
 
 // 🖼️ Load Cover from Config
 function loadAppCover() {
@@ -128,28 +142,6 @@ window.showToast = function(message) {
         setTimeout(() => toast.remove(), 400);
     }, 2000);
 };
-
-// 🏠 Home Page Resume Logic
-function checkHomeResume() {
-    const actions = document.getElementById('home-actions');
-    if (!actions) return;
-    
-    const lastRead = localStorage.getItem('lastReadChapter');
-    if (lastRead) {
-        // Verify chapter isn't locked in new config
-        const chapter = APP_CONFIG.chapters.find(c => c.id == lastRead);
-        if (chapter && !chapter.locked) {
-            const btn = document.createElement('a');
-            btn.href = `reader.html?chapter=${lastRead}`;
-            btn.className = 'btn';
-            btn.style.fontSize = '0.8rem';
-            btn.style.marginTop = '0.5rem';
-            btn.style.borderColor = 'rgba(255,255,255,0.3)';
-            btn.innerText = `Continue Chapter ${lastRead}`;
-            actions.appendChild(btn);
-        }
-    }
-}
 
 // 🔐 5. COPYRIGHT & PROTECTION
 function setupProtection() {

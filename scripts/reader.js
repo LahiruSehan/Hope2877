@@ -219,6 +219,5 @@ function setupNavigation(currentId) {
         document.getElementById('reader-container').scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const pdfBtn = document.getElementById('btn-pdf');
-    if (pdfBtn) pdfBtn.onclick = () => window.location.href = `pdf-reader.html?chapter=${currentId}`;
+    // PDF button removed per request
 }
