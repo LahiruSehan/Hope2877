@@ -1,0 +1,63 @@
+
+// ⚙️ CENTRAL CONFIGURATION FILE
+// Add your image links here. The app handles the rest.
+
+const APP_CONFIG = {
+    // 🖼️ GLOBAL ASSETS
+    assets: {
+        cover: "images/cover.gif", // Can be .jpg, .png, .gif, or even .mp4 (logic handled in reader)
+    },
+
+    legal: {
+        license: "Officially licensed in Sri Lanka.",
+        copyright: "© 2025 Sehan Karunarathne. All Rights Reserved.",
+        warning: "Protected under international copyright law.",
+        tracking: "⚠️ SECURITY WARNING: Screenshotting or saving images will trigger an IP address log. This device's IP is being monitored. If these images are found externally, legal action will be taken based on this digital footprint.",
+        origin: "Original novel 'Beneath the Light' adapted to manga format. Artwork generated via sketches refined by AI technology."
+    },
+
+    chapters: [
+        { 
+            id: 1, 
+            title: "The Beginning", 
+            date: "Available Now",
+            locked: false, 
+            thumb: "images/1.png", // Using first page as thumb
+            pages: [
+                "images/1.png", 
+                "images/2.png",
+                "images/3.png",
+                "images/4.png",
+                "images/5.png",
+                "images/6.png",
+                "images/7.png"
+                // To add a video page, just add the link: 
+                // "images/animated-scene.mp4"
+            ]
+        },
+        { 
+            id: 2, 
+            title: "Shadows", 
+            date: "Coming Soon",
+            locked: true, 
+            thumb: "images/cover.gif",
+            pages: [] 
+        },
+        { 
+            id: 3, 
+            title: "Echoes", 
+            date: "Coming Soon",
+            locked: true, 
+            thumb: "images/cover.gif",
+            pages: [] 
+        },
+        { 
+            id: 4, 
+            title: "The Freeze", 
+            date: "Coming Soon",
+            locked: true, 
+            thumb: "images/cover.gif",
+            pages: [] 
+        }
+    ]
+};

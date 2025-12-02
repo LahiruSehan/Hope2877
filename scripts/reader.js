@@ -1,180 +1,224 @@
+
 // 📖 3. READER PAGE LOGIC
 document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('reader-container');
     const zoomWrapper = document.getElementById('zoom-wrapper');
-    const chapterId = getQueryParam('chapter') || 1;
+    const chapterId = window.getQueryParam('chapter') || 1;
     const nav = document.querySelector('.reader-nav');
     const controls = document.querySelector('.reader-controls');
     
-    // Setup UI
+    // UI Setup
     document.getElementById('current-chapter-display').innerText = `Chapter ${chapterId}`;
     setupNavigation(chapterId);
 
-    // Load Images
-    loadChapterImages(chapterId, zoomWrapper);
+    // Load & Restore
+    loadChapterImages(chapterId, zoomWrapper).then(() => {
+        restoreReadingProgress(chapterId, container);
+    });
 
-    // Restore Position
-    restoreReadingProgress(chapterId, container);
-
-    // Interaction Listeners
+    // Event Listeners
     setupInteractions(container, nav, controls);
     setupZoom(container, zoomWrapper);
+    initMovingWatermark();
 });
 
-function loadChapterImages(chapterId, wrapper) {
-    // In a real app without backend, we'd need a manifest. 
-    // Here we try to load images until one fails or max limit (safeguard).
-    // Using MANGA_CONFIG from main.js if available, else standard loop
+async function loadChapterImages(chapterId, wrapper) {
+    if (typeof APP_CONFIG === 'undefined') {
+        alert("Config not found");
+        return;
+    }
+
+    const chapterConfig = APP_CONFIG.chapters.find(c => c.id == chapterId);
     
-    const chapterConfig = MANGA_CONFIG.chapters.find(c => c.id == chapterId);
-    const maxPages = chapterConfig ? chapterConfig.pages : 10; // Fallback
+    // Safety check
+    if (!chapterConfig || chapterConfig.locked || !chapterConfig.pages) {
+        window.showToast("This chapter is locked or empty.");
+        setTimeout(() => window.location.href = 'manga.html', 2000);
+        return;
+    }
 
-    for (let i = 1; i <= maxPages; i++) {
-        const img = document.createElement('img');
-        img.dataset.src = `chapters/${chapterId}/artwork/${i}.png`;
-        img.src = `chapters/${chapterId}/artwork/${i}.png`; // Trigger load
-        img.className = 'manga-page';
-        img.alt = `Page ${i}`;
+    const pages = chapterConfig.pages;
+
+    pages.forEach((url, index) => {
+        let el;
+        const isVideo = url.toLowerCase().endsWith('.mp4');
+
+        if (isVideo) {
+            // 🎬 Video Support
+            el = document.createElement('video');
+            el.src = url;
+            el.muted = true;    // Required for autoplay
+            el.autoplay = true;
+            el.loop = true;
+            el.playsInline = true; // iOS support
+            el.setAttribute('webkit-playsinline', 'true');
+            el.className = 'manga-page'; // Re-use page class for styling
+        } else {
+            // 🖼️ Image/GIF Support
+            el = document.createElement('img');
+            el.src = url; 
+            el.className = 'manga-page';
+        }
+
+        el.alt = `Page ${index + 1}`;
         
-        // Error handling: remove if not found (end of chapter detection fallback)
-        img.onerror = function() {
-            this.style.display = 'none';
-        };
+        // Add Intersection Observer for "Magical Reveal"
+        observer.observe(el);
 
-        img.onload = function() {
-            this.classList.add('loaded');
-        };
+        wrapper.appendChild(el);
+    });
+}
 
-        wrapper.appendChild(img);
+// ✨ Magical Reveal Observer
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('loaded');
+            // If it's a video, ensure it plays when visible
+            if (entry.target.tagName === 'VIDEO') {
+                entry.target.play().catch(e => console.log("Autoplay blocked", e));
+            }
+        } else {
+            // Optimization: Pause video when off screen
+            if (entry.target.tagName === 'VIDEO') {
+                entry.target.pause();
+            }
+        }
+    });
+}, { threshold: 0.1 });
+
+function setupInteractions(container, nav, controls) {
+    let isNavVisible = true;
+    let scrollTimeout;
+
+    // Toggle Nav
+    container.addEventListener('click', (e) => {
+        if(e.target.closest('button') || e.target.closest('a')) return;
+        isNavVisible = !isNavVisible;
+        const action = isNavVisible ? 'remove' : 'add';
+        nav.classList[action]('nav-hidden');
+        controls.classList[action]('nav-hidden');
+    });
+
+    // Scroll Handler (Progress + Save)
+    container.addEventListener('scroll', () => {
+        // Update Progress Bar
+        const totalHeight = container.scrollHeight - container.clientHeight;
+        const progress = (container.scrollTop / totalHeight) * 100;
+        document.getElementById('reading-progress').style.width = `${progress}%`;
+
+        // Debounced Save
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+            saveReadingProgress(window.getQueryParam('chapter'), container.scrollTop);
+        }, 1000);
+    });
+}
+
+function saveReadingProgress(chapterId, scrollPos) {
+    if(!chapterId) return;
+    const key = `scrollPos-${chapterId}`;
+    const prev = localStorage.getItem(key);
+    
+    if (!prev || Math.abs(prev - scrollPos) > 50) {
+        localStorage.setItem('lastReadChapter', chapterId);
+        localStorage.setItem(key, scrollPos);
+        if (window.showToast) window.showToast("Progress Saved");
     }
 }
 
-function setupInteractions(container, nav, controls) {
-    let lastScrollY = 0;
-    let isNavVisible = true;
-
-    // Toggle Nav on Tap
-    container.addEventListener('click', (e) => {
-        // Don't toggle if clicking a button
-        if(e.target.closest('button') || e.target.closest('a')) return;
-        
-        isNavVisible = !isNavVisible;
-        if (isNavVisible) {
-            nav.classList.remove('nav-hidden');
-            controls.classList.remove('nav-hidden');
-        } else {
-            nav.classList.add('nav-hidden');
-            controls.classList.add('nav-hidden');
-        }
-    });
-
-    // Save progress on scroll
-    container.addEventListener('scroll', () => {
-        saveReadingProgress(getQueryParam('chapter'), container.scrollTop);
-    });
+function restoreReadingProgress(chapterId, container) {
+    const savedPos = localStorage.getItem(`scrollPos-${chapterId}`);
+    if (savedPos) {
+        setTimeout(() => {
+            container.scrollTo({ top: parseInt(savedPos, 10), behavior: 'smooth' });
+        }, 200);
+    }
 }
 
-// ✔️ Limited Zoom Logic (Pinch to Zoom)
+function initMovingWatermark() {
+    const el = document.getElementById('watermark');
+    if(!el) return;
+    
+    // Faster, more frequent movement as requested
+    setInterval(() => {
+        const top = Math.random() * 90 + 5; 
+        const left = Math.random() * 80 + 10; 
+        el.style.top = `${top}%`;
+        el.style.left = `${left}%`;
+    }, 3000); 
+}
+
 function setupZoom(container, element) {
     let scale = 1;
-    let pointX = 0;
-    let pointY = 0;
-    let startX = 0;
-    let startY = 0;
-    let initialScale = 1;
+    let startDist = 0;
 
     container.addEventListener('touchstart', (e) => {
         if (e.touches.length === 2) {
-            e.preventDefault(); // Prevent native browser zoom
-            startX = Math.abs(e.touches[0].pageX - e.touches[1].pageX);
-            startY = Math.abs(e.touches[0].pageY - e.touches[1].pageY);
-            initialScale = scale;
+            e.preventDefault();
+            startDist = Math.hypot(
+                e.touches[0].pageX - e.touches[1].pageX,
+                e.touches[0].pageY - e.touches[1].pageY
+            );
         }
     }, { passive: false });
 
     container.addEventListener('touchmove', (e) => {
         if (e.touches.length === 2) {
             e.preventDefault();
-            const currentX = Math.abs(e.touches[0].pageX - e.touches[1].pageX);
-            const currentY = Math.abs(e.touches[0].pageY - e.touches[1].pageY);
-            
-            // Calculate distance change
-            const startDist = Math.sqrt(startX * startX + startY * startY);
-            const currentDist = Math.sqrt(currentX * currentX + currentY * currentY);
-
+            const currDist = Math.hypot(
+                e.touches[0].pageX - e.touches[1].pageX,
+                e.touches[0].pageY - e.touches[1].pageY
+            );
             if (startDist > 0) {
-                const newScale = initialScale * (currentDist / startDist);
-                // Limit Zoom: Min 1x, Max 1.5x
-                scale = Math.min(Math.max(1, newScale), 1.5);
-                
+                const diff = currDist / startDist;
+                scale = Math.min(Math.max(1, scale * diff), 2.0); 
                 element.style.transform = `scale(${scale})`;
-                
-                // If zooming in, we might need to adjust scroll overflow handling
-                // CSS 'transform-origin: top center' keeps it centered horizontally
+                startDist = currDist;
             }
         }
     }, { passive: false });
 
-    container.addEventListener('touchend', (e) => {
-        // Optional: Snap back to 1x if scale is close to 1
+    container.addEventListener('touchend', () => {
         if (scale < 1.1) {
             scale = 1;
-            element.style.transition = 'transform 0.3s ease';
             element.style.transform = `scale(1)`;
-            setTimeout(() => {
-                element.style.transition = 'transform 0.1s linear';
-            }, 300);
         }
     });
 }
 
-function saveReadingProgress(chapterId, scrollPos) {
-    if(!chapterId) return;
-    localStorage.setItem('lastReadChapter', chapterId);
-    localStorage.setItem(`scrollPos-${chapterId}`, scrollPos);
-}
-
-function restoreReadingProgress(chapterId, container) {
-    const savedPos = localStorage.getItem(`scrollPos-${chapterId}`);
-    if (savedPos) {
-        // Small delay to ensure images occupy layout
-        setTimeout(() => {
-            container.scrollTop = parseInt(savedPos, 10);
-        }, 100);
-    }
-}
-
 function setupNavigation(currentId) {
     currentId = parseInt(currentId);
-    const prevBtn = document.getElementById('btn-prev');
-    const nextBtn = document.getElementById('btn-next');
-    const topBtn = document.getElementById('btn-top');
+    
+    // Use Config to check bounds
+    if (typeof APP_CONFIG === 'undefined') return;
+    const maxChapters = APP_CONFIG.chapters.length;
 
-    // Prev
-    if (currentId > 1) {
-        prevBtn.onclick = () => window.location.href = `reader.html?chapter=${currentId - 1}`;
+    const prev = document.getElementById('btn-prev');
+    const next = document.getElementById('btn-next');
+
+    // Prev Button
+    if (currentId <= 1) {
+        prev.style.opacity = '0.3';
+        prev.onclick = null;
     } else {
-        prevBtn.disabled = true;
+        prev.onclick = () => window.location.href = `reader.html?chapter=${currentId - 1}`;
     }
 
-    // Next
-    // Assuming 3 chapters for now based on Mock config
-    const maxChapters = MANGA_CONFIG.chapters.length;
-    if (currentId < maxChapters) {
-        nextBtn.onclick = () => window.location.href = `reader.html?chapter=${currentId + 1}`;
+    // Next Button (Check if next chapter is locked)
+    const nextChapter = APP_CONFIG.chapters.find(c => c.id === currentId + 1);
+
+    if (!nextChapter || nextChapter.locked) {
+        next.innerHTML = '✔'; 
+        next.onclick = () => window.location.href = `manga.html`;
     } else {
-        nextBtn.innerText = "Finish";
-        nextBtn.onclick = () => window.location.href = `manga.html`;
+        next.onclick = () => window.location.href = `reader.html?chapter=${currentId + 1}`;
     }
 
-    // PDF Switch
-    const pdfBtn = document.getElementById('btn-pdf');
-    if (pdfBtn) {
-        pdfBtn.onclick = () => window.location.href = `pdf-reader.html?chapter=${currentId}`;
-    }
-
-    // Scroll Top
-    topBtn.onclick = () => {
+    document.getElementById('btn-top').onclick = () => {
         document.getElementById('reader-container').scrollTo({ top: 0, behavior: 'smooth' });
     };
+
+    const pdfBtn = document.getElementById('btn-pdf');
+    if (pdfBtn) pdfBtn.onclick = () => window.location.href = `pdf-reader.html?chapter=${currentId}`;
 }

@@ -1,9 +1,13 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Reader - Beneath the Light</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/reader.css">
 </head>
@@ -11,9 +15,18 @@
 
     <!-- Top Nav -->
     <nav class="reader-nav">
-        <a href="manga.html" class="nav-back">← Back</a>
-        <span class="nav-title" id="current-chapter-display">Chapter Loading...</span>
-        <button id="btn-pdf" class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.7rem;">PDF</button>
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-bar" id="reading-progress"></div>
+        </div>
+
+        <a href="manga.html" class="nav-back">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+        </a>
+        <span class="nav-title" id="current-chapter-display">Loading...</span>
+        <button id="btn-pdf" class="btn btn-sm">PDF</button>
     </nav>
 
     <!-- Reading Area -->
@@ -22,17 +35,19 @@
             <!-- Images injected by JS -->
         </div>
         
-        <!-- Watermark Overlay (Global across pages in reader) -->
-        <div class="watermark-layer"></div>
+        <!-- Moving Watermark (Aggressive) -->
+        <div class="watermark-layer" id="watermark"></div>
     </div>
 
     <!-- Bottom Controls -->
-    <div class="reader-controls">
+    <div class="reader-controls glass-panel">
         <button class="control-btn" id="btn-prev">◀</button>
-        <button class="control-btn" id="btn-top" style="font-size: 1rem; border: 1px solid #444; border-radius: 50%;">▲</button>
+        <button class="control-btn" id="btn-top">▲</button>
         <button class="control-btn" id="btn-next">▶</button>
     </div>
 
+    <!-- Scripts -->
+    <script src="scripts/config.js"></script> <!-- Loaded First -->
     <script src="scripts/main.js"></script>
     <script src="scripts/reader.js"></script>
 </body>

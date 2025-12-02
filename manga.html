@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +12,8 @@
 
     <div class="container">
         <header class="manga-header fade-in">
-            <img src="https://picsum.photos/300/450" alt="Cover" class="cover-image" style="width: 150px; margin-top: 1rem;">
+            <!-- Cover injected via scripts/manga.js logic -->
+            <img id="manga-cover" src="" alt="Cover" class="cover-image" style="width: 150px; margin-top: 1rem;">
             <h1 class="manga-title">Beneath the Light<br>of a Dying Sky</h1>
             <p class="manga-author">By Sehan Karunarathne</p>
             
@@ -41,6 +43,8 @@
         </footer>
     </div>
 
+    <!-- Scripts -->
+    <script src="scripts/config.js"></script> <!-- Loaded First -->
     <script src="scripts/main.js"></script>
     <script src="scripts/manga.js"></script>
 </body>

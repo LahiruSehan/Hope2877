@@ -1,36 +1,65 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Beneath the Light - Read Manga</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/manga.css">
 </head>
 <body>
+    
+    <!-- Background Particles -->
+    <canvas id="particle-canvas"></canvas>
 
-    <div class="container" style="justify-content: center; align-items: center; text-align: center;">
+    <!-- 🚨 Blinking Info Badge -->
+    <div class="info-badge" id="legal-trigger">i</div>
+
+    <!-- 🛑 Legal Modal -->
+    <div class="legal-modal" id="legal-modal">
+        <div class="legal-content">
+            <h2 class="legal-title">Official License & Warning</h2>
+            <div id="legal-body-text"></div> <!-- Injected via JS -->
+            <button class="close-legal" id="close-legal">I Acknowledge</button>
+        </div>
+    </div>
+
+    <div class="container home-container">
         
-        <img src="https://picsum.photos/300/450" alt="Beneath the Light Cover" class="cover-image fade-in">
-        
-        <h1 class="manga-title fade-in">Beneath the Light<br>of a Dying Sky</h1>
-        <p class="manga-author fade-in">Sehan Karunarathne</p>
-        
-        <div style="margin: 2rem 0;" class="fade-in">
-            <a href="manga.html" class="btn">Start Reading</a>
+        <div class="hero-section fade-in">
+            <!-- Cover injected via scripts/config.js logic -->
+            <img id="app-cover" src="" alt="Beneath the Light Cover" class="cover-image glow-effect">
+            
+            <h1 class="manga-title">Beneath the Light<br><span class="subtitle">of a Dying Sky</span></h1>
+            <p class="manga-author">Sehan Karunarathne</p>
+            
+            <div id="home-actions" style="margin: 2rem 0; display: flex; flex-direction: column; gap: 1rem; align-items: center;">
+                <a href="manga.html" class="btn btn-primary pulse-anim">Start Reading</a>
+                <!-- Resume button injected here by JS if history exists -->
+            </div>
+
+            <div class="glass-panel summary-panel">
+                <p>
+                    In a world where the sun has stopped setting, humanity survives in the eternal twilight. 
+                    One boy discovers the truth behind the dying sky.
+                </p>
+            </div>
         </div>
 
-        <p class="summary fade-in" style="max-width: 500px; text-align: center; background: none; border: none;">
-            In a world where the sun has stopped setting, humanity survives in the eternal twilight. 
-            One boy discovers the truth behind the dying sky.
-        </p>
-
         <footer>
-            © 2025 Sehan Karunarathne — All Rights Reserved.<br>
-            Protected under international copyright law.
+            <p>© 2025 Sehan Karunarathne</p>
+            <p class="tiny-text">Protected under international copyright law.</p>
         </footer>
     </div>
 
+    <!-- Scripts -->
+    <script src="scripts/config.js"></script> <!-- Loaded first -->
     <script src="scripts/main.js"></script>
 </body>
 </html>
