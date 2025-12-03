@@ -145,10 +145,15 @@ window.showToast = function(message) {
 
 // 🔐 5. COPYRIGHT & PROTECTION
 function setupProtection() {
+    // Block Right Click
     document.addEventListener('contextmenu', e => e.preventDefault());
+    
+    // Block Dragging
     document.addEventListener('dragstart', e => e.preventDefault());
+    
+    // Block Key Combos (Save, Print, View Source)
     document.addEventListener('keydown', (e) => {
-        if ((e.ctrlKey || e.metaKey) && ['s','p','u'].includes(e.key.toLowerCase())) {
+        if ((e.ctrlKey || e.metaKey) && ['s','p','u','shift'].includes(e.key.toLowerCase())) {
             e.preventDefault();
             window.showToast("⚠️ Security Violation Logged");
         }
