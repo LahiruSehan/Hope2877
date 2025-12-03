@@ -141,7 +141,7 @@ window.showToast = function(message) {
         toast.classList.remove('show');
         setTimeout(() => toast.remove(), 400);
     }, 2000);
-};
+}; 
 
 // 🔐 5. COPYRIGHT & PROTECTION
 function setupProtection() {
