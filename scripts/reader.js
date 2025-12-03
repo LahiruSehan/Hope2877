@@ -18,8 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Event Listeners
     setupInteractions(container, nav, controls);
-    setupZoom(container, zoomWrapper);
+    setupZoomBlock(container);
     initMovingWatermark();
+    initSecurityMonitors();
 });
 
 async function loadChapterImages(chapterId, wrapper) {
@@ -140,51 +141,64 @@ function initMovingWatermark() {
     const el = document.getElementById('watermark');
     if(!el) return;
     
-    // Faster, more frequent movement as requested
+    // ⚠️ MORE FREQUENT MOVEMENT (0.8s) & AGGRESSIVE
     setInterval(() => {
-        const top = Math.random() * 90 + 5; 
+        const top = Math.random() * 80 + 10; 
         const left = Math.random() * 80 + 10; 
         el.style.top = `${top}%`;
         el.style.left = `${left}%`;
-    }, 3000); 
+        // Random slight rotation
+        el.style.transform = `rotate(${Math.random() * 20 - 10}deg)`;
+    }, 800); 
 }
 
-function setupZoom(container, element) {
-    let scale = 1;
-    let startDist = 0;
-
-    container.addEventListener('touchstart', (e) => {
-        if (e.touches.length === 2) {
-            e.preventDefault();
-            startDist = Math.hypot(
-                e.touches[0].pageX - e.touches[1].pageX,
-                e.touches[0].pageY - e.touches[1].pageY
-            );
-        }
-    }, { passive: false });
-
+// 🚫 ZOOM BLOCK (Requested)
+function setupZoomBlock(container) {
+    // Disable Pinch
     container.addEventListener('touchmove', (e) => {
-        if (e.touches.length === 2) {
+        if (e.touches.length > 1) {
             e.preventDefault();
-            const currDist = Math.hypot(
-                e.touches[0].pageX - e.touches[1].pageX,
-                e.touches[0].pageY - e.touches[1].pageY
-            );
-            if (startDist > 0) {
-                const diff = currDist / startDist;
-                scale = Math.min(Math.max(1, scale * diff), 2.0); 
-                element.style.transform = `scale(${scale})`;
-                startDist = currDist;
-            }
         }
     }, { passive: false });
 
-    container.addEventListener('touchend', () => {
-        if (scale < 1.1) {
-            scale = 1;
-            element.style.transform = `scale(1)`;
+    // Disable Gesture Start
+    document.addEventListener('gesturestart', (e) => e.preventDefault());
+}
+
+// 🚔 SECURITY MONITORS (Screenshot Simulation)
+function initSecurityMonitors() {
+    // Generate Fake IP or retrieve session IP
+    let userIP = sessionStorage.getItem('userIP');
+    if (!userIP) {
+        userIP = `192.168.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;
+        sessionStorage.setItem('userIP', userIP);
+    }
+
+    // Listen for Screenshot keys
+    document.addEventListener('keyup', (e) => {
+        if (e.key === 'PrintScreen' || (e.metaKey && e.shiftKey && (e.key === '3' || e.key === '4' || e.key === 'S'))) {
+            triggerSecurityAlert(userIP);
         }
     });
+}
+
+function triggerSecurityAlert(ip) {
+    // Create Alert Overlay
+    const alertOverlay = document.createElement('div');
+    alertOverlay.className = 'screenshot-alert';
+    alertOverlay.innerHTML = `
+        <div class="alert-box">
+            <h1>🚫 SCREENSHOT DETECTED</h1>
+            <p>IP ADDRESS LOGGED: <span style="color:#fff; background:red; padding:2px 5px;">${ip}</span></p>
+            <p>This incident has been reported.</p>
+        </div>
+    `;
+    document.body.appendChild(alertOverlay);
+
+    // Remove after 3 seconds
+    setTimeout(() => {
+        alertOverlay.remove();
+    }, 3000);
 }
 
 function setupNavigation(currentId) {
@@ -218,6 +232,4 @@ function setupNavigation(currentId) {
     document.getElementById('btn-top').onclick = () => {
         document.getElementById('reader-container').scrollTo({ top: 0, behavior: 'smooth' });
     };
-
-    // PDF button removed per request
 }
