@@ -9,11 +9,11 @@ const APP_CONFIG = {
     },
 
     legal: {
-        license: "Officially licensed in Sri Lanka. LICENSE: 978-624-94 186-0-2",
+        license: "Officially licensed in USD : LICENSE: 978-624-94 186-0-2",
         copyright: "© 2025 Sehan Karunarathne. All Rights Reserved.",
         warning: "Protected under international copyright law.",
         tracking: "⚠️ SECURITY WARNING: Screenshotting or saving images will trigger an IP address log. This device's IP is being monitored. If these images are found externally, legal action will be taken based on this digital footprint.",
-        origin: "Original novel 'Beneath the Light' adapted to manga format. Artwork generated via sketches refined by AI technology."
+        origin: "Original novel 'Hope 2877 - Human Extinction' adapted to manga format. Artwork generated via sketches refined by AI technology."
     },
 
     chapters: [
