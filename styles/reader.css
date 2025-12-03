@@ -4,6 +4,7 @@
 body.reader-mode {
     overflow: hidden;
     /* Maintain magical background logic from main.css */
+    touch-action: none; /* Helps block zoom */
 }
 
 /* Top Nav */
@@ -109,16 +110,16 @@ video.manga-page {
     position: fixed;
     top: 50%;
     left: 50%;
-    width: 300px;
-    height: 100px;
+    width: 320px;
+    height: 120px;
     pointer-events: none;
     z-index: 900;
     /* More visible opacity as requested */
-    opacity: 0.4; 
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='100px' width='300px'><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='rgba(255,255,255,0.3)' font-size='18' font-weight='bold' font-family='Arial'>© Sehan Karunarathne</text><text x='50%' y='70%' dominant-baseline='middle' text-anchor='middle' fill='rgba(255,0,0,0.2)' font-size='12' font-family='Arial'>IP LOGGED</text></svg>");
+    opacity: 0.8; 
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='120px' width='320px'><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='rgba(255,255,255,0.5)' font-size='22' font-weight='bold' font-family='Arial'>© LICENSE 978-624-94</text><text x='50%' y='75%' dominant-baseline='middle' text-anchor='middle' fill='rgba(255,0,0,0.4)' font-size='14' font-family='Arial'>IP DETECTED & LOGGED</text></svg>");
     background-repeat: no-repeat;
-    transition: top 3s, left 3s;
-    mix-blend-mode: overlay;
+    transition: top 0.8s, left 0.8s, transform 0.8s;
+    mix-blend-mode: hard-light; /* Makes it pop more */
 }
 
 /* Controls */
@@ -161,6 +162,32 @@ video.manga-page {
 .zoom-wrapper {
     transition: transform 0.1s linear;
     transform-origin: top center;
-    /* Ensure zoom doesn't hide magical background */
     min-height: 100%;
+}
+
+/* 🚨 SCREENSHOT ALERT OVERLAY */
+.screenshot-alert {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(255, 0, 0, 0.8);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: flashAlert 0.2s infinite alternate;
+}
+
+.alert-box {
+    background: #000;
+    border: 4px solid yellow;
+    padding: 2rem;
+    text-align: center;
+    color: yellow;
+    font-family: 'Orbitron', sans-serif;
+    box-shadow: 0 0 50px red;
+}
+
+@keyframes flashAlert {
+    from { opacity: 0.8; }
+    to { opacity: 1; background: rgba(255,0,0,0.95); }
 }
