@@ -20,7 +20,7 @@ const APP_CONFIG = {
         { 
             id: 1, 
             title: "The Beginning", 
-            date: "is everything real..?",
+            date: "Everything Falls Apart",
             locked: false, 
             thumb: "", // Unused now, we generate stylized numbers
             pages: [
