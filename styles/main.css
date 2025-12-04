@@ -1,4 +1,5 @@
 
+
 /* 🎨 7. STYLE GUIDE - Global Refined */
 :root {
     --bg-color: #050505;
@@ -57,7 +58,7 @@ body {
     align-items: center;
     flex-direction: column;
     transition: opacity 1s ease-out;
-    text-align: center; /* Ensures content is centered */
+    text-align: center;
 }
 
 .intro-logo {
@@ -69,7 +70,7 @@ body {
     background-clip: text;
     opacity: 0;
     animation: revealLogo 2.5s ease-in-out forwards;
-    text-align: center; /* Centers multi-line text */
+    text-align: center;
     line-height: 1.2;
     padding: 0 1rem;
 }
@@ -119,7 +120,7 @@ img {
 
 /* Typography & UI */
 h1, h2, h3, .manga-title {
-    font-family: var(--font-title); /* Applied new font */
+    font-family: var(--font-title);
 }
 
 /* 🔝 TOP BAR (SPACER + LEGAL) */
@@ -172,7 +173,7 @@ h1, h2, h3, .manga-title {
     -webkit-text-fill-color: var(--accent-color);
     display: block;
     margin-top: 5px;
-    font-family: var(--font-heading); /* Keep subtitle futuristic */
+    font-family: var(--font-heading);
     text-transform: uppercase;
     letter-spacing: 3px;
 }
@@ -189,7 +190,7 @@ h1, h2, h3, .manga-title {
     transition: all 0.3s ease;
     text-decoration: none;
     display: inline-block;
-    border-radius: 50px; /* ROUND BUTTONS */
+    border-radius: 50px;
     backdrop-filter: blur(4px);
     font-family: var(--font-heading);
     position: relative;
@@ -219,7 +220,7 @@ h1, h2, h3, .manga-title {
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid var(--glass-border);
-    border-radius: 20px; /* Rounder panels */
+    border-radius: 20px;
     padding: 1.5rem;
 }
 
@@ -267,7 +268,7 @@ footer {
 /* 🚨 BLINKING INFO MARK */
 .info-badge {
     position: fixed;
-    top: 50px; /* Moved down below Top Bar */
+    top: 50px;
     right: 20px;
     width: 30px;
     height: 30px;
@@ -292,8 +293,8 @@ footer {
     100% { box-shadow: 0 0 0 0 rgba(255, 0, 60, 0); transform: scale(1); }
 }
 
-/* 🛑 LEGAL MODAL */
-.legal-modal {
+/* 🛑 LEGAL & PAYWALL MODALS */
+.legal-modal, .paywall-modal, .theme-modal, .notification-modal {
     position: fixed;
     top: 0;
     left: 0;
@@ -308,11 +309,12 @@ footer {
     backdrop-filter: blur(10px);
 }
 
-.legal-content {
+.legal-content, .paywall-content, .theme-content, .notif-content {
     background: #111;
     border: 1px solid var(--accent-secondary);
     padding: 2rem;
     max-width: 500px;
+    width: 100%;
     text-align: center;
     border-radius: 20px;
     box-shadow: 0 0 50px rgba(255, 0, 60, 0.2);
@@ -320,7 +322,7 @@ footer {
     overflow: hidden;
 }
 
-.legal-content::before {
+.legal-content::before, .paywall-content::before {
     content: '';
     position: absolute;
     top: 0; left: 0; width: 100%; height: 5px;
@@ -358,6 +360,251 @@ footer {
     padding: 0.5rem 2rem;
     cursor: pointer;
     border-radius: 20px;
+}
+
+/* 💰 PAYWALL STYLES */
+.paywall-content {
+    border-color: var(--fantasy-gold);
+    box-shadow: 0 0 50px rgba(255, 215, 0, 0.2);
+}
+.paywall-content::before {
+    background: repeating-linear-gradient(45deg, var(--fantasy-gold), var(--fantasy-gold) 10px, black 10px, black 20px);
+}
+.paywall-header {
+    color: var(--fantasy-gold);
+    font-family: var(--font-heading);
+    margin-bottom: 1rem;
+}
+
+/* New Price Tag Styles */
+.price-tag {
+    font-family: var(--font-heading);
+    margin-bottom: 1.5rem;
+    font-size: 3rem;
+    color: #fff;
+    font-weight: bold;
+    line-height: 1;
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+}
+.price-tag .currency {
+    color: var(--fantasy-gold);
+    font-size: 1.5rem;
+    vertical-align: top;
+    margin-right: 2px;
+}
+.price-tag .unit {
+    font-size: 1rem;
+    color: #888;
+}
+.access-type {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--accent-color);
+    letter-spacing: 3px;
+    margin-top: 5px;
+    text-transform: uppercase;
+    text-shadow: 0 0 10px var(--accent-color);
+}
+
+.credit-card-mock {
+    background: #222;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    opacity: 0.5;
+    pointer-events: none; /* Fake */
+}
+.fake-input {
+    width: 100%;
+    background: #333;
+    border: 1px solid #444;
+    height: 30px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+.vip-section {
+    margin-top: 1rem;
+    border-top: 1px solid #333;
+    padding-top: 1rem;
+}
+.vip-input {
+    width: 80%;
+    padding: 10px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid var(--fantasy-gold);
+    color: #fff;
+    text-align: center;
+    font-family: var(--font-heading);
+    letter-spacing: 2px;
+    margin-bottom: 1rem;
+    border-radius: 5px;
+}
+.vip-btn {
+    background: var(--fantasy-gold);
+    color: #000;
+    border: none;
+    padding: 10px 20px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 0 20px var(--fantasy-gold);
+}
+.remember-me {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+    font-size: 0.8rem;
+    color: #888;
+}
+
+/* 🏆 SPECIAL THANKS SECTION */
+.special-thanks {
+    margin-top: 2rem;
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+}
+.thanks-title {
+    font-family: var(--font-heading);
+    font-size: 0.9rem;
+    color: #555;
+    letter-spacing: 2px;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+}
+.thanks-list {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+.thanks-item {
+    padding: 0.5rem 1rem;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+}
+.thanks-item:hover {
+    background: rgba(255,255,255,0.1);
+    transform: translateY(-2px);
+    border-color: var(--accent-color);
+}
+
+/* 🎭 THEMED MODALS */
+.theme-modal {
+    z-index: 2100;
+}
+.theme-content {
+    border: none;
+    background: rgba(0,0,0,0.8);
+}
+
+/* SAKURA (Minasha) */
+.theme-sakura .theme-content {
+    box-shadow: 0 0 50px rgba(255, 192, 203, 0.4);
+    background: linear-gradient(135deg, rgba(50,0,20,0.9), rgba(0,0,0,0.9));
+}
+.theme-sakura h2 {
+    background: linear-gradient(to right, #ff9a9e, #fecfef);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.emoji-particle {
+    position: absolute;
+    font-size: 1.5rem;
+    pointer-events: none;
+}
+@keyframes fallDown {
+    to { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+}
+
+/* FIRE (Chaveen) */
+.theme-fire .theme-content {
+    box-shadow: 0 0 50px rgba(255, 69, 0, 0.4);
+    background: linear-gradient(135deg, rgba(50,10,0,0.9), rgba(0,0,0,0.9));
+}
+.theme-fire h2 {
+    background: linear-gradient(to right, #ff4500, #ffae00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+@keyframes riseUp {
+    to { transform: translateY(-100vh) scale(0); opacity: 0; }
+}
+
+/* BLOOD (Saida) */
+.theme-blood .theme-content {
+    box-shadow: 0 0 50px rgba(139, 0, 0, 0.6);
+    background: linear-gradient(135deg, #200000, #000);
+}
+.theme-blood h2 {
+    background: linear-gradient(to bottom, #ff0000, #500000);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.theme-role { font-size: 0.8rem; margin-bottom: 1rem; opacity: 0.8; letter-spacing: 2px; }
+.theme-desc { font-size: 0.9rem; line-height: 1.6; }
+
+/* 🔔 NOTIFICATION TRAP */
+.notification-modal {
+    z-index: 2200;
+}
+.notif-content {
+    border: 1px solid #444;
+    transition: all 0.2s;
+}
+.notif-btns {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+.btn-yes { background: var(--accent-color); color: #000; border: none; padding: 0.5rem 2rem; border-radius: 5px; cursor: pointer; }
+.btn-no { background: transparent; border: 1px solid #555; color: #fff; padding: 0.5rem 2rem; border-radius: 5px; cursor: pointer; transition: 0.1s; }
+
+/* DEMON MODE */
+.notification-modal.demon-mode .notif-content {
+    background: #300;
+    border: 2px solid red;
+    animation: violentShake 0.1s infinite;
+    box-shadow: 0 0 100px red;
+}
+.notification-modal.demon-mode h2 {
+    color: red;
+    font-family: 'Chiller', 'Orbitron', serif; 
+    font-size: 2rem;
+}
+.notification-modal.demon-mode .btn-no {
+    display: none;
+}
+.demon-skull {
+    font-size: 5rem;
+    display: none;
+    animation: pulse 0.2s infinite;
+}
+.notification-modal.demon-mode .demon-skull { display: block; margin: 10px auto; }
+
+@keyframes violentShake {
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    10% { transform: translate(-1px, -2px) rotate(-1deg); }
+    20% { transform: translate(-3px, 0px) rotate(1deg); }
+    30% { transform: translate(3px, 2px) rotate(0deg); }
+    40% { transform: translate(1px, -1px) rotate(1deg); }
+    50% { transform: translate(-1px, 2px) rotate(-1deg); }
+    60% { transform: translate(-3px, 1px) rotate(0deg); }
+    70% { transform: translate(3px, 1px) rotate(-1deg); }
+    80% { transform: translate(-1px, -1px) rotate(1deg); }
+    90% { transform: translate(1px, 2px) rotate(0deg); }
+    100% { transform: translate(1px, -2px) rotate(-1deg); }
 }
 
 /* Toast Notifications */
