@@ -92,11 +92,16 @@ body {
 
 /* 🏠 HOME LAYOUT FIXES */
 .home-layout {
-    display: flex; flex-direction: column; align-items: center; 
-    padding: 0 2rem; text-align: center;
-    min-height: calc(100vh - 30px); /* Height minus license bar */
-    justify-content: space-between; /* Push credits to bottom */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 2rem;
+    text-align: center;
+    justify-content: flex-start;  /* 🟢 No stretching */
+    min-height: auto;             /* 🟢 Let content control height */
+    gap: 25px;                    /* 🟢 Nice spacing */
 }
+
 
 /* Grouping top elements closer */
 .home-top-section {
