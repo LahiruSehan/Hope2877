@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Beneath the Light - Read Manga</title>
+    <title>Beneath the Light - immersive Experience</title>
+    
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Inter:wght@300;400;600&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     
+    <!-- Styles -->
     <link rel="stylesheet" href="styles/main.css">
-    <link rel="stylesheet" href="styles/manga.css">
 
-    <!-- ⚛️ REACT GLOBAL SCRIPTS (UMD) - Stable for static hosting -->
+    <!-- ⚛️ REACT CORE (UMD) -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-
-    <!-- ⚛️ BABEL (Translates JSX to JS in the browser) -->
+    
+    <!-- ⚛️ BABEL (JSX Compiler) -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
 <script type="importmap">
 {
   "imports": {
@@ -31,136 +31,13 @@
 </head>
 <body>
     
-    <!-- ⚛️ REACT ROOT FOR SUPER CHARGED INTRO -->
-    <div id="react-intro-root"></div>
+    <!-- The Root of the React Application -->
+    <div id="root"></div>
 
-    <!-- Background Particles (Main App) -->
-    <canvas id="particle-canvas"></canvas>
+    <!-- Configuration -->
+    <script src="scripts/config.js"></script>
 
-    <!-- 🔝 Top Bar with Legal Info -->
-    <div class="top-bar">
-        <div class="legal-notice-ticker">
-            ⚠ PROTECTED UNDER INTERNATIONAL LAW
-        </div>
-    </div>
-
-    <!-- 🚨 Blinking Info Badge -->
-    <div class="info-badge" id="legal-trigger">i</div>
-
-    <!-- 🛑 Legal Modal -->
-    <div class="legal-modal" id="legal-modal">
-        <div class="legal-content">
-            <h2 class="legal-title">Official License & Warning</h2>
-            <div id="legal-body-text"></div> <!-- Injected via JS -->
-            <button class="close-legal" id="close-legal">I Acknowledge</button>
-        </div>
-    </div>
-
-    <!-- 💰 PAYWALL MODAL -->
-    <div class="paywall-modal" id="paywall-modal">
-        <div class="paywall-content">
-            <h2 class="paywall-header">PREMIUM ACCESS REQUIRED</h2>
-            
-            <!-- PRICE DISPLAY -->
-            <div class="price-tag">
-                <span class="currency">$</span>4.99 <span class="unit">USD</span>
-                <div class="access-type">UNLIMITED ACCESS</div>
-            </div>
-
-            <p style="color: #888; margin-bottom: 1rem; font-size: 0.9rem;">To support the creators and server costs, a small fee is required to access the Archive.</p>
-            
-            <div class="credit-card-mock">
-                <p style="color:#555; font-size:0.8rem; margin-bottom:5px;">CREDIT CARD</p>
-                <div style="background:#000; height:30px; margin-bottom:10px;"></div>
-                <div style="background:#444; height:10px; width:60%;"></div>
-            </div>
-
-            <input type="text" class="fake-input" placeholder="Card Number" disabled>
-            <div style="display:flex; gap:10px;">
-                <input type="text" class="fake-input" placeholder="MM/YY" disabled>
-                <input type="text" class="fake-input" placeholder="CVC" disabled>
-            </div>
-            
-            <div class="vip-section">
-                <p style="color:var(--fantasy-gold); font-size:0.8rem; margin-bottom:0.5rem;">HAVE A VIP CODE?</p>
-                <input type="text" id="vip-code-input" class="vip-input" placeholder="ENTER CODE">
-                <br>
-                <label class="remember-me">
-                    <input type="checkbox" id="remember-vip"> Remember my access
-                </label>
-                <br>
-                <button id="vip-submit-btn" class="vip-btn">
-                    <span>👑</span> UNLOCK VIP
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 🔔 NOTIFICATION TRAP MODAL -->
-    <div class="notification-modal" id="notif-modal">
-        <div class="notif-content" id="notif-content">
-            <h2 id="notif-title">STAY UPDATED?</h2>
-            <div class="demon-skull">💀</div>
-            <p id="notif-text" style="color:#aaa; margin-top:10px;">Get notified when new chapters drop?</p>
-            <div class="notif-btns">
-                <button class="btn-yes" id="notif-yes">YES</button>
-                <button class="btn-no" id="notif-no">NO</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 🎭 SPECIAL THANKS THEME MODAL -->
-    <div class="theme-modal" id="theme-modal">
-        <div class="theme-content">
-            <h2 id="theme-name" style="font-size: 2rem; margin-bottom: 5px;">NAME</h2>
-            <p id="theme-role" class="theme-role">ROLE</p>
-            <p id="theme-desc" class="theme-desc">Description</p>
-            <button class="close-legal" id="close-theme" style="margin-top:2rem; border-color:rgba(255,255,255,0.3);">Close</button>
-        </div>
-    </div>
-
-    <!-- MAIN HOME CONTAINER (Hidden initially by CSS opacity) -->
-    <div class="container home-container" id="main-app-container" style="opacity: 0; transition: opacity 2s ease-in;">
-        
-        <div class="hero-section fade-in">
-            <!-- Cover injected via scripts/config.js logic -->
-            <img id="app-cover" src="" alt="Beneath the Light Cover" class="cover-image glow-effect">
-            
-            <h1 class="manga-title">Beneath the Light<br><span class="subtitle">of a Dying Sky</span></h1>
-            <p class="manga-author">Sehan Karunarathne</p>
-            
-            <div id="home-actions" style="margin: 2rem 0; display: flex; flex-direction: column; gap: 1rem; align-items: center;">
-                <button id="start-reading-btn" class="btn btn-primary pulse-anim">Start Reading</button>
-            </div>
-
-            <div class="glass-panel summary-panel">
-                <p>
-                    Hunt The Truth. The Truth isn't what it seems.
-                </p>
-            </div>
-
-            <!-- Special Thanks Section -->
-            <div class="special-thanks">
-                <h3 class="thanks-title">Special Thanks</h3>
-                <div class="thanks-list" id="thanks-list">
-                    <!-- Injected via JS -->
-                </div>
-            </div>
-        </div>
-
-        <footer>
-            <p>© 2025 Sehan Karunarathne</p>
-            <p class="tiny-text">License: 978-624-94 186-0-2</p>
-        </footer>
-    </div>
-
-    <!-- Scripts -->
-    <script src="scripts/config.js"></script> <!-- Loaded first -->
-    
-    <!-- ⚛️ REACT INTRO (Processed by Babel) -->
-    <!-- Removed type="module" to support global scripts -->
-    <script type="text/babel" src="index.tsx"></script> 
-    
-    <script src="scripts/main.js"></script> <!-- Main Logic -->
+    <!-- React Application Logic -->
+    <script type="text/babel" src="index.tsx"></script>
 </body>
 </html>
