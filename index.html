@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -43,6 +44,69 @@
         </div>
     </div>
 
+    <!-- 💰 PAYWALL MODAL -->
+    <div class="paywall-modal" id="paywall-modal">
+        <div class="paywall-content">
+            <h2 class="paywall-header">PREMIUM ACCESS REQUIRED</h2>
+            
+            <!-- PRICE DISPLAY -->
+            <div class="price-tag">
+                <span class="currency">$</span>4.99 <span class="unit">USD</span>
+                <div class="access-type">UNLIMITED ACCESS</div>
+            </div>
+
+            <p style="color: #888; margin-bottom: 1rem; font-size: 0.9rem;">To support the creators and server costs, a small fee is required to access the Archive.</p>
+            
+            <div class="credit-card-mock">
+                <p style="color:#555; font-size:0.8rem; margin-bottom:5px;">CREDIT CARD</p>
+                <div style="background:#000; height:30px; margin-bottom:10px;"></div>
+                <div style="background:#444; height:10px; width:60%;"></div>
+            </div>
+
+            <input type="text" class="fake-input" placeholder="Card Number" disabled>
+            <div style="display:flex; gap:10px;">
+                <input type="text" class="fake-input" placeholder="MM/YY" disabled>
+                <input type="text" class="fake-input" placeholder="CVC" disabled>
+            </div>
+            
+            <div class="vip-section">
+                <p style="color:var(--fantasy-gold); font-size:0.8rem; margin-bottom:0.5rem;">HAVE A VIP CODE?</p>
+                <input type="text" id="vip-code-input" class="vip-input" placeholder="ENTER CODE">
+                <br>
+                <label class="remember-me">
+                    <input type="checkbox" id="remember-vip"> Remember my access
+                </label>
+                <br>
+                <button id="vip-submit-btn" class="vip-btn">
+                    <span>👑</span> UNLOCK VIP
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔔 NOTIFICATION TRAP MODAL -->
+    <div class="notification-modal" id="notif-modal">
+        <div class="notif-content" id="notif-content">
+            <h2 id="notif-title">STAY UPDATED?</h2>
+            <div class="demon-skull">💀</div>
+            <p id="notif-text" style="color:#aaa; margin-top:10px;">Get notified when new chapters drop?</p>
+            <div class="notif-btns">
+                <button class="btn-yes" id="notif-yes">YES</button>
+                <button class="btn-no" id="notif-no">NO</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🎭 SPECIAL THANKS THEME MODAL -->
+    <div class="theme-modal" id="theme-modal">
+        <div class="theme-content">
+            <h2 id="theme-name" style="font-size: 2rem; margin-bottom: 5px;">NAME</h2>
+            <p id="theme-role" class="theme-role">ROLE</p>
+            <p id="theme-desc" class="theme-desc">Description</p>
+            <button class="close-legal" id="close-theme" style="margin-top:2rem; border-color:rgba(255,255,255,0.3);">Close</button>
+        </div>
+    </div>
+
     <div class="container home-container">
         
         <div class="hero-section fade-in">
@@ -53,14 +117,21 @@
             <p class="manga-author">Sehan Karunarathne</p>
             
             <div id="home-actions" style="margin: 2rem 0; display: flex; flex-direction: column; gap: 1rem; align-items: center;">
-                <a href="manga.html" class="btn btn-primary pulse-anim">Start Reading</a>
-                <!-- Resume button intentionally removed as per request -->
+                <button id="start-reading-btn" class="btn btn-primary pulse-anim">Start Reading</button>
             </div>
 
             <div class="glass-panel summary-panel">
                 <p>
                     Hunt The Truth. The Truth isn't what it seems.
                 </p>
+            </div>
+
+            <!-- Special Thanks Section -->
+            <div class="special-thanks">
+                <h3 class="thanks-title">Special Thanks</h3>
+                <div class="thanks-list" id="thanks-list">
+                    <!-- Injected via JS -->
+                </div>
             </div>
         </div>
 
