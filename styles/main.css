@@ -102,6 +102,13 @@ body {
 
 }
 
+/* Center Section */ 
+.home-center-action { 
+    margin: 10rem 0; /* Balanced spacing */ 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; }
+
 
 
 /* Grouping top elements closer */
