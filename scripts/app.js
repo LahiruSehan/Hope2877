@@ -4,75 +4,74 @@ const { useState, useEffect, useRef } = React;
 // --- 🪄 MAGICAL INTRO COMPONENT ---
 const MagicalIntro = ({ onComplete }) => {
     const [progress, setProgress] = useState(0);
-    const [phase, setPhase] = useState(0); // 0:Start, 1:Rings, 2:Text, 3:Load, 4:End
+    const [phase, setPhase] = useState(0);
 
     useEffect(() => {
-        // Sequence Timeline
-        setTimeout(() => setPhase(1), 500);  // Rings appear
-        setTimeout(() => setPhase(2), 1500); // Text summons
-        setTimeout(() => setPhase(3), 2500); // Loading starts
+        // Timeline
+        setTimeout(() => setPhase(1), 500);  // Rings
+        setTimeout(() => setPhase(2), 1500); // Text
+        setTimeout(() => setPhase(3), 2500); // Load
 
-        if (phase === 0) {
-            // Loading Counter 0 -> 100
-            let p = 0;
-            const interval = setInterval(() => {
-                p += 1;
-                setProgress(p);
-                if (p >= 100) {
-                    clearInterval(interval);
-                    setTimeout(() => setPhase(4), 500); // Ascension
-                    setTimeout(onComplete, 2000); // Switch to Home
-                }
-            }, 60); // 6 seconds total load
-        }
+        // Loading Counter
+        let p = 0;
+        const interval = setInterval(() => {
+            p += 1;
+            setProgress(p);
+            if (p >= 100) {
+                clearInterval(interval);
+                setTimeout(() => setPhase(4), 500); // Ascension
+                setTimeout(onComplete, 2000); // Unmount
+            }
+        }, 50);
+        
+        return () => clearInterval(interval);
     }, []);
 
-    // Split title for "One-by-One" effect
+    // Split title logic
     const title = "Beneath The Light of a Dying Sky";
     const letters = title.split("").map((char, i) => (
-        <span 
-            key={i} 
-            className="magical-char" 
-            style={{ animationDelay: `${i * 0.05}s` }}
-        >
+        <span key={i} className="magical-char" style={{ animationDelay: `${i * 0.05}s` }}>
             {char === " " ? "\u00A0" : char}
         </span>
     ));
 
     return (
         <div className={`intro-wrapper ${phase === 4 ? 'fade-out' : ''}`}>
-            {/* Top Bar Loader */}
             <div className="top-loader-bar" style={{ width: `${progress}%` }}></div>
-
-            {/* Arcane Rings */}
             <div className={`arcane-ring ${phase >= 1 ? 'visible' : ''}`}></div>
-
-            {/* Title */}
-            <div className={`magical-title ${phase >= 2 ? 'visible' : ''}`}>
-                {phase >= 2 && letters}
-            </div>
-
-            {/* Percentage */}
-            <div className={`loader-percent ${phase >= 3 ? 'visible' : ''}`}>
-                {progress}%
-            </div>
+            <div className={`magical-title ${phase >= 2 ? 'visible' : ''}`}>{phase >= 2 && letters}</div>
+            <div className={`loader-percent ${phase >= 3 ? 'visible' : ''}`}>{progress}%</div>
         </div>
     );
 };
 
 // --- 🏠 HOME PAGE ---
 const HomePage = ({ onEnter }) => {
-    const config = window.APP_CONFIG || { assets: {}, credits: [] };
+    const config = window.APP_CONFIG || { assets: { cover: '' }, credits: [] };
 
     return (
         <div className="home-layout fade-in">
-            <img src={config.assets.cover} className="hero-cover" alt="Cover" />
+            {/* Cover Image with Error Fallback */}
+            <div className="hero-cover-container">
+                <img 
+                    src={config.assets.cover} 
+                    className="hero-cover" 
+                    alt="Cover Art"
+                    onError={(e) => {
+                        e.target.style.display = 'none'; 
+                        e.target.parentNode.innerText = '⚠️ Image Not Found';
+                        e.target.parentNode.style.color = 'red';
+                        e.target.parentNode.style.border = '1px dashed red';
+                    }} 
+                />
+            </div>
             
-            <h1 className="hero-title">Beneath The Light<br/><span style={{fontSize:'1rem', color:'#00F6FF', letterSpacing:'5px'}}>THE ARCHIVE</span></h1>
+            <h1 className="hero-title">Beneath The Light<br/>
+                <span style={{fontSize:'1rem', color:'#00F6FF', letterSpacing:'5px'}}>THE ARCHIVE</span>
+            </h1>
             
             <button className="start-btn" onClick={onEnter}>
                 <span>START READING</span>
-                <i className="fas fa-chevron-right"></i>
             </button>
 
             {/* Special Thanks */}
@@ -114,12 +113,11 @@ const MangaPage = ({ onRead }) => {
                 </div>
             ))}
 
-            {/* Construction */}
             <div className="construction-zone">
                 <div className="hazard-stripes"></div>
                 <div className="construction-content">
                     <h3>WORK IN PROGRESS</h3>
-                    <p>Artists are sketching the next arc from the archives.</p>
+                    <p>More chapters coming soon.</p>
                 </div>
                 <div className="hazard-stripes"></div>
             </div>
@@ -138,31 +136,25 @@ const ReaderPage = ({ chapterId, onBack }) => {
     const chapter = config.chapters.find(c => c.id === chapterId);
 
     useEffect(() => {
-        // Load Likes/Comments
+        // Load interactions
         const savedLikes = localStorage.getItem(`likes-${chapterId}`);
         if(savedLikes) setLikes(parseInt(savedLikes));
         const savedComm = localStorage.getItem(`comments-${chapterId}`);
         if(savedComm) setComments(JSON.parse(savedComm));
+        
+        // Restore scroll
+        const savedScroll = localStorage.getItem(`scroll-${chapterId}`);
+        if(savedScroll) window.scrollTo(0, parseInt(savedScroll));
 
-        // Restore Scroll
-        const scrollKey = `scroll-${chapterId}`;
-        const savedScroll = localStorage.getItem(scrollKey);
-        if(savedScroll) {
-            setTimeout(() => window.scrollTo(0, parseInt(savedScroll)), 100);
-        }
-
-        // Save Scroll on move
-        const handleScroll = () => localStorage.setItem(scrollKey, window.scrollY);
+        const handleScroll = () => localStorage.setItem(`scroll-${chapterId}`, window.scrollY);
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, [chapterId]);
 
     const handleLike = () => {
-        setLikes(p => {
-            const n = p + 1;
-            localStorage.setItem(`likes-${chapterId}`, n);
-            return n;
-        });
+        const n = likes + 1;
+        setLikes(n);
+        localStorage.setItem(`likes-${chapterId}`, n);
     };
 
     const handlePost = () => {
@@ -177,13 +169,13 @@ const ReaderPage = ({ chapterId, onBack }) => {
 
     return (
         <div className="reader-wrapper">
-            {/* Nav */}
+            {/* Top Nav */}
             <div className={`reader-nav-overlay ${!navVisible ? 'hidden' : ''}`}>
                 <button onClick={onBack} className="ctrl-btn">← BACK</button>
                 <span style={{fontFamily:'Orbitron'}}>Ch. {chapterId}</span>
             </div>
 
-            {/* Pages */}
+            {/* Content */}
             <div 
                 className="reader-content" 
                 onClick={() => setNavVisible(!navVisible)}
@@ -196,7 +188,6 @@ const ReaderPage = ({ chapterId, onBack }) => {
                 ))}
             </div>
 
-            {/* Watermark */}
             <div className="moving-watermark">LICENSE DETECTED</div>
 
             {/* Controls */}
@@ -207,21 +198,13 @@ const ReaderPage = ({ chapterId, onBack }) => {
 
             {/* Comments */}
             <div className="discussion-area">
-                <h3 style={{marginBottom:'10px', color:'#FFD700'}}>COMMENTS</h3>
+                <h3 style={{marginBottom:'10px', color:'#FFD700'}}>THEORY BOARD</h3>
                 <div style={{display:'flex', gap:'10px', marginBottom:'20px'}}>
-                    <input 
-                        value={input} 
-                        onChange={e=>setInput(e.target.value)} 
-                        placeholder="Share a theory..."
-                        style={{flex:1, padding:'10px', background:'#222', border:'1px solid #444', color:'#fff'}}
-                    />
+                    <input value={input} onChange={e=>setInput(e.target.value)} placeholder="Type here..." style={{flex:1, padding:'10px', background:'#222', border:'1px solid #444', color:'#fff'}}/>
                     <button onClick={handlePost} style={{background:'#00F6FF', border:'none', padding:'0 15px'}}>POST</button>
                 </div>
                 {comments.map((c, i) => (
-                    <div key={i} className="comment-box">
-                        <p>{c.text}</p>
-                        <small style={{color:'#666'}}>{c.date}</small>
-                    </div>
+                    <div key={i} className="comment-box"><p>{c.text}</p><small style={{color:'#666'}}>{c.date}</small></div>
                 ))}
             </div>
         </div>
@@ -234,10 +217,8 @@ const App = () => {
     const [activeChapter, setActiveChapter] = useState(1);
     const [showPaywall, setShowPaywall] = useState(false);
 
-    // Initial Config Check
-    if (!window.APP_CONFIG) {
-        return <div style={{color:'red', padding:'20px'}}>ERROR: Config not loaded. Check console.</div>;
-    }
+    // If config missing, show error
+    if (!window.APP_CONFIG) return <div style={{color:'red', padding:'20px'}}>FATAL: Config not found.</div>;
 
     const checkVIP = () => {
         const code = localStorage.getItem('vipCode');
@@ -249,49 +230,58 @@ const App = () => {
     };
 
     const unlock = () => {
-        const input = document.getElementById('vipInput').value.toUpperCase();
-        if(window.APP_CONFIG.vipCodes.includes(input)) {
-            localStorage.setItem('vipCode', input);
+        const val = document.getElementById('vipInput').value.toUpperCase();
+        if(window.APP_CONFIG.vipCodes.includes(val)) {
+            localStorage.setItem('vipCode', val);
             setShowPaywall(false);
             setView('manga');
         } else {
-            alert("ACCESS DENIED");
+            alert("DENIED");
         }
     };
 
+    // --- RENDER LOGIC: Conditionally render components to avoid Z-index fighting ---
     return (
         <div className="app-shell">
+            {/* Intro Overlay - Only Render if view is intro */}
+            {view === 'intro' && <MagicalIntro onComplete={() => setView('home')} />}
+
+            {/* Top Bar - Only on Main Pages */}
             {view !== 'intro' && (
                 <div className="top-bar">
                     <span className="license-text">{window.APP_CONFIG.legal.license}</span>
                 </div>
             )}
 
-            {view === 'intro' && <MagicalIntro onComplete={() => setView('home')} />}
-            
-            <div className={`page-view ${view === 'home' ? 'active' : ''}`}>
-                <HomePage onEnter={checkVIP} />
-            </div>
+            {/* Main Views - Use Conditional Rendering (Only 1 exists at a time) */}
+            {view === 'home' && (
+                <div className="page-view active">
+                    <HomePage onEnter={checkVIP} />
+                </div>
+            )}
 
-            <div className={`page-view ${view === 'manga' ? 'active' : ''}`}>
-                <MangaPage onRead={(id) => { setActiveChapter(id); setView('reader'); }} />
-            </div>
+            {view === 'manga' && (
+                <div className="page-view active">
+                    <MangaPage onRead={(id) => { setActiveChapter(id); setView('reader'); }} />
+                </div>
+            )}
 
-            <div className={`page-view ${view === 'reader' ? 'active' : ''}`}>
-                <ReaderPage chapterId={activeChapter} onBack={() => setView('manga')} />
-            </div>
+            {view === 'reader' && (
+                <div className="page-view active">
+                    <ReaderPage chapterId={activeChapter} onBack={() => setView('manga')} />
+                </div>
+            )}
 
             {/* Paywall Modal */}
             {showPaywall && (
                 <div className="modal-backdrop">
                     <div className="modal-box">
-                        <h2 style={{color:'#FFD700', marginBottom:'10px'}}>UNLIMITED ACCESS</h2>
+                        <h2 style={{color:'#FFD700'}}>VIP ACCESS</h2>
                         <h1 style={{fontSize:'3rem', margin:'10px 0'}}>$4.99</h1>
-                        <p style={{color:'#888', marginBottom:'20px'}}>Support the author.</p>
-                        <input id="vipInput" placeholder="VIP CODE" style={{padding:'10px', textAlign:'center', width:'80%'}} />
+                        <input id="vipInput" placeholder="VIP CODE" style={{padding:'10px', width:'80%', textAlign:'center'}} />
                         <br/>
                         <button onClick={unlock} style={{marginTop:'15px', padding:'10px 30px', background:'#FFD700', border:'none', fontWeight:'bold'}}>UNLOCK</button>
-                        <button onClick={() => setShowPaywall(false)} style={{display:'block', margin:'10px auto', background:'none', border:'none', color:'#666'}}>Close</button>
+                        <button onClick={() => setShowPaywall(false)} style={{display:'block', margin:'10px auto', background:'transparent', color:'#888', border:'none'}}>Close</button>
                     </div>
                 </div>
             )}
@@ -299,6 +289,5 @@ const App = () => {
     );
 };
 
-// Render
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
