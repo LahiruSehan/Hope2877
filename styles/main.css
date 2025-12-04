@@ -22,7 +22,7 @@
     -webkit-tap-highlight-color: transparent;
 }
 
-/* ✨ MAGICAL BACKGROUND ANIMATION */
+/* ✨ MAGICAL BACKGROUND ANIMATION (MAIN SITE) */
 body {
     width: 100%;
     min-height: 100vh;
@@ -44,8 +44,11 @@ body {
     100% { background-position: 0% 50%; }
 }
 
-/* 🎬 MOVIE INTRO CONTAINER */
-#movie-intro {
+/* =========================================
+   🎬 ULTRA-CINEMATIC RITUAL INTRO STYLES
+   ========================================= */
+
+#cinematic-intro {
     position: fixed;
     top: 0;
     left: 0;
@@ -57,170 +60,259 @@ body {
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    perspective: 1000px;
+    perspective: 1200px; /* For 3D text effects */
 }
 
-/* 0s - Silence/Darkness handled by default bg #000 */
-
-/* 1.5s - Atmospheric Background Shift */
-.cinematic-bg {
+/* 1. THE VOID (0-1s) */
+.intro-void {
     position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: radial-gradient(circle at center, rgba(30, 0, 10, 0.4) 0%, rgba(5, 5, 20, 0.8) 60%, #000 100%);
+    width: 100%; height: 100%;
+    background: radial-gradient(circle at center, #0a000f, #000 80%);
     opacity: 0;
-    animation: fadeAtmosphere 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    animation-delay: 1.5s;
-    z-index: 1;
+    animation: wakeVoid 2s ease-in-out forwards;
+    z-index: 0;
 }
+@keyframes wakeVoid { to { opacity: 1; } }
 
-@keyframes fadeAtmosphere {
-    0% { opacity: 0; transform: scale(1.1); }
-    100% { opacity: 1; transform: scale(1); }
-}
-
-/* 2.3s - Cinematic Embers (Generated via JS for positions) */
-.ember {
+/* 2. MAGICAL SPARKS / EMBERS (1-2.5s) handled by JS particles */
+.cinematic-ember {
     position: absolute;
-    width: 2px;
-    height: 2px;
-    background: rgba(255, 69, 0, 0.8);
+    width: 2px; height: 2px;
+    background: var(--fantasy-gold);
     border-radius: 50%;
-    box-shadow: 0 0 4px #ff4500;
+    box-shadow: 0 0 6px var(--accent-secondary);
     opacity: 0;
-    z-index: 2;
-    animation: floatEmber 3s linear forwards;
+    animation: floatEmber 10s linear infinite;
 }
-
 @keyframes floatEmber {
-    0% { opacity: 0; transform: translateY(0) scale(1); }
-    20% { opacity: 1; }
-    100% { opacity: 0; transform: translateY(-60px) scale(0.5); }
+    0% { opacity: 0; transform: translateY(0) scale(0.5); }
+    10% { opacity: 0.8; }
+    50% { opacity: 0.4; }
+    100% { opacity: 0; transform: translateY(-100vh) scale(0); }
 }
 
-.intro-content {
-    position: relative;
-    z-index: 10;
-    text-align: center;
-    width: 90%;
-    max-width: 600px;
-}
-
-/* 0.6s - Red-Gold Line Laser */
-.intro-line {
-    width: 0%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #ff003c, #ffd700, #ff003c, transparent);
-    margin: 0 auto 20px auto;
-    box-shadow: 0 0 15px rgba(255, 0, 60, 0.5);
-    animation: expandLine 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    animation-delay: 0.6s;
-    opacity: 0.8;
-}
-
-@keyframes expandLine {
-    0% { width: 0%; opacity: 0; }
-    50% { width: 80%; opacity: 1; }
-    100% { width: 100%; opacity: 0; height: 1px; } /* Fades out as title appears */
-}
-
-/* 1.2s - Title Formation */
-.intro-title {
-    font-family: var(--font-title);
-    font-size: 2.5rem;
-    line-height: 1.3;
-    color: #fff;
-    position: relative;
-    padding: 10px;
-}
-
-/* Letters split by JS */
-.intro-char {
-    display: inline-block;
-    opacity: 0;
-    filter: blur(10px);
-    transform: translate(0, 20px) scale(1.2);
-    animation: fragmentIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-    /* Delays assigned in JS */
-}
-
-/* 2.0s - Title Activation (Metallic Glow & Shake) */
-@keyframes fragmentIn {
-    0% { opacity: 0; filter: blur(10px); transform: translate(0, 20px) scale(1.2); text-shadow: 0 0 0 transparent; }
-    60% { opacity: 1; filter: blur(0px); transform: translate(0, 0) scale(1); color: #fff; }
-    100% { opacity: 1; text-shadow: 0 0 15px rgba(255, 215, 0, 0.5); color: #f0f0f0; }
-}
-
-/* The Shockwave/Sweep effect on the title wrapper */
-.intro-title::after {
-    content: '';
+/* 3. ANCIENT GLYPH (2.5-4s) */
+.ancient-glyph-container {
     position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
-    transform: translateX(-100%);
-    animation: lightSweep 0.5s ease-out forwards;
-    animation-delay: 2.0s;
-    pointer-events: none;
-    mix-blend-mode: overlay;
-}
-
-@keyframes lightSweep {
-    0% { transform: translateX(-100%) skewX(-20deg); opacity: 0; }
-    10% { opacity: 1; }
-    100% { transform: translateX(100%) skewX(-20deg); opacity: 0; }
-}
-
-/* 2.6s - Loading Ring */
-.loader-wrapper {
-    margin-top: 30px;
-    position: relative;
-    width: 60px;
-    height: 60px;
-    margin-left: auto;
-    margin-right: auto;
+    width: 600px; height: 600px;
+    z-index: 1;
     opacity: 0;
-    animation: fadeInLoader 0.5s ease-out forwards;
-    animation-delay: 2.6s;
+    animation: summonGlyph 2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    animation-delay: 2.5s;
+    pointer-events: none;
+}
+@keyframes summonGlyph {
+    0% { opacity: 0; transform: scale(0.8) rotate(-10deg); filter: blur(5px); }
+    20% { opacity: 0.3; }
+    40% { opacity: 0.1; filter: blur(2px); } /* Flicker */
+    60% { opacity: 0.5; }
+    100% { opacity: 1; transform: scale(1) rotate(0deg); filter: blur(0); }
 }
 
-@keyframes fadeInLoader { to { opacity: 1; } }
-
-.loader-ring {
-    transform: rotate(-90deg); /* Start from top */
-}
-
-.loader-track {
-    stroke: rgba(255,255,255,0.1);
-}
-
-.loader-fill {
-    stroke: url(#loaderGradient); /* We define gradient in JS or use CSS fallback */
-    stroke: var(--fantasy-gold);
-    stroke-dasharray: 176; /* 2 * PI * 28 */
-    stroke-dashoffset: 176;
-    animation: fillRing 2.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    animation-delay: 2.8s;
-    filter: drop-shadow(0 0 5px var(--accent-secondary));
-}
-
-@keyframes fillRing {
-    0% { stroke-dashoffset: 176; stroke: #555; }
-    50% { stroke: var(--accent-secondary); }
-    100% { stroke-dashoffset: 0; stroke: var(--fantasy-gold); }
-}
-
-.loader-star {
+.glyph-ring {
     position: absolute;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    color: var(--accent-color);
-    font-size: 1.2rem;
-    animation: pulseStar 1s infinite alternate;
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(157, 0, 255, 0.2);
 }
 
-@keyframes pulseStar {
-    0% { opacity: 0.5; transform: translate(-50%, -50%) scale(0.8) rotate(0deg); }
-    100% { opacity: 1; transform: translate(-50%, -50%) scale(1.2) rotate(45deg); text-shadow: 0 0 10px var(--accent-color); }
+.outer-ring {
+    width: 500px; height: 500px;
+    border: 1px solid rgba(255, 69, 0, 0.3);
+    border-top-color: var(--fantasy-gold);
+    border-bottom-color: var(--fantasy-gold);
+    animation: rotateGlyph 30s linear infinite;
 }
+
+.middle-runes {
+    width: 350px; height: 350px;
+    border: 1px dashed rgba(157, 0, 255, 0.4);
+    animation: rotateGlyphRev 20s linear infinite;
+}
+
+.inner-halo {
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(157,0,255,0.1), transparent 70%);
+    animation: pulseHalo 4s ease-in-out infinite;
+}
+
+@keyframes rotateGlyph { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+@keyframes rotateGlyphRev { from { transform: translate(-50%, -50%) rotate(360deg); } to { transform: translate(-50%, -50%) rotate(0deg); } }
+@keyframes pulseHalo { 0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; } 50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; } }
+
+/* 4. FRACTURE BEAM (4-4.5s) */
+.fracture-beam {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    height: 1px;
+    width: 0%;
+    background: #fff;
+    box-shadow: 0 0 20px var(--fantasy-gold), 0 0 40px var(--accent-secondary);
+    z-index: 5;
+    animation: fractureWorld 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: 4s;
+}
+@keyframes fractureWorld {
+    0% { width: 0%; opacity: 0; height: 2px; }
+    50% { width: 90%; opacity: 1; height: 1px; }
+    100% { width: 100%; opacity: 0; height: 0px; }
+}
+
+/* 5. MYSTICAL FOG (4.5-6s) */
+.mystical-fog {
+    position: absolute;
+    width: 200%; height: 100%;
+    background: linear-gradient(to right, transparent, rgba(75, 0, 130, 0.1), transparent);
+    filter: blur(40px);
+    z-index: 2;
+    opacity: 0;
+    animation: flowFog 10s linear infinite;
+    animation-delay: 4.5s;
+}
+.fog-top { top: -20%; animation-duration: 25s; opacity: 0; animation: fogFadeIn 2s forwards 4.5s; }
+.fog-bottom { bottom: -20%; background: linear-gradient(to left, transparent, rgba(255, 69, 0, 0.05), transparent); animation: fogFadeIn 2s forwards 4.5s; }
+
+@keyframes fogFadeIn { to { opacity: 1; } }
+
+/* 6. TITLE SUMMONING (6-8s) & 7. LIGHT SWEEP */
+.intro-focus-container {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    width: 100%;
+}
+
+.ritual-title {
+    font-family: var(--font-title);
+    font-size: 2.8rem;
+    color: transparent; /* Text hidden initially */
+    position: relative;
+    line-height: 1.4;
+    perspective: 100px;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0);
+}
+
+.ritual-char {
+    display: inline-block;
+    color: #fff;
+    opacity: 0;
+    /* Initial 'Crystal Shard' state set via JS transforms or default here */
+    transform-origin: center;
+    animation: crystalSummon 2.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+    /* Delay set in JS */
+}
+
+@keyframes crystalSummon {
+    0% { 
+        opacity: 0; 
+        transform: translate3d(var(--rx), var(--ry), -100px) rotate(var(--rr)); 
+        filter: blur(10px); 
+        text-shadow: 0 0 0 transparent;
+    }
+    60% {
+        opacity: 1;
+        transform: translate3d(0,0,0) rotate(0deg);
+        filter: blur(0);
+    }
+    100% {
+        opacity: 1;
+        transform: translate3d(0,0,0) rotate(0deg);
+        color: #fff;
+        text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+    }
+}
+
+/* Light Sweep Effect on Title Wrapper */
+.ritual-title::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent);
+    transform: translateX(-150%) skewX(-20deg);
+    animation: holySweep 1s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+    animation-delay: 8s;
+    mix-blend-mode: overlay;
+    opacity: 0.6;
+}
+
+@keyframes holySweep {
+    0% { transform: translateX(-150%) skewX(-20deg); }
+    100% { transform: translateX(150%) skewX(-20deg); }
+}
+
+/* 9. RUNE LOADING RING (10-13s) */
+.rune-loader-container {
+    margin-top: 40px;
+    position: relative;
+    width: 80px; height: 80px;
+    margin-left: auto; margin-right: auto;
+    display: flex; justify-content: center; align-items: center;
+}
+
+.rune-segment {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    border: 2px solid transparent;
+    border-top-color: #333; /* Dormant */
+    border-radius: 50%;
+    transition: all 0.1s;
+    opacity: 0;
+    transform: scale(0.8);
+    animation: segmentAppear 0.5s forwards; /* Delay in JS */
+}
+
+.rune-segment.active {
+    border-top-color: var(--fantasy-gold);
+    box-shadow: 0 0 10px var(--fantasy-gold);
+    filter: drop-shadow(0 0 5px var(--accent-secondary));
+}
+
+@keyframes segmentAppear { to { opacity: 1; transform: scale(1) rotate(var(--rot)); } }
+
+.rune-core {
+    width: 60%; height: 60%;
+    background: radial-gradient(circle, var(--accent-secondary), transparent);
+    border-radius: 50%;
+    opacity: 0;
+    animation: pulseCore 3s ease-in-out infinite;
+    animation-delay: 10s;
+}
+@keyframes pulseCore { 0%, 100% { opacity: 0.2; transform: scale(0.8); } 50% { opacity: 0.6; transform: scale(1); } }
+
+/* 11. ASCENSION FLASH (14.5s) */
+.ascension-flash {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: #fff;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.ascension-active .ascension-flash {
+    animation: bigBang 1.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+}
+
+.ascension-active .intro-focus-container, 
+.ascension-active .ancient-glyph-container {
+    animation: dissolveUp 1s ease-in forwards;
+}
+
+@keyframes bigBang {
+    0% { opacity: 0; }
+    10% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes dissolveUp {
+    to { opacity: 0; transform: translateY(-100px) scale(1.1); filter: blur(20px); }
+}
+
+/* =========================================
+   END INTRO STYLES
+   ========================================= */
 
 /* Particle Canvas Overlay */
 #particle-canvas {

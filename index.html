@@ -14,26 +14,43 @@
 </head>
 <body>
     
-    <!-- 🎬 CINEMATIC MOVIE INTRO -->
-    <div id="movie-intro">
-        <div class="cinematic-bg"></div>
-        <div class="cinematic-dust"></div>
-        
-        <div class="intro-content">
-            <div class="intro-line"></div>
-            <h1 class="intro-title" id="intro-title-text">Beneath the Light<br>of a Dying Sky</h1>
-            
-            <div class="loader-wrapper">
-                <svg class="loader-ring" width="60" height="60" viewBox="0 0 60 60">
-                    <circle class="loader-track" cx="30" cy="30" r="28" fill="none" stroke-width="2"></circle>
-                    <circle class="loader-fill" cx="30" cy="30" r="28" fill="none" stroke-width="2"></circle>
-                </svg>
-                <div class="loader-star">✦</div>
+    <!-- 🎬 ULTRA-CINEMATIC RITUAL INTRO -->
+    <div id="cinematic-intro">
+        <!-- Layer 1: The Void & Fog -->
+        <div class="intro-void"></div>
+        <div class="mystical-fog fog-top"></div>
+        <div class="mystical-fog fog-bottom"></div>
+        <div id="intro-particles"></div>
+
+        <!-- Layer 2: Ancient Glyph (Background) -->
+        <div class="ancient-glyph-container">
+            <div class="glyph-ring outer-ring"></div>
+            <div class="glyph-ring middle-runes"></div>
+            <div class="glyph-ring inner-halo"></div>
+        </div>
+
+        <!-- Layer 3: The Content -->
+        <div class="intro-focus-container">
+            <!-- The Fracture Beam -->
+            <div class="fracture-beam"></div>
+
+            <!-- The Title (Letters injected by JS) -->
+            <h1 class="ritual-title" id="ritual-title">
+                Beneath The Light<br>of a Dying Sky
+            </h1>
+
+            <!-- The Rune Loader -->
+            <div class="rune-loader-container" id="rune-loader">
+                <!-- Segments injected by JS -->
+                <div class="rune-core"></div>
             </div>
         </div>
+        
+        <!-- Flash Overlay for Transition -->
+        <div class="ascension-flash"></div>
     </div>
 
-    <!-- Background Particles -->
+    <!-- Background Particles (Main App) -->
     <canvas id="particle-canvas"></canvas>
 
     <!-- 🔝 Top Bar with Legal Info -->

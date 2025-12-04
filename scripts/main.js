@@ -15,59 +15,90 @@ document.addEventListener('DOMContentLoaded', () => {
     setupSpecialThanks();
 });
 
-// 🎬 CINEMATIC MOVIE INTRO LOGIC
+// 🎬 CINEMATIC RITUAL INTRO LOGIC (15s Sequence)
 function handleIntro() {
-    const intro = document.getElementById('movie-intro');
-    const titleText = document.getElementById('intro-title-text');
+    const intro = document.getElementById('cinematic-intro');
+    const titleText = document.getElementById('ritual-title');
+    const runeContainer = document.getElementById('rune-loader');
     
     if (!intro || !titleText) return;
 
-    // 1. Text Fragmentation Logic
-    // Need to split text nodes into spans without breaking <br>
-    const originalHTML = titleText.innerHTML;
-    // Replace <br> with a placeholder to split safely, then reconstruct
-    // Or simpler: handle text lines manually since we know the content
-    titleText.innerHTML = '';
-    
-    const lines = ["Beneath the Light", "of a Dying Sky"];
-    
-    lines.forEach((line, lineIndex) => {
+    // 1. Crystal Shard Text Effect (6-8s)
+    // We split text and randomly position characters in 3D space
+    // CSS Keyframe 'crystalSummon' will animate them to 0,0,0
+    const lines = ["Beneath The Light", "of a Dying Sky"];
+    titleText.innerHTML = ''; // Clear original text
+
+    lines.forEach((line) => {
         const lineDiv = document.createElement('div');
-        // Split into characters
         line.split('').forEach((char, i) => {
             const span = document.createElement('span');
             span.innerText = char;
-            span.className = 'intro-char';
-            if (char === ' ') span.style.width = '10px'; // Handle spaces
+            span.className = 'ritual-char';
+            if (char === ' ') span.style.width = '12px';
             
-            // Randomize delay slightly for the "Fragmented" feel
-            // Base delay starts at 1.2s (after line laser)
-            const randomDelay = Math.random() * 0.5; 
-            span.style.animationDelay = `${1.2 + randomDelay + (i * 0.05)}s`;
+            // Random start positions for the "Shard" effect
+            // We use CSS variables to pass these random values to the Keyframe
+            const rx = (Math.random() - 0.5) * 200 + 'px'; // Random X
+            const ry = (Math.random() - 0.5) * 200 + 'px'; // Random Y
+            const rr = (Math.random() - 0.5) * 90 + 'deg'; // Random Rotation
             
+            span.style.setProperty('--rx', rx);
+            span.style.setProperty('--ry', ry);
+            span.style.setProperty('--rr', rr);
+
+            // Staggered delay starting at 6s
+            span.style.animationDelay = `${6 + (i * 0.05)}s`;
+
             lineDiv.appendChild(span);
         });
         titleText.appendChild(lineDiv);
     });
 
-    // 2. Add Ember Particles via JS (for intro only)
-    for(let i=0; i<20; i++) {
-        const ember = document.createElement('div');
-        ember.className = 'ember';
-        ember.style.left = Math.random() * 100 + '%';
-        ember.style.top = (80 + Math.random() * 20) + '%';
-        ember.style.animationDelay = `${2.3 + Math.random()}s`; // Start after title activates
-        intro.appendChild(ember);
+    // 2. Generate Rune Loader Segments (10-13s)
+    // Create 12 segments forming a circle
+    const segmentCount = 12;
+    for(let i=0; i<segmentCount; i++) {
+        const seg = document.createElement('div');
+        seg.className = 'rune-segment';
+        const rot = (360 / segmentCount) * i;
+        seg.style.setProperty('--rot', rot + 'deg');
+        
+        // Staggered activation
+        seg.style.animationDelay = `${10 + (i * 0.2)}s`;
+        
+        // When active, add glow class (handled via Animation Keyframes in CSS mostly, 
+        // but we can add specific listeners if we wanted sound, etc.)
+        setTimeout(() => {
+            seg.classList.add('active');
+        }, (10 + (i * 0.2)) * 1000);
+
+        runeContainer.appendChild(seg);
     }
 
-    // 3. Intro Cleanup (Total duration approx 5.5s)
+    // 3. Magical Particles (8.7 - 10s)
+    // Inject embers into the #intro-particles container
+    const particleContainer = document.getElementById('intro-particles');
+    for(let i=0; i<30; i++) {
+        const p = document.createElement('div');
+        p.className = 'cinematic-ember';
+        p.style.left = Math.random() * 100 + '%';
+        p.style.top = (Math.random() * 100) + '%';
+        // Delay appearance
+        p.style.animationDelay = `${8.7 + Math.random() * 2}s`;
+        particleContainer.appendChild(p);
+    }
+
+    // 4. ASCENSION / CLEANUP (14.5s - 16s)
     setTimeout(() => {
-        intro.style.transition = 'opacity 1s ease';
-        intro.style.opacity = '0';
+        // Trigger Flash and Dissolve
+        intro.classList.add('ascension-active');
+        
+        // Remove from DOM after transition
         setTimeout(() => {
             intro.style.display = 'none';
-        }, 1000);
-    }, 5500);
+        }, 2000); // 1.5s flash duration + buffer
+    }, 14500);
 }
 
 // 🖼️ Load Cover from Config
