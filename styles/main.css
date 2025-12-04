@@ -32,16 +32,15 @@ body {
     overscroll-behavior-y: none;
     padding-top: 40px; /* Space for Top Bar */
     
-    /* Deep magical gradient that changes slowly */
-    background: linear-gradient(300deg, #020024, #1c0b2e, #092e33, #000000);
-    background-size: 400% 400%;
-    animation: magicalGradient 12s ease infinite;
+    /* Soft shifting magical trails background */
+    background: radial-gradient(circle at 50% 50%, #0d001a, #000000, #040e14);
+    background-size: 200% 200%;
+    animation: magicalTrail 15s ease infinite alternate;
 }
 
-@keyframes magicalGradient {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+@keyframes magicalTrail {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 100% 100%; }
 }
 
 /* =========================================
@@ -61,6 +60,7 @@ body {
     align-items: center;
     overflow: hidden;
     perspective: 1200px; /* For 3D text effects */
+    transition: opacity 1s ease-out; /* Smooth fade out */
 }
 
 /* 1. THE VOID (0-1s) */
@@ -68,13 +68,11 @@ body {
     position: absolute;
     width: 100%; height: 100%;
     background: radial-gradient(circle at center, #0a000f, #000 80%);
-    opacity: 0;
-    animation: wakeVoid 2s ease-in-out forwards;
+    opacity: 1; /* Immediate start */
     z-index: 0;
 }
-@keyframes wakeVoid { to { opacity: 1; } }
 
-/* 2. MAGICAL SPARKS / EMBERS (1-2.5s) handled by JS particles */
+/* 2. MAGICAL SPARKS / EMBERS (handled by JS particles) */
 .cinematic-ember {
     position: absolute;
     width: 2px; height: 2px;
@@ -91,57 +89,7 @@ body {
     100% { opacity: 0; transform: translateY(-100vh) scale(0); }
 }
 
-/* 3. ANCIENT GLYPH (2.5-4s) */
-.ancient-glyph-container {
-    position: absolute;
-    width: 600px; height: 600px;
-    z-index: 1;
-    opacity: 0;
-    animation: summonGlyph 2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-    animation-delay: 2.5s;
-    pointer-events: none;
-}
-@keyframes summonGlyph {
-    0% { opacity: 0; transform: scale(0.8) rotate(-10deg); filter: blur(5px); }
-    20% { opacity: 0.3; }
-    40% { opacity: 0.1; filter: blur(2px); } /* Flicker */
-    60% { opacity: 0.5; }
-    100% { opacity: 1; transform: scale(1) rotate(0deg); filter: blur(0); }
-}
-
-.glyph-ring {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    box-shadow: 0 0 20px rgba(157, 0, 255, 0.2);
-}
-
-.outer-ring {
-    width: 500px; height: 500px;
-    border: 1px solid rgba(255, 69, 0, 0.3);
-    border-top-color: var(--fantasy-gold);
-    border-bottom-color: var(--fantasy-gold);
-    animation: rotateGlyph 30s linear infinite;
-}
-
-.middle-runes {
-    width: 350px; height: 350px;
-    border: 1px dashed rgba(157, 0, 255, 0.4);
-    animation: rotateGlyphRev 20s linear infinite;
-}
-
-.inner-halo {
-    width: 200px; height: 200px;
-    background: radial-gradient(circle, rgba(157,0,255,0.1), transparent 70%);
-    animation: pulseHalo 4s ease-in-out infinite;
-}
-
-@keyframes rotateGlyph { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
-@keyframes rotateGlyphRev { from { transform: translate(-50%, -50%) rotate(360deg); } to { transform: translate(-50%, -50%) rotate(0deg); } }
-@keyframes pulseHalo { 0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; } 50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; } }
-
-/* 4. FRACTURE BEAM (4-4.5s) */
+/* 4. FRACTURE BEAM (Start immediately) */
 .fracture-beam {
     position: absolute;
     top: 50%; left: 50%;
@@ -151,8 +99,8 @@ body {
     background: #fff;
     box-shadow: 0 0 20px var(--fantasy-gold), 0 0 40px var(--accent-secondary);
     z-index: 5;
-    animation: fractureWorld 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    animation-delay: 4s;
+    animation: fractureWorld 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: 0.2s;
 }
 @keyframes fractureWorld {
     0% { width: 0%; opacity: 0; height: 2px; }
@@ -160,7 +108,7 @@ body {
     100% { width: 100%; opacity: 0; height: 0px; }
 }
 
-/* 5. MYSTICAL FOG (4.5-6s) */
+/* 5. MYSTICAL FOG (Immediate) */
 .mystical-fog {
     position: absolute;
     width: 200%; height: 100%;
@@ -169,14 +117,14 @@ body {
     z-index: 2;
     opacity: 0;
     animation: flowFog 10s linear infinite;
-    animation-delay: 4.5s;
+    animation-delay: 0.5s;
 }
-.fog-top { top: -20%; animation-duration: 25s; opacity: 0; animation: fogFadeIn 2s forwards 4.5s; }
-.fog-bottom { bottom: -20%; background: linear-gradient(to left, transparent, rgba(255, 69, 0, 0.05), transparent); animation: fogFadeIn 2s forwards 4.5s; }
+.fog-top { top: -20%; animation-duration: 25s; opacity: 0; animation: fogFadeIn 2s forwards 0.5s; }
+.fog-bottom { bottom: -20%; background: linear-gradient(to left, transparent, rgba(255, 69, 0, 0.05), transparent); animation: fogFadeIn 2s forwards 0.5s; }
 
 @keyframes fogFadeIn { to { opacity: 1; } }
 
-/* 6. TITLE SUMMONING (6-8s) & 7. LIGHT SWEEP */
+/* 6. TITLE SUMMONING (Slower & Magical) */
 .intro-focus-container {
     position: relative;
     z-index: 10;
@@ -187,21 +135,40 @@ body {
 .ritual-title {
     font-family: var(--font-title);
     font-size: 2.8rem;
-    color: transparent; /* Text hidden initially */
     position: relative;
     line-height: 1.4;
     perspective: 100px;
-    text-shadow: 0 0 10px rgba(255, 215, 0, 0);
+    
+    /* Magical Gradient Text */
+    background: linear-gradient(to right, #00c6ff, #9D00FF, #ff00cc, #00c6ff);
+    background-size: 300%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: magicTextFlow 4s linear infinite;
+}
+
+@keyframes magicTextFlow {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
 }
 
 .ritual-char {
     display: inline-block;
-    color: #fff;
+    color: transparent; /* Handled by parent gradient clip usually, but for particles we trick it */
     opacity: 0;
-    /* Initial 'Crystal Shard' state set via JS transforms or default here */
     transform-origin: center;
-    animation: crystalSummon 2.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
-    /* Delay set in JS */
+    /* Slower animation: 4s */
+    animation: crystalSummon 4s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+    /* Particle Text Effect simulation via shadow */
+    text-shadow: none; 
+}
+
+/* Apply gradient to text fill for characters to ensure they inherit it */
+.ritual-char {
+    background: inherit;
+    -webkit-background-clip: text;
+    background-clip: text;
 }
 
 @keyframes crystalSummon {
@@ -219,30 +186,12 @@ body {
     100% {
         opacity: 1;
         transform: translate3d(0,0,0) rotate(0deg);
-        color: #fff;
-        text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+        /* Magical Particle Glow */
+        text-shadow: 0 0 10px rgba(0, 198, 255, 0.6), 0 0 20px rgba(157, 0, 255, 0.4);
     }
 }
 
-/* Light Sweep Effect on Title Wrapper */
-.ritual-title::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent);
-    transform: translateX(-150%) skewX(-20deg);
-    animation: holySweep 1s cubic-bezier(0.19, 1, 0.22, 1) forwards;
-    animation-delay: 8s;
-    mix-blend-mode: overlay;
-    opacity: 0.6;
-}
-
-@keyframes holySweep {
-    0% { transform: translateX(-150%) skewX(-20deg); }
-    100% { transform: translateX(150%) skewX(-20deg); }
-}
-
-/* 9. RUNE LOADING RING (10-13s) */
+/* 9. RUNE LOADING RING */
 .rune-loader-container {
     margin-top: 40px;
     position: relative;
@@ -264,50 +213,41 @@ body {
 }
 
 .rune-segment.active {
-    border-top-color: var(--fantasy-gold);
-    box-shadow: 0 0 10px var(--fantasy-gold);
-    filter: drop-shadow(0 0 5px var(--accent-secondary));
+    border-top-color: var(--fantasy-purple); /* Changed to purple for magic theme */
+    box-shadow: 0 0 10px var(--fantasy-purple);
+    filter: drop-shadow(0 0 5px var(--accent-color));
 }
 
 @keyframes segmentAppear { to { opacity: 1; transform: scale(1) rotate(var(--rot)); } }
 
 .rune-core {
     width: 60%; height: 60%;
-    background: radial-gradient(circle, var(--accent-secondary), transparent);
+    background: radial-gradient(circle, var(--fantasy-purple), transparent);
     border-radius: 50%;
     opacity: 0;
     animation: pulseCore 3s ease-in-out infinite;
-    animation-delay: 10s;
+    animation-delay: 2s; /* Faster start */
 }
 @keyframes pulseCore { 0%, 100% { opacity: 0.2; transform: scale(0.8); } 50% { opacity: 0.6; transform: scale(1); } }
 
-/* 11. ASCENSION FLASH (14.5s) */
+/* Loading Counter */
+#loading-counter {
+    font-family: var(--font-heading);
+    color: var(--accent-color);
+    font-size: 0.8rem;
+    margin-bottom: 20px;
+    opacity: 0.7;
+    letter-spacing: 2px;
+}
+
+/* 11. ASCENSION FLASH (Simplified Fade) */
 .ascension-flash {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: #fff;
+    background: #000; /* Fade to transparent from black if needed, or just overlays */
     opacity: 0;
     pointer-events: none;
     z-index: 100;
-}
-
-.ascension-active .ascension-flash {
-    animation: bigBang 1.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
-}
-
-.ascension-active .intro-focus-container, 
-.ascension-active .ancient-glyph-container {
-    animation: dissolveUp 1s ease-in forwards;
-}
-
-@keyframes bigBang {
-    0% { opacity: 0; }
-    10% { opacity: 1; }
-    100% { opacity: 0; }
-}
-
-@keyframes dissolveUp {
-    to { opacity: 0; transform: translateY(-100px) scale(1.1); filter: blur(20px); }
 }
 
 /* =========================================
@@ -379,6 +319,7 @@ h1, h2, h3, .manga-title {
     font-size: 2.5rem;
     text-transform: capitalize;
     letter-spacing: 1px;
+    /* Main page title gradient */
     background: linear-gradient(to bottom, #fff, #aaa);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -464,14 +405,21 @@ h1, h2, h3, .manga-title {
 }
 
 .home-container {
-    justify-content: center; 
+    justify-content: space-evenly; /* Fit content nicely */
     align-items: center; 
     text-align: center;
+    height: calc(100vh - 40px);
+    overflow: hidden; /* No Scroll */
 }
+
+/* Adjust font sizes for small screens/no-scroll fit */
+.home-container .manga-title { font-size: clamp(1.8rem, 4vw, 3rem); }
+.home-container .summary-panel { font-size: clamp(0.8rem, 2vw, 1rem); padding: 1rem; }
+.home-container .cover-image { max-width: clamp(120px, 20vh, 200px); }
 
 footer {
     margin-top: auto;
-    padding: 2rem;
+    padding: 1rem;
     color: #555;
     font-size: 0.8rem;
     text-align: center;
@@ -683,7 +631,7 @@ footer {
 
 /* 🏆 SPECIAL THANKS SECTION */
 .special-thanks {
-    margin-top: 2rem;
+    margin-top: 1rem;
     width: 100%;
     max-width: 600px;
     text-align: center;
@@ -693,28 +641,47 @@ footer {
     font-size: 0.9rem;
     color: #555;
     letter-spacing: 2px;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
     text-transform: uppercase;
 }
 .thanks-list {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: 0.5rem;
 }
 .thanks-item {
-    padding: 0.5rem 1rem;
+    padding: 0.4rem 0.8rem;
     border: 1px solid rgba(255,255,255,0.1);
     border-radius: 20px;
     cursor: pointer;
     transition: all 0.3s;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     letter-spacing: 1px;
+    /* Animated */
+    animation: shakeSlow 4s infinite ease-in-out;
+    position: relative;
+    overflow: hidden;
+}
+.thanks-item::after {
+    content: 'click to see info';
+    display: block;
+    font-size: 0.5rem;
+    color: var(--accent-color);
+    opacity: 0.7;
+    margin-top: 2px;
 }
 .thanks-item:hover {
     background: rgba(255,255,255,0.1);
-    transform: translateY(-2px);
     border-color: var(--accent-color);
+    box-shadow: 0 0 15px var(--accent-color);
+}
+
+@keyframes shakeSlow {
+    0%, 100% { transform: rotate(0deg); box-shadow: 0 0 5px rgba(255,255,255,0.1); }
+    25% { transform: rotate(1deg); }
+    50% { transform: rotate(-1deg); box-shadow: 0 0 10px rgba(0, 246, 255, 0.2); }
+    75% { transform: rotate(1deg); }
 }
 
 /* 🎭 THEMED MODALS */
