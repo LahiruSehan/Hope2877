@@ -20,9 +20,9 @@ const ParticleBackground = () => {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
                 this.size = Math.random() * 2 + 1;
-                this.speedX = (Math.random() - 0.5) * 0.15; 
-                this.speedY = (Math.random() - 0.5) * 0.15;
-                const hue = Math.random() > 0.5 ? 200 + Math.random() * 60 : 260 + Math.random() * 60; 
+                this.speedX = (Math.random() - 0.5) * 0.1; // Very slow
+                this.speedY = (Math.random() - 0.5) * 0.1; // Very slow
+                const hue = Math.random() > 0.5 ? 200 + Math.random() * 60 : 260 + Math.random() * 60; // Cool colors
                 this.color = `hsla(${hue}, 70%, 50%, 0.3)`;
             }
             update() {
@@ -40,7 +40,7 @@ const ParticleBackground = () => {
                 ctx.fill();
             }
         }
-        const init = () => { particles = []; for(let i=0; i<40; i++) particles.push(new Particle()); };
+        const init = () => { particles = []; for(let i=0; i<30; i++) particles.push(new Particle()); };
         init();
         const animate = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -125,7 +125,7 @@ const Paywall = ({ onUnlock }) => {
                 {mode === 'vip' ? (
                     <div>
                         <input className="cc-input" style={{width:'100%',textAlign:'center',marginBottom:'15px',color:'#FFD700',border:'1px solid #FFD700',background:'#000',padding:'12px',borderRadius:'8px'}} placeholder="ENTER VIP KEY" value={code} onChange={e=>setCode(e.target.value.toUpperCase())} />
-                        <button className="start-btn-soft" style={{width:'100%',margin:'0',background:'#FFD700',color:'#000',fontSize:'1rem'}} onClick={()=>onUnlock(code)}>{t.unlock}</button>
+                        <button className="start-btn-soft" style={{width:'100%',margin:'0',background:'#FFD700',color:'#000',fontSize:'0.9rem'}} onClick={()=>onUnlock(code)}>{t.unlock}</button>
                     </div>
                 ) : (
                     <div><button className="start-btn-soft" style={{width:'100%',margin:'0',fontSize:'1rem'}} onClick={()=>alert("ERROR: BANK UNREACHABLE")}>PAY NOW</button></div>
@@ -135,27 +135,31 @@ const Paywall = ({ onUnlock }) => {
     );
 };
 
-// --- COMPONENT: HOME PAGE ---
+// --- COMPONENT: HOME PAGE (Re-Ordered) ---
 const HomePage = ({ onStart, onViewCredits }) => {
     return (
         <div className="home-layout fade-in">
-            {/* Cover Art */}
-            <div className="cover-art-container">
-                <img src={window.APP_CONFIG.assets.cover} className="cover-art-gif" alt="Cover" />
+            {/* Top Section */}
+            <div className="home-top-section">
+                <div className="cover-art-container">
+                    <img src={window.APP_CONFIG.assets.cover} className="cover-art-gif" alt="Cover" />
+                </div>
+
+                <h1 className="hero-title">
+                    {t.title_start}<br />
+                    <span className="title-red">{t.title_end}</span>
+                </h1>
             </div>
 
-            <h1 className="hero-title">
-                {t.title_start}<br />
-                <span className="title-red">{t.title_end}</span>
-            </h1>
+            {/* Center Actions */}
+            <div className="home-center-action">
+                <div className="start-btn-soft" onClick={onStart}>{t.start}</div>
+                <div className="hunt-text">{t.subtitle}</div>
+            </div>
 
-            {/* Soft Edge Epic Button */}
-            <div className="start-btn-soft" onClick={onStart}>{t.start}</div>
-            <div className="hunt-text">{t.subtitle}</div>
-
-            {/* Special Recognition - Round Row */}
+            {/* Bottom Credits */}
             <div className="credits-section">
-                <div className="section-header" style={{fontSize:'0.8rem', color:'#666', letterSpacing:'2px'}}>{t.special}</div>
+                <div className="section-header" style={{fontSize:'0.7rem', color:'#666', letterSpacing:'2px'}}>{t.special}</div>
                 <div className="credits-row">
                     {window.APP_CONFIG.credits.map((c, i) => (
                         <div key={i} className="soft-credit-btn" onClick={() => onViewCredits(c)}>
@@ -165,8 +169,6 @@ const HomePage = ({ onStart, onViewCredits }) => {
                 </div>
                 <p className="credit-subtext">{t.more_info}</p>
             </div>
-            
-            <div className="app-footer">{t.footer}</div>
         </div>
     );
 };
@@ -201,15 +203,15 @@ const MangaPage = ({ onRead }) => {
     );
 };
 
-// --- COMPONENT: READER ---
+// --- COMPONENT: READER (Fixed Toolbar) ---
 const ReaderPage = ({ chapterId, onBack }) => {
     const chapter = window.APP_CONFIG.chapters.find(c => c.id === chapterId);
     return (
         <div className="reader-container fade-in">
-            {/* FIXED TOP TOOLBAR */}
+            {/* FLOATING TRANSPARENT OVERLAY TOOLBAR */}
             <div className="reader-toolbar">
-                <i className="fas fa-home reader-icon" onClick={onBack}></i>
-                <span style={{color:'#fff',fontSize:'0.8rem',fontFamily:'Orbitron'}}>CH {chapterId}</span>
+                <i className="fas fa-arrow-left reader-icon" onClick={onBack}></i>
+                <span style={{color:'#fff',fontSize:'0.8rem',fontFamily:'Orbitron', textShadow:'0 0 5px #000'}}>CH {chapterId}</span>
                 <div style={{display:'flex'}}>
                     <i className="fas fa-heart reader-icon" onClick={()=>alert('Liked!')}></i>
                     <i className="fas fa-comment reader-icon" onClick={()=>alert('Comments coming soon')}></i>
