@@ -15,17 +15,59 @@ document.addEventListener('DOMContentLoaded', () => {
     setupSpecialThanks();
 });
 
-// 🌀 Handle Intro Animation
+// 🎬 CINEMATIC MOVIE INTRO LOGIC
 function handleIntro() {
-    const intro = document.getElementById('intro-overlay');
-    if (intro) {
-        setTimeout(() => {
-            intro.style.opacity = '0';
-            setTimeout(() => {
-                intro.style.display = 'none';
-            }, 1000);
-        }, 2000); // 2 seconds intro
+    const intro = document.getElementById('movie-intro');
+    const titleText = document.getElementById('intro-title-text');
+    
+    if (!intro || !titleText) return;
+
+    // 1. Text Fragmentation Logic
+    // Need to split text nodes into spans without breaking <br>
+    const originalHTML = titleText.innerHTML;
+    // Replace <br> with a placeholder to split safely, then reconstruct
+    // Or simpler: handle text lines manually since we know the content
+    titleText.innerHTML = '';
+    
+    const lines = ["Beneath the Light", "of a Dying Sky"];
+    
+    lines.forEach((line, lineIndex) => {
+        const lineDiv = document.createElement('div');
+        // Split into characters
+        line.split('').forEach((char, i) => {
+            const span = document.createElement('span');
+            span.innerText = char;
+            span.className = 'intro-char';
+            if (char === ' ') span.style.width = '10px'; // Handle spaces
+            
+            // Randomize delay slightly for the "Fragmented" feel
+            // Base delay starts at 1.2s (after line laser)
+            const randomDelay = Math.random() * 0.5; 
+            span.style.animationDelay = `${1.2 + randomDelay + (i * 0.05)}s`;
+            
+            lineDiv.appendChild(span);
+        });
+        titleText.appendChild(lineDiv);
+    });
+
+    // 2. Add Ember Particles via JS (for intro only)
+    for(let i=0; i<20; i++) {
+        const ember = document.createElement('div');
+        ember.className = 'ember';
+        ember.style.left = Math.random() * 100 + '%';
+        ember.style.top = (80 + Math.random() * 20) + '%';
+        ember.style.animationDelay = `${2.3 + Math.random()}s`; // Start after title activates
+        intro.appendChild(ember);
     }
+
+    // 3. Intro Cleanup (Total duration approx 5.5s)
+    setTimeout(() => {
+        intro.style.transition = 'opacity 1s ease';
+        intro.style.opacity = '0';
+        setTimeout(() => {
+            intro.style.display = 'none';
+        }, 1000);
+    }, 5500);
 }
 
 // 🖼️ Load Cover from Config
