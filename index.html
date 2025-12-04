@@ -11,15 +11,21 @@
     
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/manga.css">
-<script type="importmap">
+
+    <!-- ⚛️ IMPORT MAP (Tells browser where to get React) -->
+    <script type="importmap">
 {
   "imports": {
+    "react": "https://esm.sh/react@18.2.0",
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
-    "react/": "https://aistudiocdn.com/react@^19.2.1/",
-    "react": "https://aistudiocdn.com/react@^19.2.1"
+    "react/": "https://aistudiocdn.com/react@^19.2.1/"
   }
 }
 </script>
+    <!-- ⚛️ BABEL (Translates JSX to JS in the browser) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
 </head>
 <body>
     
@@ -148,7 +154,10 @@
 
     <!-- Scripts -->
     <script src="scripts/config.js"></script> <!-- Loaded first -->
-    <script type="module" src="index.tsx"></script> <!-- React Intro -->
+    
+    <!-- ⚛️ REACT INTRO (Processed by Babel) -->
+    <script type="text/babel" data-type="module" src="index.tsx"></script> 
+    
     <script src="scripts/main.js"></script> <!-- Main Logic -->
 </body>
 </html>
