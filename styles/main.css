@@ -44,237 +44,200 @@ body {
 }
 
 /* =========================================
-   🎬 ULTRA-CINEMATIC RITUAL INTRO STYLES
+   ⚛️ REACT SUPER CHARGED INTRO STYLES
    ========================================= */
 
-#cinematic-intro {
+.react-intro-container {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
     background: #000;
-    z-index: 9999;
+    z-index: 10000;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    perspective: 1200px; /* For 3D text effects */
-    transition: opacity 1s ease-out; /* Smooth fade out */
+    perspective: 1000px;
 }
 
-/* 0. TOP MAGICAL LOADING BAR */
-#intro-progress-bar {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 4px;
-    width: 0%; /* JS animates this */
-    background: linear-gradient(90deg, var(--accent-color), var(--fantasy-purple));
-    box-shadow: 0 0 15px var(--accent-color), 0 0 30px var(--fantasy-purple);
-    z-index: 10000;
-    border-radius: 0 2px 2px 0;
-}
-
-/* Particles dropping from the leading edge of the bar */
-#intro-progress-bar::after {
-    content: '';
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 4px;
-    height: 4px;
-    background: #fff;
-    box-shadow: 
-        0 0 10px #fff,
-        -10px 10px 0 var(--accent-color),
-        -20px 20px 0 var(--fantasy-purple),
-        -5px 15px 0 var(--accent-color),
-        -15px 25px 0 var(--fantasy-purple);
-    animation: sparkDrop 0.2s linear infinite;
-    opacity: 0.8;
-}
-
-@keyframes sparkDrop {
-    0% { transform: translateY(0) scale(1); opacity: 1; }
-    100% { transform: translateY(50px) scale(0); opacity: 0; }
-}
-
-
-/* 1. THE VOID (0-1s) */
-.intro-void {
+/* 🌌 NEBULA BACKGROUND */
+.nebula-layer {
     position: absolute;
     width: 100%; height: 100%;
-    background: radial-gradient(circle at center, #0a000f, #000 80%);
-    opacity: 1; /* Immediate start */
     z-index: 0;
+    opacity: 0;
+    transition: opacity 2s;
+}
+.phase-ignition .nebula-layer, .phase-forge .nebula-layer { opacity: 1; }
+
+.nebula-cloud {
+    position: absolute;
+    width: 150%; height: 150%;
+    top: -25%; left: -25%;
+    background: radial-gradient(circle at center, transparent, rgba(76, 0, 255, 0.1), transparent);
+    filter: blur(50px);
+    animation: rotateNebula 60s linear infinite;
+}
+.nebula-cloud.c2 {
+    background: radial-gradient(circle at 60% 40%, transparent, rgba(255, 0, 60, 0.08), transparent);
+    animation-direction: reverse;
+    animation-duration: 80s;
 }
 
-/* 2. MAGICAL SPARKS / EMBERS (handled by JS particles) */
-.cinematic-ember {
+@keyframes rotateNebula { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* ✨ SINGULARITY & FORGE */
+.forge-container {
+    position: relative;
+    width: 300px; height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 5;
+    transform: scale(0);
+    transition: transform 1.5s cubic-bezier(0.19, 1, 0.22, 1);
+}
+.phase-ignition .forge-container, .phase-forge .forge-container { transform: scale(1); }
+
+.singularity-core {
+    width: 20px; height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 50px #fff, 0 0 100px var(--accent-color);
+    z-index: 10;
+    animation: pulseCore 0.5s infinite alternate;
+}
+
+@keyframes pulseCore { 
+    from { transform: scale(1); box-shadow: 0 0 20px #fff; } 
+    to { transform: scale(1.5); box-shadow: 0 0 80px var(--accent-color); } 
+}
+
+/* 🔄 RUNE RINGS */
+.rune-ring {
+    position: absolute;
+    border: 1px solid rgba(0, 246, 255, 0.3);
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(0, 246, 255, 0.1);
+    opacity: 0;
+    transition: opacity 1s;
+}
+.phase-forge .rune-ring { opacity: 1; }
+
+.ring-1 { width: 120px; height: 120px; border-top-color: var(--accent-color); animation: spinRing 4s linear infinite; }
+.ring-2 { width: 200px; height: 200px; border-bottom-color: var(--fantasy-purple); animation: spinRing 7s linear infinite reverse; border-width: 2px; }
+.ring-3 { width: 280px; height: 280px; border-left-color: var(--fantasy-gold); animation: spinRing 12s linear infinite; border-style: dashed; }
+
+@keyframes spinRing { from { transform: rotate(0deg) rotateX(20deg); } to { transform: rotate(360deg) rotateX(20deg); } }
+
+/* 🎇 PARTICLES */
+.particle-spark {
     position: absolute;
     width: 2px; height: 2px;
-    background: var(--fantasy-gold);
+    background: #fff;
     border-radius: 50%;
-    box-shadow: 0 0 6px var(--accent-secondary);
     opacity: 0;
-    animation: floatEmber 10s linear infinite;
 }
-@keyframes floatEmber {
-    0% { opacity: 0; transform: translateY(0) scale(0.5); }
-    10% { opacity: 0.8; }
-    50% { opacity: 0.4; }
-    100% { opacity: 0; transform: translateY(-100vh) scale(0); }
+.phase-forge .particle-spark {
+    animation: orbitParticle 3s linear infinite;
+    opacity: 1;
 }
 
-/* 5. MYSTICAL FOG (Immediate) */
-.mystical-fog {
-    position: absolute;
-    width: 200%; height: 100%;
-    background: linear-gradient(to right, transparent, rgba(75, 0, 130, 0.1), transparent);
-    filter: blur(40px);
-    z-index: 2;
-    opacity: 0;
-    animation: flowFog 10s linear infinite;
-    animation-delay: 0.5s;
+@keyframes orbitParticle {
+    0% { transform: rotate(0deg) translateX(80px) scale(0.5); }
+    50% { opacity: 1; }
+    100% { transform: rotate(360deg) translateX(80px) scale(0); opacity: 0; }
 }
-.fog-top { top: -20%; animation-duration: 25s; opacity: 0; animation: fogFadeIn 2s forwards 0.5s; }
-.fog-bottom { bottom: -20%; background: linear-gradient(to left, transparent, rgba(255, 69, 0, 0.05), transparent); animation: fogFadeIn 2s forwards 0.5s; }
 
-@keyframes fogFadeIn { to { opacity: 1; } }
-
-/* 6. TITLE SUMMONING (Slower & Magical) */
-.intro-focus-container {
-    position: relative;
-    z-index: 10;
+/* 📝 HOLOGRAPHIC TEXT */
+.title-construct {
+    margin-top: 50px;
     text-align: center;
-    width: 100%;
-}
-
-.ritual-title {
-    font-family: var(--font-title);
-    font-size: 2.8rem;
-    position: relative;
-    line-height: 1.4;
-    perspective: 100px;
-    
-    /* Magical Gradient Text - Epic & Vibrant */
-    background: linear-gradient(to right, #00F6FF, #FF003C, #FFD700, #00F6FF);
-    background-size: 300%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    animation: magicTextFlow 3s linear infinite; /* Faster flow */
-}
-
-@keyframes magicTextFlow {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 100% 50%; }
-}
-
-.ritual-char {
-    display: inline-block;
-    color: transparent; 
-    opacity: 0;
-    transform-origin: center;
-    /* Animation: 4s */
-    animation: crystalSummon 4s cubic-bezier(0.19, 1, 0.22, 1) forwards;
-    /* Sharp Glow */
-    text-shadow: none; 
-}
-
-.ritual-char {
-    background: inherit;
-    -webkit-background-clip: text;
-    background-clip: text;
-}
-
-@keyframes crystalSummon {
-    0% { 
-        opacity: 0; 
-        transform: translate3d(var(--rx), var(--ry), -100px) rotate(var(--rr)); 
-        filter: blur(0); /* NO BLUR */
-        text-shadow: 0 0 0 transparent;
-    }
-    60% {
-        opacity: 1;
-        transform: translate3d(0,0,0) rotate(0deg);
-        filter: blur(0);
-    }
-    100% {
-        opacity: 1;
-        transform: translate3d(0,0,0) rotate(0deg);
-        /* Magical Particle Glow */
-        text-shadow: 0 0 15px rgba(0, 246, 255, 0.8), 0 0 30px rgba(157, 0, 255, 0.6);
-    }
-}
-
-/* 9. RUNE LOADING RING */
-.rune-loader-container {
-    margin-top: 40px;
-    position: relative;
-    width: 100px; height: 100px;
-    margin-left: auto; margin-right: auto;
-    display: flex; justify-content: center; align-items: center;
-}
-
-.rune-segment {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    border: 3px solid transparent;
-    border-top-color: #222; /* Dormant */
-    border-radius: 50%;
-    transition: all 0.1s;
-    opacity: 0;
-    transform: scale(0.8);
-    animation: segmentAppear 0.5s forwards; /* Delay in JS */
-}
-
-.rune-segment.active {
-    border-top-color: var(--accent-color); /* Bright Blue */
-    box-shadow: 0 0 15px var(--accent-color);
-    filter: drop-shadow(0 0 5px var(--accent-color));
-}
-
-@keyframes segmentAppear { to { opacity: 1; transform: scale(1) rotate(var(--rot)); } }
-
-.rune-core {
-    width: 70%; height: 70%;
-    background: radial-gradient(circle, rgba(0, 246, 255, 0.2), transparent);
-    border-radius: 50%;
-    opacity: 0;
-    animation: pulseCore 3s ease-in-out infinite;
-    animation-delay: 2s; 
-}
-@keyframes pulseCore { 0%, 100% { opacity: 0.2; transform: scale(0.8); } 50% { opacity: 0.6; transform: scale(1); } }
-
-/* Loading Counter - Centered in Ring */
-#loading-counter {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-family: var(--font-heading);
-    color: var(--accent-color);
-    font-size: 1rem;
-    font-weight: bold;
-    text-shadow: 0 0 10px var(--accent-color);
-    letter-spacing: 1px;
     z-index: 10;
+    opacity: 0;
+    filter: blur(20px);
+    transform: translateY(20px);
+    transition: all 1s ease-out;
+}
+.title-construct.visible {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
 }
 
-/* 11. ASCENSION FLASH (Simplified Fade) */
-.ascension-flash {
+.hologram-text {
+    font-family: var(--font-title);
+    font-size: 3rem;
+    background: linear-gradient(to right, #00F6FF, #fff, #9D00FF);
+    -webkit-background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 30px rgba(0, 246, 255, 0.5);
+    letter-spacing: 2px;
+}
+
+.hologram-sub {
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+    color: var(--accent-secondary);
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    margin-top: 10px;
+}
+
+/* 🔋 MANA LOADING BAR */
+.mana-bar-container {
+    position: absolute;
+    bottom: 50px;
+    width: 300px;
+    height: 6px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 1s;
+}
+.phase-forge .mana-bar-container { opacity: 1; }
+
+.mana-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--fantasy-purple), var(--accent-color));
+    position: relative;
+    box-shadow: 0 0 20px var(--accent-color);
+}
+.mana-glow {
+    position: absolute;
+    right: 0; top: 0; height: 100%; width: 20px;
+    background: #fff;
+    filter: blur(4px);
+    box-shadow: 0 0 20px #fff;
+}
+.mana-text {
+    text-align: center;
+    color: var(--accent-color);
+    font-family: var(--font-heading);
+    font-size: 0.7rem;
+    margin-top: 10px;
+    letter-spacing: 2px;
+}
+
+/* ⚡ ASCENSION FLASH */
+.ascension-overlay {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: #000; 
+    background: #fff;
     opacity: 0;
     pointer-events: none;
-    z-index: 100;
+    z-index: 20;
+    transition: opacity 2s;
+}
+.phase-ascension .ascension-overlay {
+    opacity: 1;
 }
 
 /* =========================================
-   END INTRO STYLES
+   END REACT INTRO STYLES
    ========================================= */
 
 /* Particle Canvas Overlay */

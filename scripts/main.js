@@ -2,7 +2,9 @@
 
 // 🧠 8. SCRIPT BEHAVIOR - Main
 document.addEventListener('DOMContentLoaded', () => {
-    handleIntro();
+    // Intro is handled by React (index.tsx) now
+    // handleIntro(); <-- REMOVED
+    
     setupProtection();
     setupAnimations();
     initParticles();
@@ -14,99 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setupPaywall();
     setupSpecialThanks();
 });
-
-// 🎬 CINEMATIC RITUAL INTRO LOGIC (15s Sequence)
-function handleIntro() {
-    const intro = document.getElementById('cinematic-intro');
-    const titleText = document.getElementById('ritual-title');
-    const runeContainer = document.getElementById('rune-loader');
-    const loadingCounter = document.getElementById('loading-counter');
-    const topBar = document.getElementById('intro-progress-bar');
-    
-    if (!intro || !titleText) return;
-
-    // 1. Crystal Shard Text Effect
-    // We split text and randomly position characters in 3D space
-    const lines = ["Beneath The Light", "of a Dying Sky"];
-    titleText.innerHTML = ''; // Clear original text
-
-    lines.forEach((line) => {
-        const lineDiv = document.createElement('div');
-        line.split('').forEach((char, i) => {
-            const span = document.createElement('span');
-            span.innerText = char;
-            span.className = 'ritual-char';
-            if (char === ' ') span.style.width = '12px';
-            
-            // Random start positions for the "Shard" effect
-            const rx = (Math.random() - 0.5) * 200 + 'px'; 
-            const ry = (Math.random() - 0.5) * 200 + 'px'; 
-            const rr = (Math.random() - 0.5) * 90 + 'deg'; 
-            
-            span.style.setProperty('--rx', rx);
-            span.style.setProperty('--ry', ry);
-            span.style.setProperty('--rr', rr);
-
-            // Staggered delay logic (Start immediately, stagger slightly)
-            span.style.animationDelay = `${0.5 + (i * 0.1)}s`;
-
-            lineDiv.appendChild(span);
-        });
-        titleText.appendChild(lineDiv);
-    });
-
-    // 2. Generate Rune Loader Segments (Circle)
-    // Create 12 segments forming a circle
-    const segmentCount = 12;
-    for(let i=0; i<segmentCount; i++) {
-        const seg = document.createElement('div');
-        seg.className = 'rune-segment';
-        const rot = (360 / segmentCount) * i;
-        seg.style.setProperty('--rot', rot + 'deg');
-        
-        // Faster appearance
-        seg.style.animationDelay = `${1 + (i * 0.1)}s`;
-        
-        setTimeout(() => {
-            seg.classList.add('active');
-        }, (1 + (i * 0.1)) * 1000);
-
-        runeContainer.appendChild(seg);
-    }
-
-    // 3. Magical Particles
-    const particleContainer = document.getElementById('intro-particles');
-    for(let i=0; i<30; i++) {
-        const p = document.createElement('div');
-        p.className = 'cinematic-ember';
-        p.style.left = Math.random() * 100 + '%';
-        p.style.top = (Math.random() * 100) + '%';
-        // Immediate start
-        p.style.animationDelay = `${Math.random() * 2}s`;
-        particleContainer.appendChild(p);
-    }
-
-    // 4. Loading Counter & Top Bar Logic (0 - 100%)
-    let percent = 0;
-    const interval = setInterval(() => {
-        percent++;
-        if (loadingCounter) loadingCounter.innerText = percent + '%';
-        if (topBar) topBar.style.width = percent + '%';
-        
-        if (percent >= 100) clearInterval(interval);
-    }, 120); // Spans over ~12s
-
-    // 5. ASCENSION / CLEANUP (12s - 14s) - Slightly reduced total time
-    setTimeout(() => {
-        // Simple Fade Out
-        intro.style.opacity = '0';
-        
-        // Remove from DOM
-        setTimeout(() => {
-            intro.style.display = 'none';
-        }, 1000); 
-    }, 12000);
-}
 
 // 🖼️ Load Cover from Config
 function loadAppCover() {

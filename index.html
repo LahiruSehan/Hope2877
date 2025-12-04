@@ -11,40 +11,20 @@
     
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/manga.css">
+<script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "react/": "https://aistudiocdn.com/react@^19.2.1/",
+    "react": "https://aistudiocdn.com/react@^19.2.1"
+  }
+}
+</script>
 </head>
 <body>
     
-    <!-- 🎬 ULTRA-CINEMATIC RITUAL INTRO -->
-    <div id="cinematic-intro">
-        <!-- 0. TOP MAGICAL LOADING BAR -->
-        <div id="intro-progress-bar"></div>
-
-        <!-- Layer 1: The Void & Fog -->
-        <div class="intro-void"></div>
-        <div class="mystical-fog fog-top"></div>
-        <div class="mystical-fog fog-bottom"></div>
-        <div id="intro-particles"></div>
-
-        <!-- Layer 3: The Content -->
-        <div class="intro-focus-container">
-            
-            <!-- The Title (Letters injected by JS) -->
-            <h1 class="ritual-title" id="ritual-title">
-                Beneath The Light<br>of a Dying Sky
-            </h1>
-
-            <!-- The Rune Loader with Centered Counter -->
-            <div class="rune-loader-container" id="rune-loader">
-                <!-- Counter Moved Inside -->
-                <div id="loading-counter">0%</div>
-                <!-- Segments injected by JS -->
-                <div class="rune-core"></div>
-            </div>
-        </div>
-        
-        <!-- Flash Overlay for Transition -->
-        <div class="ascension-flash"></div>
-    </div>
+    <!-- ⚛️ REACT ROOT FOR SUPER CHARGED INTRO -->
+    <div id="react-intro-root"></div>
 
     <!-- Background Particles (Main App) -->
     <canvas id="particle-canvas"></canvas>
@@ -131,7 +111,8 @@
         </div>
     </div>
 
-    <div class="container home-container">
+    <!-- MAIN HOME CONTAINER (Hidden initially by CSS opacity) -->
+    <div class="container home-container" id="main-app-container" style="opacity: 0; transition: opacity 2s ease-in;">
         
         <div class="hero-section fade-in">
             <!-- Cover injected via scripts/config.js logic -->
@@ -167,6 +148,7 @@
 
     <!-- Scripts -->
     <script src="scripts/config.js"></script> <!-- Loaded first -->
-    <script src="scripts/main.js"></script>
+    <script type="module" src="index.tsx"></script> <!-- React Intro -->
+    <script src="scripts/main.js"></script> <!-- Main Logic -->
 </body>
 </html>
