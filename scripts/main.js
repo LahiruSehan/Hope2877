@@ -1,5 +1,6 @@
 
 
+
 // 🧠 8. SCRIPT BEHAVIOR - Main
 document.addEventListener('DOMContentLoaded', () => {
     handleIntro();
@@ -15,19 +16,21 @@ document.addEventListener('DOMContentLoaded', () => {
     setupSpecialThanks();
 });
 
-// 🎬 CINEMATIC RITUAL INTRO LOGIC (15s Sequence)
+// 🎬 CINEMATIC RITUAL INTRO LOGIC (Immediate Start)
 function handleIntro() {
     const intro = document.getElementById('cinematic-intro');
     const titleText = document.getElementById('ritual-title');
     const runeContainer = document.getElementById('rune-loader');
+    const counterText = document.getElementById('loading-counter');
     
     if (!intro || !titleText) return;
 
-    // 1. Crystal Shard Text Effect (6-8s)
+    // 1. Crystal Shard Text Effect (Immediate)
     // We split text and randomly position characters in 3D space
-    // CSS Keyframe 'crystalSummon' will animate them to 0,0,0
     const lines = ["Beneath The Light", "of a Dying Sky"];
-    titleText.innerHTML = ''; // Clear original text
+    titleText.innerHTML = ''; 
+
+    let charDelayBase = 0; // Start immediately
 
     lines.forEach((line) => {
         const lineDiv = document.createElement('div');
@@ -37,26 +40,40 @@ function handleIntro() {
             span.className = 'ritual-char';
             if (char === ' ') span.style.width = '12px';
             
-            // Random start positions for the "Shard" effect
-            // We use CSS variables to pass these random values to the Keyframe
-            const rx = (Math.random() - 0.5) * 200 + 'px'; // Random X
-            const ry = (Math.random() - 0.5) * 200 + 'px'; // Random Y
-            const rr = (Math.random() - 0.5) * 90 + 'deg'; // Random Rotation
+            // Random start positions
+            const rx = (Math.random() - 0.5) * 150 + 'px';
+            const ry = (Math.random() - 0.5) * 150 + 'px';
             
             span.style.setProperty('--rx', rx);
             span.style.setProperty('--ry', ry);
-            span.style.setProperty('--rr', rr);
 
-            // Staggered delay starting at 6s
-            span.style.animationDelay = `${6 + (i * 0.05)}s`;
+            // Staggered delay (faster)
+            span.style.animationDelay = `${charDelayBase + (i * 0.05)}s`;
 
             lineDiv.appendChild(span);
         });
+        charDelayBase += 0.8; // Delay next line slightly
         titleText.appendChild(lineDiv);
     });
 
-    // 2. Generate Rune Loader Segments (10-13s)
-    // Create 12 segments forming a circle
+    // 2. Rising Number Counter (0% - 100%)
+    if (counterText) {
+        let percent = 0;
+        const duration = 10000; // 10 seconds to match intro
+        const interval = 100; // update speed
+        const step = 100 / (duration / interval);
+        
+        const timer = setInterval(() => {
+            percent += step;
+            if (percent >= 100) {
+                percent = 100;
+                clearInterval(timer);
+            }
+            counterText.innerText = Math.floor(percent) + '%';
+        }, interval);
+    }
+
+    // 3. Generate Rune Loader Segments (Start appearing after 2s)
     const segmentCount = 12;
     for(let i=0; i<segmentCount; i++) {
         const seg = document.createElement('div');
@@ -64,41 +81,37 @@ function handleIntro() {
         const rot = (360 / segmentCount) * i;
         seg.style.setProperty('--rot', rot + 'deg');
         
-        // Staggered activation
-        seg.style.animationDelay = `${10 + (i * 0.2)}s`;
+        // Activation
+        seg.style.animationDelay = `${2 + (i * 0.5)}s`;
         
-        // When active, add glow class (handled via Animation Keyframes in CSS mostly, 
-        // but we can add specific listeners if we wanted sound, etc.)
         setTimeout(() => {
             seg.classList.add('active');
-        }, (10 + (i * 0.2)) * 1000);
+        }, (2 + (i * 0.5)) * 1000);
 
         runeContainer.appendChild(seg);
     }
 
-    // 3. Magical Particles (8.7 - 10s)
-    // Inject embers into the #intro-particles container
+    // 4. Magical Particles
     const particleContainer = document.getElementById('intro-particles');
     for(let i=0; i<30; i++) {
         const p = document.createElement('div');
         p.className = 'cinematic-ember';
         p.style.left = Math.random() * 100 + '%';
         p.style.top = (Math.random() * 100) + '%';
-        // Delay appearance
-        p.style.animationDelay = `${8.7 + Math.random() * 2}s`;
+        p.style.animationDelay = `${Math.random() * 5}s`;
         particleContainer.appendChild(p);
     }
 
-    // 4. ASCENSION / CLEANUP (14.5s - 16s)
+    // 5. ASCENSION / CLEANUP (At 12s)
     setTimeout(() => {
-        // Trigger Flash and Dissolve
+        // Trigger Fade Out (Opacity 0)
         intro.classList.add('ascension-active');
         
         // Remove from DOM after transition
         setTimeout(() => {
             intro.style.display = 'none';
-        }, 2000); // 1.5s flash duration + buffer
-    }, 14500);
+        }, 2000); 
+    }, 12000); // 12 seconds total intro
 }
 
 // 🖼️ Load Cover from Config
@@ -118,7 +131,6 @@ function setupLegalModal() {
 
     if (!trigger || !modal) return;
 
-    // Load text from Config
     if (typeof APP_CONFIG !== 'undefined') {
         contentBody.innerHTML = `
             <p class="legal-text">${APP_CONFIG.legal.license}</p>
@@ -255,7 +267,6 @@ function openThemeModal(person) {
     closeBtn.onclick = () => {
         modal.style.display = 'none';
         clearInterval(particleInterval);
-        // Clean up particles
         document.querySelectorAll('.emoji-particle').forEach(e => e.remove());
     };
 }
@@ -267,11 +278,9 @@ function createEmojiParticle(emoji, theme) {
     p.style.left = Math.random() * 100 + 'vw';
     
     if (theme === 'fire') {
-        // Fire goes UP
         p.style.bottom = '-50px';
         p.style.animation = `riseUp ${2 + Math.random()}s linear forwards`;
     } else {
-        // Sakura/Blood goes DOWN
         p.style.top = '-50px';
         p.style.animation = `fallDown ${2 + Math.random()}s linear forwards`;
     }
@@ -281,7 +290,7 @@ function createEmojiParticle(emoji, theme) {
     setTimeout(() => p.remove(), 4000);
 }
 
-// 🌌 Particle Background
+// 🌌 Particle Background (Canvas)
 function initParticles() {
     const canvas = document.getElementById('particle-canvas');
     if (!canvas) return;
@@ -351,7 +360,6 @@ window.showToast = function(message) {
     toast.innerText = message;
     container.appendChild(toast);
 
-    // Trigger reflow
     void toast.offsetWidth; 
     toast.classList.add('show');
 
@@ -361,15 +369,11 @@ window.showToast = function(message) {
     }, 2000);
 };
 
-// 🔐 5. COPYRIGHT & PROTECTION
+// 🔐 PROTECTION
 function setupProtection() {
-    // Block Right Click
     document.addEventListener('contextmenu', e => e.preventDefault());
-    
-    // Block Dragging
     document.addEventListener('dragstart', e => e.preventDefault());
     
-    // Block Key Combos (Save, Print, View Source)
     document.addEventListener('keydown', (e) => {
         if ((e.ctrlKey || e.metaKey) && ['s','p','u','shift'].includes(e.key.toLowerCase())) {
             e.preventDefault();
@@ -383,7 +387,6 @@ function setupAnimations() {
     if (container) container.classList.add('fade-in');
 }
 
-// Utility
 window.getQueryParam = (param) => {
     return new URLSearchParams(window.location.search).get(param);
 };

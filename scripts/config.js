@@ -1,5 +1,6 @@
 
 
+
 // ⚙️ CENTRAL CONFIGURATION FILE
 // Add your image links here. The app handles the rest.
 

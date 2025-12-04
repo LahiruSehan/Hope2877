@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,12 +15,10 @@
 </head>
 <body>
     
-    <!-- 🎬 ULTRA-CINEMATIC RITUAL INTRO -->
+    <!-- 🎬 CINEMATIC INTRO (NO BLACK WAIT, NO FLASH) -->
     <div id="cinematic-intro">
-        <!-- Layer 1: The Void & Fog -->
+        <!-- Layer 1: The Void -->
         <div class="intro-void"></div>
-        <div class="mystical-fog fog-top"></div>
-        <div class="mystical-fog fog-bottom"></div>
         <div id="intro-particles"></div>
 
         <!-- Layer 2: Ancient Glyph (Background) -->
@@ -31,23 +30,17 @@
 
         <!-- Layer 3: The Content -->
         <div class="intro-focus-container">
-            <!-- The Fracture Beam -->
-            <div class="fracture-beam"></div>
-
             <!-- The Title (Letters injected by JS) -->
             <h1 class="ritual-title" id="ritual-title">
                 Beneath The Light<br>of a Dying Sky
             </h1>
 
-            <!-- The Rune Loader -->
+            <!-- The Rune Loader + Rising Number -->
             <div class="rune-loader-container" id="rune-loader">
+                <div id="loading-counter">0%</div>
                 <!-- Segments injected by JS -->
-                <div class="rune-core"></div>
             </div>
         </div>
-        
-        <!-- Flash Overlay for Transition -->
-        <div class="ascension-flash"></div>
     </div>
 
     <!-- Background Particles (Main App) -->
@@ -135,24 +128,21 @@
         </div>
     </div>
 
-    <div class="container home-container">
+    <!-- HOME CONTAINER (NO SCROLL, FIT SCREEN) -->
+    <div class="home-container">
         
         <div class="hero-section fade-in">
             <!-- Cover injected via scripts/config.js logic -->
             <img id="app-cover" src="" alt="Beneath the Light Cover" class="cover-image glow-effect">
             
             <h1 class="manga-title">Beneath the Light<br><span class="subtitle">of a Dying Sky</span></h1>
-            <p class="manga-author">Sehan Karunarathne</p>
             
-            <div id="home-actions" style="margin: 2rem 0; display: flex; flex-direction: column; gap: 1rem; align-items: center;">
-                <button id="start-reading-btn" class="btn btn-primary pulse-anim">Start Reading</button>
+            <div class="glass-panel summary-panel">
+                <p>Hunt The Truth. The Truth isn't what it seems.</p>
             </div>
 
-            <div class="glass-panel summary-panel">
-                <p>
-                    Hunt The Truth. The Truth isn't what it seems.
-                </p>
-            </div>
+            <!-- Action -->
+            <button id="start-reading-btn" class="btn btn-primary pulse-anim">Start Reading</button>
 
             <!-- Special Thanks Section -->
             <div class="special-thanks">
