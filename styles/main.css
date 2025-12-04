@@ -63,6 +63,44 @@ body {
     transition: opacity 1s ease-out; /* Smooth fade out */
 }
 
+/* 0. TOP MAGICAL LOADING BAR */
+#intro-progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 4px;
+    width: 0%; /* JS animates this */
+    background: linear-gradient(90deg, var(--accent-color), var(--fantasy-purple));
+    box-shadow: 0 0 15px var(--accent-color), 0 0 30px var(--fantasy-purple);
+    z-index: 10000;
+    border-radius: 0 2px 2px 0;
+}
+
+/* Particles dropping from the leading edge of the bar */
+#intro-progress-bar::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 4px;
+    height: 4px;
+    background: #fff;
+    box-shadow: 
+        0 0 10px #fff,
+        -10px 10px 0 var(--accent-color),
+        -20px 20px 0 var(--fantasy-purple),
+        -5px 15px 0 var(--accent-color),
+        -15px 25px 0 var(--fantasy-purple);
+    animation: sparkDrop 0.2s linear infinite;
+    opacity: 0.8;
+}
+
+@keyframes sparkDrop {
+    0% { transform: translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateY(50px) scale(0); opacity: 0; }
+}
+
+
 /* 1. THE VOID (0-1s) */
 .intro-void {
     position: absolute;
@@ -87,25 +125,6 @@ body {
     10% { opacity: 0.8; }
     50% { opacity: 0.4; }
     100% { opacity: 0; transform: translateY(-100vh) scale(0); }
-}
-
-/* 4. FRACTURE BEAM (Start immediately) */
-.fracture-beam {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    height: 1px;
-    width: 0%;
-    background: #fff;
-    box-shadow: 0 0 20px var(--fantasy-gold), 0 0 40px var(--accent-secondary);
-    z-index: 5;
-    animation: fractureWorld 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    animation-delay: 0.2s;
-}
-@keyframes fractureWorld {
-    0% { width: 0%; opacity: 0; height: 2px; }
-    50% { width: 90%; opacity: 1; height: 1px; }
-    100% { width: 100%; opacity: 0; height: 0px; }
 }
 
 /* 5. MYSTICAL FOG (Immediate) */
@@ -139,13 +158,13 @@ body {
     line-height: 1.4;
     perspective: 100px;
     
-    /* Magical Gradient Text */
-    background: linear-gradient(to right, #00c6ff, #9D00FF, #ff00cc, #00c6ff);
+    /* Magical Gradient Text - Epic & Vibrant */
+    background: linear-gradient(to right, #00F6FF, #FF003C, #FFD700, #00F6FF);
     background-size: 300%;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    animation: magicTextFlow 4s linear infinite;
+    animation: magicTextFlow 3s linear infinite; /* Faster flow */
 }
 
 @keyframes magicTextFlow {
@@ -155,16 +174,15 @@ body {
 
 .ritual-char {
     display: inline-block;
-    color: transparent; /* Handled by parent gradient clip usually, but for particles we trick it */
+    color: transparent; 
     opacity: 0;
     transform-origin: center;
-    /* Slower animation: 4s */
+    /* Animation: 4s */
     animation: crystalSummon 4s cubic-bezier(0.19, 1, 0.22, 1) forwards;
-    /* Particle Text Effect simulation via shadow */
+    /* Sharp Glow */
     text-shadow: none; 
 }
 
-/* Apply gradient to text fill for characters to ensure they inherit it */
 .ritual-char {
     background: inherit;
     -webkit-background-clip: text;
@@ -175,7 +193,7 @@ body {
     0% { 
         opacity: 0; 
         transform: translate3d(var(--rx), var(--ry), -100px) rotate(var(--rr)); 
-        filter: blur(10px); 
+        filter: blur(0); /* NO BLUR */
         text-shadow: 0 0 0 transparent;
     }
     60% {
@@ -187,7 +205,7 @@ body {
         opacity: 1;
         transform: translate3d(0,0,0) rotate(0deg);
         /* Magical Particle Glow */
-        text-shadow: 0 0 10px rgba(0, 198, 255, 0.6), 0 0 20px rgba(157, 0, 255, 0.4);
+        text-shadow: 0 0 15px rgba(0, 246, 255, 0.8), 0 0 30px rgba(157, 0, 255, 0.6);
     }
 }
 
@@ -195,7 +213,7 @@ body {
 .rune-loader-container {
     margin-top: 40px;
     position: relative;
-    width: 80px; height: 80px;
+    width: 100px; height: 100px;
     margin-left: auto; margin-right: auto;
     display: flex; justify-content: center; align-items: center;
 }
@@ -203,8 +221,8 @@ body {
 .rune-segment {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    border: 2px solid transparent;
-    border-top-color: #333; /* Dormant */
+    border: 3px solid transparent;
+    border-top-color: #222; /* Dormant */
     border-radius: 50%;
     transition: all 0.1s;
     opacity: 0;
@@ -213,38 +231,43 @@ body {
 }
 
 .rune-segment.active {
-    border-top-color: var(--fantasy-purple); /* Changed to purple for magic theme */
-    box-shadow: 0 0 10px var(--fantasy-purple);
+    border-top-color: var(--accent-color); /* Bright Blue */
+    box-shadow: 0 0 15px var(--accent-color);
     filter: drop-shadow(0 0 5px var(--accent-color));
 }
 
 @keyframes segmentAppear { to { opacity: 1; transform: scale(1) rotate(var(--rot)); } }
 
 .rune-core {
-    width: 60%; height: 60%;
-    background: radial-gradient(circle, var(--fantasy-purple), transparent);
+    width: 70%; height: 70%;
+    background: radial-gradient(circle, rgba(0, 246, 255, 0.2), transparent);
     border-radius: 50%;
     opacity: 0;
     animation: pulseCore 3s ease-in-out infinite;
-    animation-delay: 2s; /* Faster start */
+    animation-delay: 2s; 
 }
 @keyframes pulseCore { 0%, 100% { opacity: 0.2; transform: scale(0.8); } 50% { opacity: 0.6; transform: scale(1); } }
 
-/* Loading Counter */
+/* Loading Counter - Centered in Ring */
 #loading-counter {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     font-family: var(--font-heading);
     color: var(--accent-color);
-    font-size: 0.8rem;
-    margin-bottom: 20px;
-    opacity: 0.7;
-    letter-spacing: 2px;
+    font-size: 1rem;
+    font-weight: bold;
+    text-shadow: 0 0 10px var(--accent-color);
+    letter-spacing: 1px;
+    z-index: 10;
 }
 
 /* 11. ASCENSION FLASH (Simplified Fade) */
 .ascension-flash {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: #000; /* Fade to transparent from black if needed, or just overlays */
+    background: #000; 
     opacity: 0;
     pointer-events: none;
     z-index: 100;

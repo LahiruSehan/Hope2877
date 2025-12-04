@@ -16,6 +16,9 @@
     
     <!-- 🎬 ULTRA-CINEMATIC RITUAL INTRO -->
     <div id="cinematic-intro">
+        <!-- 0. TOP MAGICAL LOADING BAR -->
+        <div id="intro-progress-bar"></div>
+
         <!-- Layer 1: The Void & Fog -->
         <div class="intro-void"></div>
         <div class="mystical-fog fog-top"></div>
@@ -24,19 +27,16 @@
 
         <!-- Layer 3: The Content -->
         <div class="intro-focus-container">
-            <!-- Loading Counter -->
-            <div id="loading-counter">0%</div>
-
-            <!-- The Fracture Beam -->
-            <div class="fracture-beam"></div>
-
+            
             <!-- The Title (Letters injected by JS) -->
             <h1 class="ritual-title" id="ritual-title">
                 Beneath The Light<br>of a Dying Sky
             </h1>
 
-            <!-- The Rune Loader -->
+            <!-- The Rune Loader with Centered Counter -->
             <div class="rune-loader-container" id="rune-loader">
+                <!-- Counter Moved Inside -->
+                <div id="loading-counter">0%</div>
                 <!-- Segments injected by JS -->
                 <div class="rune-core"></div>
             </div>

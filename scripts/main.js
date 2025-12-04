@@ -21,6 +21,7 @@ function handleIntro() {
     const titleText = document.getElementById('ritual-title');
     const runeContainer = document.getElementById('rune-loader');
     const loadingCounter = document.getElementById('loading-counter');
+    const topBar = document.getElementById('intro-progress-bar');
     
     if (!intro || !titleText) return;
 
@@ -85,11 +86,13 @@ function handleIntro() {
         particleContainer.appendChild(p);
     }
 
-    // 4. Loading Counter Logic (0 - 100%)
+    // 4. Loading Counter & Top Bar Logic (0 - 100%)
     let percent = 0;
     const interval = setInterval(() => {
         percent++;
         if (loadingCounter) loadingCounter.innerText = percent + '%';
+        if (topBar) topBar.style.width = percent + '%';
+        
         if (percent >= 100) clearInterval(interval);
     }, 120); // Spans over ~12s
 
