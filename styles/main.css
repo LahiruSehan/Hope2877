@@ -98,13 +98,13 @@ body {
     text-align: center;
     min-height: auto;
     justify-content: flex-start;
-    gap: 2px; /* optional */
+    gap: 4px; /* optional */
 
 }
 
 /* Center Section */ 
 .home-center-action { 
-    margin: 2rem 0; /* Balanced spacing */ 
+    margin: 5rem 0; /* Balanced spacing */ 
     display: flex; 
     flex-direction: column; 
     align-items: center; }
