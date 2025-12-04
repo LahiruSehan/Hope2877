@@ -1,3 +1,4 @@
+// ⚛️ index.tsx
 import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 
@@ -46,7 +47,7 @@ const MagicalIntro = () => {
         sequence();
     }, []);
 
-    const wait = (ms) => new Promise(res => setTimeout(res, ms));
+    const wait = (ms: number) => new Promise(res => setTimeout(res, ms));
 
     if (phase === 'done') return null;
 
@@ -103,5 +104,7 @@ const MagicalIntro = () => {
 
 // Render
 const container = document.getElementById('react-intro-root');
-const root = createRoot(container);
-root.render(<MagicalIntro />);
+if (container) {
+    const root = createRoot(container);
+    root.render(<MagicalIntro />);
+}

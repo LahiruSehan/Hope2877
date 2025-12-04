@@ -12,20 +12,22 @@
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/manga.css">
 
-    <!-- ⚛️ IMPORT MAP (Tells browser where to get React) -->
-    <script type="importmap">
+    <!-- ⚛️ REACT GLOBAL SCRIPTS (UMD) - Stable for static hosting -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+    <!-- ⚛️ BABEL (Translates JSX to JS in the browser) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@18.2.0",
-    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+    "react": "https://aistudiocdn.com/react@^19.2.1",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
     "react/": "https://aistudiocdn.com/react@^19.2.1/"
   }
 }
 </script>
-    <!-- ⚛️ BABEL (Translates JSX to JS in the browser) -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
 </head>
 <body>
     
@@ -156,7 +158,8 @@
     <script src="scripts/config.js"></script> <!-- Loaded first -->
     
     <!-- ⚛️ REACT INTRO (Processed by Babel) -->
-    <script type="text/babel" data-type="module" src="index.tsx"></script> 
+    <!-- Removed type="module" to support global scripts -->
+    <script type="text/babel" src="index.tsx"></script> 
     
     <script src="scripts/main.js"></script> <!-- Main Logic -->
 </body>
