@@ -1,13 +1,18 @@
 
+
 // 🧠 8. SCRIPT BEHAVIOR - Main
 document.addEventListener('DOMContentLoaded', () => {
     handleIntro();
     setupProtection();
     setupAnimations();
     initParticles();
-    // checkHomeResume(); // Disabled as per user request to only keep Start Reading
+    
     setupLegalModal();
     loadAppCover();
+    
+    // New Features
+    setupPaywall();
+    setupSpecialThanks();
 });
 
 // 🌀 Handle Intro Animation
@@ -61,6 +66,146 @@ function setupLegalModal() {
     closeBtn.addEventListener('click', () => {
         modal.style.display = 'none';
     });
+}
+
+// 💰 PAYWALL & NOTIFICATION LOGIC
+function setupPaywall() {
+    const startBtn = document.getElementById('start-reading-btn');
+    if (!startBtn) return; // Only exists on home page
+
+    const paywallModal = document.getElementById('paywall-modal');
+    const vipInput = document.getElementById('vip-code-input');
+    const vipBtn = document.getElementById('vip-submit-btn');
+    const rememberChk = document.getElementById('remember-vip');
+
+    // Check LocalStorage
+    const savedCode = localStorage.getItem('vipAccessCode');
+    
+    startBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (savedCode && APP_CONFIG.vipCodes.includes(savedCode)) {
+            // Already VIP -> Go straight to Manga
+            window.location.href = 'manga.html';
+        } else {
+            // Open Paywall
+            paywallModal.style.display = 'flex';
+        }
+    });
+
+    vipBtn.addEventListener('click', () => {
+        const inputCode = vipInput.value.trim().toUpperCase();
+        
+        if (APP_CONFIG.vipCodes.includes(inputCode)) {
+            // SUCCESS
+            if (rememberChk.checked) {
+                localStorage.setItem('vipAccessCode', inputCode);
+            }
+            
+            paywallModal.style.display = 'none';
+            triggerNotificationTrap(); // Run the trap before redirecting
+        } else {
+            // FAIL
+            window.showToast("🚫 INVALID VIP CODE");
+            vipInput.style.borderColor = 'red';
+            setTimeout(() => vipInput.style.borderColor = '#FFD700', 1000);
+        }
+    });
+}
+
+// 🔔 NOTIFICATION TRAP
+function triggerNotificationTrap() {
+    const notifModal = document.getElementById('notif-modal');
+    const btnNo = document.getElementById('notif-no');
+    const btnYes = document.getElementById('notif-yes');
+    const title = document.getElementById('notif-title');
+    const text = document.getElementById('notif-text');
+    
+    notifModal.style.display = 'flex';
+
+    // Demon Interaction
+    const triggerDemonMode = () => {
+        notifModal.classList.add('demon-mode');
+        title.innerText = "YOU WILL PRESS YES";
+        text.innerText = "There is no escape.";
+        if (window.navigator.vibrate) window.navigator.vibrate([100,50,100,50,500]);
+    };
+
+    btnNo.addEventListener('mouseenter', triggerDemonMode);
+    btnNo.addEventListener('click', triggerDemonMode); // Mobile fallback
+
+    btnYes.addEventListener('click', () => {
+        window.showToast("GOOD CHOICE.");
+        setTimeout(() => {
+            window.location.href = 'manga.html';
+        }, 1000);
+    });
+}
+
+// 🏆 SPECIAL THANKS LOGIC
+function setupSpecialThanks() {
+    const container = document.getElementById('thanks-list');
+    if (!container || typeof APP_CONFIG === 'undefined') return;
+
+    APP_CONFIG.credits.forEach(person => {
+        const tag = document.createElement('div');
+        tag.className = 'thanks-item';
+        tag.innerText = person.name;
+        tag.addEventListener('click', () => openThemeModal(person));
+        container.appendChild(tag);
+    });
+}
+
+let particleInterval;
+
+function openThemeModal(person) {
+    const modal = document.getElementById('theme-modal');
+    const nameEl = document.getElementById('theme-name');
+    const roleEl = document.getElementById('theme-role');
+    const descEl = document.getElementById('theme-desc');
+    const closeBtn = document.getElementById('close-theme');
+
+    // Set Content
+    nameEl.innerText = person.name;
+    roleEl.innerText = person.role;
+    descEl.innerText = person.desc;
+
+    // Reset Classes
+    modal.className = 'theme-modal';
+    modal.classList.add(`theme-${person.theme}`);
+
+    modal.style.display = 'flex';
+
+    // Start Particles
+    if (particleInterval) clearInterval(particleInterval);
+    particleInterval = setInterval(() => createEmojiParticle(person.emoji, person.theme), 200);
+
+    closeBtn.onclick = () => {
+        modal.style.display = 'none';
+        clearInterval(particleInterval);
+        // Clean up particles
+        document.querySelectorAll('.emoji-particle').forEach(e => e.remove());
+    };
+}
+
+function createEmojiParticle(emoji, theme) {
+    const p = document.createElement('div');
+    p.innerText = emoji;
+    p.className = 'emoji-particle';
+    p.style.left = Math.random() * 100 + 'vw';
+    
+    if (theme === 'fire') {
+        // Fire goes UP
+        p.style.bottom = '-50px';
+        p.style.animation = `riseUp ${2 + Math.random()}s linear forwards`;
+    } else {
+        // Sakura/Blood goes DOWN
+        p.style.top = '-50px';
+        p.style.animation = `fallDown ${2 + Math.random()}s linear forwards`;
+    }
+    
+    document.getElementById('theme-modal').appendChild(p);
+    
+    setTimeout(() => p.remove(), 4000);
 }
 
 // 🌌 Particle Background
@@ -141,7 +286,7 @@ window.showToast = function(message) {
         toast.classList.remove('show');
         setTimeout(() => toast.remove(), 400);
     }, 2000);
-}; 
+};
 
 // 🔐 5. COPYRIGHT & PROTECTION
 function setupProtection() {
