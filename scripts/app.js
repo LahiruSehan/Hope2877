@@ -1,156 +1,125 @@
+
 const { useState, useEffect, useRef } = React;
 
-// --- 🌌 CINEMATIC INTRO COMPONENT ---
-const CinematicIntro = ({ onComplete }) => {
+// --- 🪄 MAGICAL INTRO COMPONENT ---
+const MagicalIntro = ({ onComplete }) => {
     const [progress, setProgress] = useState(0);
-    const [phase, setPhase] = useState(0); // 0:Void, 1:Fog, 2:Title, 3:Load, 4:Ascend
+    const [phase, setPhase] = useState(0); // 0:Start, 1:Rings, 2:Text, 3:Load, 4:End
 
     useEffect(() => {
-        // Timeline Sequence
-        setTimeout(() => setPhase(1), 1000); // Fog in
-        setTimeout(() => setPhase(2), 3000); // Title reveal
-        
-        setTimeout(() => {
-            setPhase(3); // Start Loading
-            // Count 1 -> 100
+        // Sequence Timeline
+        setTimeout(() => setPhase(1), 500);  // Rings appear
+        setTimeout(() => setPhase(2), 1500); // Text summons
+        setTimeout(() => setPhase(3), 2500); // Loading starts
+
+        if (phase === 0) {
+            // Loading Counter 0 -> 100
             let p = 0;
             const interval = setInterval(() => {
                 p += 1;
-                if (p > 100) p = 100;
                 setProgress(p);
-                if (p === 100) {
+                if (p >= 100) {
                     clearInterval(interval);
-                    setTimeout(() => setPhase(4), 500); // Ascend
-                    setTimeout(onComplete, 2500); // Done
+                    setTimeout(() => setPhase(4), 500); // Ascension
+                    setTimeout(onComplete, 2000); // Switch to Home
                 }
-            }, 50); // Speed of loading
-        }, 5000);
-
+            }, 60); // 6 seconds total load
+        }
     }, []);
 
-    // Generate static particles
-    const particles = Array.from({ length: 30 }).map((_, i) => ({
-        left: Math.random() * 100,
-        delay: Math.random() * 5,
-        duration: 5 + Math.random() * 10
-    }));
+    // Split title for "One-by-One" effect
+    const title = "Beneath The Light of a Dying Sky";
+    const letters = title.split("").map((char, i) => (
+        <span 
+            key={i} 
+            className="magical-char" 
+            style={{ animationDelay: `${i * 0.05}s` }}
+        >
+            {char === " " ? "\u00A0" : char}
+        </span>
+    ));
 
     return (
-        <div className={`intro-container ${phase === 4 ? 'ascend' : ''}`}>
-            <div className="film-grain"></div>
-            
-            {/* Fog Layers */}
-            <div className="stranger-fog" style={{ opacity: phase >= 1 ? 1 : 0 }}></div>
-            <div className="stranger-fog layer2" style={{ opacity: phase >= 1 ? 0.8 : 0 }}></div>
+        <div className={`intro-wrapper ${phase === 4 ? 'fade-out' : ''}`}>
+            {/* Top Bar Loader */}
+            <div className="top-loader-bar" style={{ width: `${progress}%` }}></div>
 
-            {/* Particles */}
-            {phase >= 1 && particles.map((p, i) => (
-                <div 
-                    key={i}
-                    className="intro-particle"
-                    style={{
-                        left: `${p.left}%`,
-                        animationDelay: `${p.delay}s`,
-                        animationDuration: `${p.duration}s`
-                    }}
-                />
-            ))}
+            {/* Arcane Rings */}
+            <div className={`arcane-ring ${phase >= 1 ? 'visible' : ''}`}></div>
 
-            {/* Main Title */}
-            <div className={`intro-title-wrapper ${phase >= 2 ? 'visible' : ''}`}>
-                <h1 className="stranger-title">Beneath The Light</h1>
-                <h2 className="stranger-subtitle">of a Dying Sky</h2>
+            {/* Title */}
+            <div className={`magical-title ${phase >= 2 ? 'visible' : ''}`}>
+                {phase >= 2 && letters}
             </div>
 
-            {/* Loading Bar */}
-            <div className="intro-loader-container" style={{ opacity: phase >= 3 ? 1 : 0, transition: 'opacity 1s' }}>
-                <div className="loading-number">{progress}%</div>
-                <div className="loading-bar-wrapper">
-                    <div className="loading-bar-fill" style={{ width: `${progress}%` }}></div>
-                </div>
+            {/* Percentage */}
+            <div className={`loader-percent ${phase >= 3 ? 'visible' : ''}`}>
+                {progress}%
             </div>
         </div>
     );
 };
 
-// --- 🏠 HOME PAGE COMPONENT ---
-const HomePage = ({ onShowPaywall, config }) => {
-    const [themes, setThemes] = useState({ show: false, person: null });
-
-    const openTheme = (person) => {
-        setThemes({ show: true, person });
-    };
+// --- 🏠 HOME PAGE ---
+const HomePage = ({ onEnter }) => {
+    const config = window.APP_CONFIG || { assets: {}, credits: [] };
 
     return (
-        <div className="home-page fade-in">
-            <img src={config.assets.cover} className="cover-art" alt="Cover" />
-            <h1 className="hero-title">Beneath the Light<br/><span style={{fontSize:'1rem', color:'#00F6FF', letterSpacing:'5px'}}>OF A DYING SKY</span></h1>
-            <p style={{color:'#888', marginTop:'10px'}}>Sehan Karunarathne</p>
-
-            <button className="hero-btn" onClick={onShowPaywall}>START READING</button>
-
-            <div style={{marginTop: '3rem', maxWidth:'600px', lineHeight:'1.6', color:'#ccc'}}>
-                <p><i>"The sun never sets, yet darkness approaches."</i></p>
-            </div>
+        <div className="home-layout fade-in">
+            <img src={config.assets.cover} className="hero-cover" alt="Cover" />
+            
+            <h1 className="hero-title">Beneath The Light<br/><span style={{fontSize:'1rem', color:'#00F6FF', letterSpacing:'5px'}}>THE ARCHIVE</span></h1>
+            
+            <button className="start-btn" onClick={onEnter}>
+                <span>START READING</span>
+                <i className="fas fa-chevron-right"></i>
+            </button>
 
             {/* Special Thanks */}
             <div style={{marginTop: '3rem'}}>
-                <h3 style={{fontFamily:'Orbitron', fontSize:'0.8rem', color:'#555'}}>SPECIAL THANKS</h3>
-                <div style={{display:'flex', gap:'10px', justifyContent:'center', marginTop:'10px', flexWrap:'wrap'}}>
+                <h3 style={{fontFamily:'Orbitron', fontSize:'0.7rem', color:'#555', letterSpacing:'2px'}}>SPECIAL RECOGNITION</h3>
+                <div className="credits-grid">
                     {config.credits.map((c, i) => (
-                        <div key={i} onClick={() => openTheme(c)} className="chapter-card" style={{margin:'5px', padding:'5px 15px', fontSize:'0.8rem', minWidth:'auto', display:'inline-block'}}>
+                        <div key={i} className="credit-pill" onClick={() => alert(`${c.name}\n${c.role}\n"${c.desc}"`)}>
                             {c.name} {c.emoji}
-                            <div style={{fontSize:'0.6rem', color:'#666'}}>Click for info</div>
                         </div>
                     ))}
                 </div>
             </div>
-
-            {/* Theme Modal */}
-            {themes.show && themes.person && (
-                <div className={`modal-overlay theme-${themes.person.theme}`} onClick={() => setThemes({show:false, person:null})}>
-                    <div className="modal-content" onClick={e => e.stopPropagation()}>
-                        <h2 style={{color: '#fff', fontSize:'2rem'}}>{themes.person.name}</h2>
-                        <h3 style={{color: '#888', fontFamily:'Orbitron'}}>{themes.person.role}</h3>
-                        <p style={{marginTop:'20px', fontSize:'1.2rem'}}>"{themes.person.desc}"</p>
-                        <div style={{marginTop:'30px', fontSize:'3rem'}}>{themes.person.emoji}</div>
-                        <button style={{marginTop:'20px', background:'transparent', border:'1px solid #fff', color:'#fff', padding:'5px 15px'}} onClick={() => setThemes({show:false, person:null})}>Close</button>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };
 
-// --- 📜 MANGA LIST COMPONENT ---
-const MangaPage = ({ onRead, config }) => {
+// --- 📜 MANGA LIST ---
+const MangaPage = ({ onRead }) => {
+    const config = window.APP_CONFIG;
+    
     return (
-        <div className="manga-list-page" style={{paddingBottom:'50px'}}>
-            <div style={{textAlign:'center', padding:'20px'}}>
-                <h2 style={{fontFamily:'Aref Ruqaa', color:'#FFD700'}}>Chapters</h2>
-            </div>
+        <div className="chapter-container fade-in">
+            <h2 style={{fontFamily:'Cinzel', textAlign:'center', marginBottom:'30px', color:'#FFD700'}}>CHAPTERS</h2>
             
-            {config.chapters.map((chapter) => (
+            {config.chapters.map((ch, i) => (
                 <div 
-                    key={chapter.id} 
-                    className={`chapter-card ${chapter.locked ? 'locked' : ''}`}
-                    onClick={() => !chapter.locked && onRead(chapter.id)}
+                    key={ch.id} 
+                    className={`chapter-row ${ch.locked ? 'locked' : ''}`}
+                    onClick={() => !ch.locked && onRead(ch.id)}
+                    style={{ animationDelay: `${i * 0.1}s` }}
                 >
-                    <div className="chapter-num">{chapter.id}</div>
+                    <div className="ch-icon">{ch.id}</div>
                     <div style={{flex:1}}>
-                        <h3 style={{fontFamily:'Orbitron', fontSize:'1rem', color:'#fff'}}>{chapter.title}</h3>
-                        <p style={{fontSize:'0.8rem', color:'#888'}}>{chapter.date}</p>
+                        <h3 style={{fontFamily:'Orbitron', fontSize:'1rem', color:'#fff'}}>Chapter {ch.id}</h3>
+                        <p style={{fontSize:'0.8rem', color:'#888'}}>{ch.title}</p>
                     </div>
-                    <div>{chapter.locked ? '🔒' : '➔'}</div>
+                    <div>{ch.locked ? '🔒' : '➔'}</div>
                 </div>
             ))}
 
             {/* Construction */}
             <div className="construction-zone">
                 <div className="hazard-stripes"></div>
-                <div style={{padding:'20px'}}>
-                    <h3>🚧 WORK IN PROGRESS</h3>
-                    <p style={{fontSize:'0.8rem', color:'#888'}}>Artists are sketching the next arc.</p>
+                <div className="construction-content">
+                    <h3>WORK IN PROGRESS</h3>
+                    <p>Artists are sketching the next arc from the archives.</p>
                 </div>
                 <div className="hazard-stripes"></div>
             </div>
@@ -158,228 +127,171 @@ const MangaPage = ({ onRead, config }) => {
     );
 };
 
-// --- 📖 READER COMPONENT ---
-const ReaderPage = ({ chapterId, onBack, config }) => {
-    const chapter = config.chapters.find((c) => c.id === chapterId);
+// --- 📖 READER PAGE ---
+const ReaderPage = ({ chapterId, onBack }) => {
     const [likes, setLikes] = useState(0);
     const [comments, setComments] = useState([]);
     const [input, setInput] = useState('');
     const [navVisible, setNavVisible] = useState(true);
+    
+    const config = window.APP_CONFIG;
+    const chapter = config.chapters.find(c => c.id === chapterId);
 
-    // Load Likes/Comments from LocalStorage
     useEffect(() => {
-        const savedLikes = localStorage.getItem(`likes-ch${chapterId}`);
+        // Load Likes/Comments
+        const savedLikes = localStorage.getItem(`likes-${chapterId}`);
         if(savedLikes) setLikes(parseInt(savedLikes));
-        
-        const savedComments = localStorage.getItem(`comments-ch${chapterId}`);
-        if(savedComments) setComments(JSON.parse(savedComments));
+        const savedComm = localStorage.getItem(`comments-${chapterId}`);
+        if(savedComm) setComments(JSON.parse(savedComm));
 
-        // Moving Watermark Logic
-        const interval = setInterval(() => {
-            const el = document.getElementById('watermark');
-            if(el) {
-                el.style.top = Math.random() * 80 + 10 + '%';
-                el.style.left = Math.random() * 80 + 10 + '%';
-            }
-        }, 1500);
+        // Restore Scroll
+        const scrollKey = `scroll-${chapterId}`;
+        const savedScroll = localStorage.getItem(scrollKey);
+        if(savedScroll) {
+            setTimeout(() => window.scrollTo(0, parseInt(savedScroll)), 100);
+        }
 
-        return () => clearInterval(interval);
+        // Save Scroll on move
+        const handleScroll = () => localStorage.setItem(scrollKey, window.scrollY);
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
     }, [chapterId]);
 
     const handleLike = () => {
-        const newLikes = likes + 1;
-        setLikes(newLikes);
-        localStorage.setItem(`likes-ch${chapterId}`, newLikes.toString());
+        setLikes(p => {
+            const n = p + 1;
+            localStorage.setItem(`likes-${chapterId}`, n);
+            return n;
+        });
     };
 
-    const handleComment = () => {
+    const handlePost = () => {
         if(!input.trim()) return;
-        const newComments = [...comments, { text: input, date: new Date().toLocaleDateString() }];
-        setComments(newComments);
-        localStorage.setItem(`comments-ch${chapterId}`, JSON.stringify(newComments));
+        const newC = [...comments, { text: input, date: new Date().toLocaleDateString() }];
+        setComments(newC);
+        localStorage.setItem(`comments-${chapterId}`, JSON.stringify(newC));
         setInput('');
     };
 
-    if (!chapter) return <div>Error loading chapter.</div>;
+    if(!chapter) return <div>Loading...</div>;
 
     return (
-        <div className="reader-view" onClick={() => setNavVisible(!navVisible)}>
+        <div className="reader-wrapper">
             {/* Nav */}
-            <div style={{
-                position:'fixed', top: navVisible ? '50px' : '-100px', width:'100%', 
-                zIndex:100, display:'flex', justifyContent:'space-between', 
-                padding:'10px 20px', background:'rgba(0,0,0,0.8)', transition:'top 0.3s'
-            }}>
-                <button onClick={(e) => { e.stopPropagation(); onBack(); }} style={{background:'rgba(255,255,255,0.1)', color:'#fff', border:'1px solid #fff', borderRadius:'5px', padding:'5px 10px'}}>← BACK</button>
-                <span style={{color:'#fff', padding:'5px 10px'}}>Ch. {chapterId}</span>
+            <div className={`reader-nav-overlay ${!navVisible ? 'hidden' : ''}`}>
+                <button onClick={onBack} className="ctrl-btn">← BACK</button>
+                <span style={{fontFamily:'Orbitron'}}>Ch. {chapterId}</span>
             </div>
 
-            {/* Images */}
-            <div style={{paddingTop:'0px'}}>
-                {chapter.pages.map((src, i) => {
-                    const isVideo = src.endsWith('.mp4');
-                    return isVideo ? (
-                        <video key={i} src={src} autoPlay loop muted playsInline className="reader-image" />
-                    ) : (
-                        <img key={i} src={src} className="reader-image" alt={`Page ${i+1}`} />
-                    );
-                })}
+            {/* Pages */}
+            <div 
+                className="reader-content" 
+                onClick={() => setNavVisible(!navVisible)}
+                style={{paddingTop:'60px', paddingBottom:'80px', minHeight:'100vh'}}
+            >
+                {chapter.pages.map((src, i) => (
+                    src.endsWith('.mp4') ? 
+                    <video key={i} src={src} autoPlay loop muted playsInline className="reader-page-img fade-in" /> :
+                    <img key={i} src={src} className="reader-page-img fade-in" alt="Page" />
+                ))}
             </div>
 
             {/* Watermark */}
-            <div id="watermark" className="watermark-layer"></div>
+            <div className="moving-watermark">LICENSE DETECTED</div>
 
-            {/* Social */}
-            <div className="comments-section" onClick={(e) => e.stopPropagation()}>
-                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'20px'}}>
-                    <h3 style={{fontFamily:'Orbitron'}}>Discussion</h3>
-                    <button className="like-btn" onClick={handleLike}>
-                        ❤️ {likes} Likes
-                    </button>
-                </div>
+            {/* Controls */}
+            <div className={`reader-controls ${!navVisible ? 'hidden' : ''}`}>
+                <button className="ctrl-btn" onClick={() => window.scrollTo({top:0, behavior:'smooth'})}>▲</button>
+                <button className="ctrl-btn" onClick={handleLike}>❤️ {likes}</button>
+            </div>
 
-                <div className="comment-input-area">
+            {/* Comments */}
+            <div className="discussion-area">
+                <h3 style={{marginBottom:'10px', color:'#FFD700'}}>COMMENTS</h3>
+                <div style={{display:'flex', gap:'10px', marginBottom:'20px'}}>
                     <input 
-                        className="comment-input" 
-                        placeholder="Theory? Thoughts?" 
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
+                        value={input} 
+                        onChange={e=>setInput(e.target.value)} 
+                        placeholder="Share a theory..."
+                        style={{flex:1, padding:'10px', background:'#222', border:'1px solid #444', color:'#fff'}}
                     />
-                    <button onClick={handleComment} style={{background:'#00F6FF', border:'none', borderRadius:'5px', padding:'0 15px', fontWeight:'bold'}}>POST</button>
+                    <button onClick={handlePost} style={{background:'#00F6FF', border:'none', padding:'0 15px'}}>POST</button>
                 </div>
-
-                <div>
-                    {comments.map((c, i) => (
-                        <div key={i} style={{background:'rgba(255,255,255,0.05)', padding:'10px', marginBottom:'10px', borderRadius:'5px'}}>
-                            <p style={{fontSize:'0.9rem'}}>{c.text}</p>
-                            <span style={{fontSize:'0.7rem', color:'#666'}}>{c.date}</span>
-                        </div>
-                    ))}
-                    {comments.length === 0 && <p style={{color:'#666', fontSize:'0.8rem'}}>No comments yet. Be the first.</p>}
-                </div>
+                {comments.map((c, i) => (
+                    <div key={i} className="comment-box">
+                        <p>{c.text}</p>
+                        <small style={{color:'#666'}}>{c.date}</small>
+                    </div>
+                ))}
             </div>
         </div>
     );
 };
 
-// --- 📱 MAIN APP COMPONENT ---
+// --- 📱 MAIN APP ROOT ---
 const App = () => {
-    const [config, setConfig] = useState(null);
     const [view, setView] = useState('intro'); // intro, home, manga, reader
     const [activeChapter, setActiveChapter] = useState(1);
     const [showPaywall, setShowPaywall] = useState(false);
-    const [notifTrap, setNotifTrap] = useState(false);
 
-    useEffect(() => {
-        // Wait for config to load from global scope
-        const interval = setInterval(() => {
-            if (window.APP_CONFIG) {
-                setConfig(window.APP_CONFIG);
-                clearInterval(interval);
-            }
-        }, 100);
-        return () => clearInterval(interval);
-    }, []);
+    // Initial Config Check
+    if (!window.APP_CONFIG) {
+        return <div style={{color:'red', padding:'20px'}}>ERROR: Config not loaded. Check console.</div>;
+    }
 
-    // Initial check for VIP
     const checkVIP = () => {
-        const vip = localStorage.getItem('vipAccessCode');
-        if(vip && config.vipCodes.includes(vip)) {
+        const code = localStorage.getItem('vipCode');
+        if (code && window.APP_CONFIG.vipCodes.includes(code)) {
             setView('manga');
         } else {
             setShowPaywall(true);
         }
     };
 
-    const unlockVIP = (code) => {
-        if(config.vipCodes.includes(code.toUpperCase())) {
-            localStorage.setItem('vipAccessCode', code.toUpperCase());
+    const unlock = () => {
+        const input = document.getElementById('vipInput').value.toUpperCase();
+        if(window.APP_CONFIG.vipCodes.includes(input)) {
+            localStorage.setItem('vipCode', input);
             setShowPaywall(false);
-            setNotifTrap(true); // Trigger trap
+            setView('manga');
         } else {
-            alert("ACCESS DENIED.");
+            alert("ACCESS DENIED");
         }
     };
 
-    if (!config) return <div style={{color:'#fff', padding:'20px'}}>Loading Neural Network...</div>;
-
     return (
         <div className="app-shell">
-            {/* Top Bar */}
             {view !== 'intro' && (
-                <div className="app-top-bar">
-                    <span className="license-ticker">{config.legal.license}</span>
+                <div className="top-bar">
+                    <span className="license-text">{window.APP_CONFIG.legal.license}</span>
                 </div>
             )}
 
-            {/* VIEWS */}
-            {view === 'intro' && <CinematicIntro onComplete={() => setView('home')} />}
+            {view === 'intro' && <MagicalIntro onComplete={() => setView('home')} />}
             
-            <div className={`page ${view === 'home' ? 'active' : ''}`}>
-                <HomePage onShowPaywall={checkVIP} config={config} />
+            <div className={`page-view ${view === 'home' ? 'active' : ''}`}>
+                <HomePage onEnter={checkVIP} />
             </div>
 
-            <div className={`page ${view === 'manga' ? 'active' : ''}`}>
-                <MangaPage 
-                    onRead={(id) => { setActiveChapter(id); setView('reader'); }} 
-                    config={config} 
-                />
+            <div className={`page-view ${view === 'manga' ? 'active' : ''}`}>
+                <MangaPage onRead={(id) => { setActiveChapter(id); setView('reader'); }} />
             </div>
 
-            <div className={`page ${view === 'reader' ? 'active' : ''}`}>
-                <ReaderPage chapterId={activeChapter} onBack={() => setView('manga')} config={config} />
+            <div className={`page-view ${view === 'reader' ? 'active' : ''}`}>
+                <ReaderPage chapterId={activeChapter} onBack={() => setView('manga')} />
             </div>
 
-            {/* PAYWALL MODAL */}
+            {/* Paywall Modal */}
             {showPaywall && (
-                <div className="modal-overlay">
-                    <div className="modal-content">
-                        <h2 style={{color:'#FFD700', fontFamily:'Orbitron'}}>PREMIUM ACCESS</h2>
-                        <h1 style={{fontSize:'3rem', color:'#fff', margin:'10px 0'}}>$4.99</h1>
-                        <p style={{color:'#888', fontSize:'0.8rem'}}>Unlimited access to the Archive.</p>
-                        
-                        <div style={{margin:'20px 0', borderTop:'1px solid #333', paddingTop:'20px'}}>
-                            <p style={{color:'#00F6FF', fontSize:'0.8rem', marginBottom:'5px'}}>ENTER VIP CODE</p>
-                            <input id="vipInput" style={{padding:'10px', width:'80%', background:'#222', border:'1px solid #444', color:'#fff', textAlign:'center'}} />
-                            <br/>
-                            <button 
-                                onClick={() => {
-                                    const input = document.getElementById('vipInput');
-                                    if(input) unlockVIP(input.value);
-                                }}
-                                style={{marginTop:'10px', background:'#FFD700', border:'none', padding:'10px 20px', fontWeight:'bold', cursor:'pointer'}}
-                            >
-                                UNLOCK
-                            </button>
-                        </div>
-                        <button onClick={() => setShowPaywall(false)} style={{background:'transparent', border:'1px solid #555', color:'#fff', padding:'5px 15px', borderRadius:'5px'}}>Close</button>
-                    </div>
-                </div>
-            )}
-
-            {/* NOTIFICATION TRAP */}
-            {notifTrap && (
-                <div className="modal-overlay">
-                    <div className="modal-content" style={{border:'2px solid red', boxShadow:'0 0 50px red'}}>
-                        <h2 style={{color:'red', fontFamily:'Orbitron'}}>NOTIFICATIONS?</h2>
-                        <p style={{margin:'20px 0'}}>Enable updates for new chapters.</p>
-                        <div style={{display:'flex', justifyContent:'center', gap:'20px'}}>
-                            <button 
-                                onClick={() => { setNotifTrap(false); setView('manga'); }}
-                                style={{background:'green', color:'#fff', border:'none', padding:'10px 20px', cursor:'pointer'}}
-                            >
-                                YES
-                            </button>
-                            <button 
-                                onMouseEnter={(e) => {
-                                    e.target.style.display = 'none';
-                                    alert("YOU WILL PRESS YES.");
-                                }}
-                                style={{background:'#333', color:'#fff', border:'none', padding:'10px 20px', cursor:'pointer'}}
-                            >
-                                NO
-                            </button>
-                        </div>
+                <div className="modal-backdrop">
+                    <div className="modal-box">
+                        <h2 style={{color:'#FFD700', marginBottom:'10px'}}>UNLIMITED ACCESS</h2>
+                        <h1 style={{fontSize:'3rem', margin:'10px 0'}}>$4.99</h1>
+                        <p style={{color:'#888', marginBottom:'20px'}}>Support the author.</p>
+                        <input id="vipInput" placeholder="VIP CODE" style={{padding:'10px', textAlign:'center', width:'80%'}} />
+                        <br/>
+                        <button onClick={unlock} style={{marginTop:'15px', padding:'10px 30px', background:'#FFD700', border:'none', fontWeight:'bold'}}>UNLOCK</button>
+                        <button onClick={() => setShowPaywall(false)} style={{display:'block', margin:'10px auto', background:'none', border:'none', color:'#666'}}>Close</button>
                     </div>
                 </div>
             )}
@@ -388,6 +300,5 @@ const App = () => {
 };
 
 // Render
-const rootElement = document.getElementById('root');
-const root = ReactDOM.createRoot(rootElement);
+const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);

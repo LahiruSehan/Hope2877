@@ -3,21 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Beneath the Light - Immersive Experience</title>
+    <title>Beneath the Light - The Archive</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Inter:wght@300;400;600&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- Styles -->
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Main Styles -->
     <link rel="stylesheet" href="styles/main.css">
 
-    <!-- ⚛️ REACT CORE (UMD) - Required for GitHub Pages -->
+    <!-- ⚛️ REACT CORE (Global/UMD) - NO BUILD TOOLS REQUIRED -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     
-    <!-- ⚛️ BABEL (JSX Compiler) -->
+    <!-- ⚛️ BABEL (JSX Compiler for Browser) -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <script type="importmap">
 {
@@ -31,13 +34,13 @@
 </head>
 <body>
     
-    <!-- The Root of the React Application -->
+    <!-- React Root -->
     <div id="root"></div>
 
-    <!-- Configuration -->
+    <!-- 1. Config (Must load before app) -->
     <script src="scripts/config.js"></script>
 
-    <!-- React Application Logic -->
+    <!-- 2. Main Application -->
     <script type="text/babel" src="scripts/app.js"></script>
 </body>
 </html>

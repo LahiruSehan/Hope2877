@@ -1,3 +1,4 @@
+
 // ⚙️ CENTRAL CONFIGURATION
 window.APP_CONFIG = {
     assets: {
@@ -11,6 +12,8 @@ window.APP_CONFIG = {
     ],
     legal: {
         license: "LICENSE: 978-624-94 186-0-2",
+        origin: "Origin: HOPE 2877 Archives",
+        copyright: "© 2025 Sehan Karunarathne",
         tracking: "⚠️ IP LOGGING ACTIVE. SCREENSHOTS ARE MONITORED."
     },
     chapters: [
