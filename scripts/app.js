@@ -1,18 +1,10 @@
 
 const { useState, useEffect, useRef, useContext, createContext } = React;
 
-// 🌍 LANGUAGE CONTEXT
-const LanguageContext = createContext();
+// 🌍 TRANSLATIONS (English Only now, logic kept simple)
+const t = window.APP_CONFIG.translations.EN;
 
-const LanguageProvider = ({ children }) => {
-    const [lang, setLang] = useState('EN');
-    const t = window.APP_CONFIG.translations[lang];
-    return React.createElement(LanguageContext.Provider, { value: { lang, setLang, t } }, children);
-};
-
-const useTranslation = () => useContext(LanguageContext);
-
-// 🌌 SLOW PARTICLE BACKGROUND
+// 🌌 SLOW PARTICLE BACKGROUND (COOL COLORS ONLY)
 const ParticleBackground = () => {
     const canvasRef = useRef(null);
     useEffect(() => {
@@ -29,9 +21,11 @@ const ParticleBackground = () => {
                 this.y = Math.random() * canvas.height;
                 this.size = Math.random() * 2 + 1;
                 // VERY SLOW SPEED
-                this.speedX = (Math.random() - 0.5) * 0.2; 
-                this.speedY = (Math.random() - 0.5) * 0.2;
-                this.color = `hsla(${Math.random() * 360}, 50%, 50%, 0.3)`;
+                this.speedX = (Math.random() - 0.5) * 0.15; 
+                this.speedY = (Math.random() - 0.5) * 0.15;
+                // BLUE / PURPLE / CYAN ONLY
+                const hue = Math.random() > 0.5 ? 200 + Math.random() * 60 : 260 + Math.random() * 60; 
+                this.color = `hsla(${hue}, 70%, 50%, 0.3)`;
             }
             update() {
                 this.x += this.speedX;
@@ -98,17 +92,17 @@ const ThemeModal = ({ person, onClose }) => {
         <div className={`theme-modal theme-${person.theme}`}>
             <div id="theme-layer" style={{position:'absolute',width:'100%',height:'100%',overflow:'hidden'}}></div>
             <div className="theme-content">
-                <h1 className="theme-name" style={{color:person.theme==='sakura'?'#FFB7C5':person.theme==='fire'?'#FF4500':'#800000'}}>{person.name}</h1>
-                <h3 className="theme-role">{person.role}</h3>
-                <p style={{color:'#ddd',fontSize:'0.9rem'}}>{person.desc}</p>
-                <button onClick={onClose} style={{marginTop:'20px',padding:'10px 30px',background:'transparent',border:'1px solid #fff',color:'#fff',cursor:'pointer'}}>CLOSE</button>
+                <h1 style={{color:person.theme==='sakura'?'#FFB7C5':person.theme==='fire'?'#FF4500':'#800000', fontFamily:'Orbitron', marginBottom:'5px'}}>{person.name}</h1>
+                <h3 style={{color:'#fff', fontSize:'0.9rem', marginBottom:'15px'}}>{person.role}</h3>
+                <p style={{color:'#ccc',fontSize:'0.85rem', lineHeight:'1.4'}}>{person.desc}</p>
+                <button onClick={onClose} style={{marginTop:'25px',padding:'8px 25px',background:'rgba(255,255,255,0.1)',border:'1px solid #777',color:'#fff',cursor:'pointer',borderRadius:'20px'}}>CLOSE</button>
             </div>
         </div>
     );
 };
 
 // 💰 PAYWALL
-const Paywall = ({ onUnlock, t }) => {
+const Paywall = ({ onUnlock }) => {
     const [mode, setMode] = useState('vip');
     const [code, setCode] = useState('');
     return (
@@ -118,16 +112,16 @@ const Paywall = ({ onUnlock, t }) => {
                     <div className={`pay-tab ${mode==='vip'?'active':''}`} onClick={()=>setMode('vip')}>{t.unlock}</div>
                     <div className={`pay-tab ${mode==='card'?'active':''}`} onClick={()=>setMode('card')}>{t.card_pay}</div>
                 </div>
-                <h2 style={{color:'#FFD700',fontFamily:'Cinzel'}}>{t.paywall_title}</h2>
+                <h2 style={{color:'#FFD700',fontFamily:'Cinzel',fontSize:'1.2rem'}}>{t.paywall_title}</h2>
                 <div className="price-tag">$4.99</div>
-                <p style={{color:'#aaa',marginBottom:'20px'}}>{t.paywall_desc}</p>
+                <p style={{color:'#aaa',marginBottom:'20px',fontSize:'0.8rem'}}>{t.paywall_desc}</p>
                 {mode === 'vip' ? (
                     <div>
-                        <input className="cc-input" style={{width:'100%',textAlign:'center',marginBottom:'15px',color:'#FFD700',border:'1px solid #FFD700',background:'#000',padding:'10px'}} placeholder="ENTER VIP KEY" value={code} onChange={e=>setCode(e.target.value.toUpperCase())} />
-                        <button className="start-btn" style={{width:'100%',background:'#FFD700'}} onClick={()=>onUnlock(code)}>{t.unlock}</button>
+                        <input className="cc-input" style={{width:'100%',textAlign:'center',marginBottom:'15px',color:'#FFD700',border:'1px solid #FFD700',background:'#000',padding:'12px',borderRadius:'8px'}} placeholder="ENTER VIP KEY" value={code} onChange={e=>setCode(e.target.value.toUpperCase())} />
+                        <button className="start-btn-soft" style={{width:'100%',margin:'0',background:'#FFD700',color:'#000',fontSize:'1rem'}} onClick={()=>onUnlock(code)}>{t.unlock}</button>
                     </div>
                 ) : (
-                    <div><button className="start-btn" style={{width:'100%'}} onClick={()=>alert("ERROR: BANK UNREACHABLE")}>PAY NOW</button></div>
+                    <div><button className="start-btn-soft" style={{width:'100%',margin:'0',fontSize:'1rem'}} onClick={()=>alert("ERROR: BANK UNREACHABLE")}>PAY NOW</button></div>
                 )}
             </div>
         </div>
@@ -135,7 +129,7 @@ const Paywall = ({ onUnlock, t }) => {
 };
 
 // --- COMPONENT: HOME PAGE ---
-const HomePage = ({ onStart, onViewCredits, t, setLang, currentLang }) => {
+const HomePage = ({ onStart, onViewCredits }) => {
     return (
         <div className="home-layout fade-in">
             {/* Cover Art */}
@@ -148,16 +142,16 @@ const HomePage = ({ onStart, onViewCredits, t, setLang, currentLang }) => {
                 <span className="title-red">{t.title_end}</span>
             </h1>
 
-            {/* Circular Epic Button */}
-            <div className="start-btn-circle" onClick={onStart}>{t.start}</div>
+            {/* Soft Edge Epic Button */}
+            <div className="start-btn-soft" onClick={onStart}>{t.start}</div>
             <div className="hunt-text">{t.subtitle}</div>
 
             {/* Special Recognition - Round Row */}
             <div className="credits-section">
-                <div className="section-header">{t.special}</div>
+                <div className="section-header" style={{fontSize:'0.8rem', color:'#666', letterSpacing:'2px'}}>{t.special}</div>
                 <div className="credits-row">
                     {window.APP_CONFIG.credits.map((c, i) => (
-                        <div key={i} className="round-credit-btn" onClick={() => onViewCredits(c)}>
+                        <div key={i} className="soft-credit-btn" onClick={() => onViewCredits(c)}>
                             {c.name}
                         </div>
                     ))}
@@ -171,51 +165,59 @@ const HomePage = ({ onStart, onViewCredits, t, setLang, currentLang }) => {
 };
 
 // --- COMPONENT: MANGA LIST ---
-const MangaPage = ({ t, onRead }) => {
+const MangaPage = ({ onRead }) => {
     return (
         <div className="manga-list fade-in">
-            <h2 style={{color:'var(--accent-cyan)',fontFamily:'Orbitron',marginBottom:'20px',textAlign:'center'}}>{t.chapters}</h2>
+            <h2 style={{color:'var(--accent-cyan)',fontFamily:'Orbitron',marginBottom:'20px',textAlign:'center',marginTop:'10px'}}>{t.chapters}</h2>
             {window.APP_CONFIG.chapters.map((ch) => (
                 <div key={ch.id} className={`ch-card ${ch.locked?'locked':''}`} onClick={()=>!ch.locked && onRead(ch.id)}>
                     <div className="ch-info">
-                        <h3>{ch.id}. {ch.title}</h3>
-                        <div style={{color:'#666',fontSize:'0.8rem'}}>{ch.locked ? t.locked : ch.date}</div>
+                        <h3 style={{color:'#fff',fontSize:'1rem'}}>{ch.id}. {ch.title}</h3>
+                        <div style={{color:'#666',fontSize:'0.7rem'}}>{ch.locked ? t.locked : ch.date}</div>
                     </div>
                     <div className="ch-stats">
-                        {!ch.locked && <><div className="stat-item"><span className="live-dot" style={{background:'red',width:6,height:6,borderRadius:50,display:'inline-block'}}></span> 0 {t.live}</div><div className="stat-item">0 {t.comments}</div></>}
-                        {ch.locked && <i className="fas fa-lock"></i>}
+                        {!ch.locked && (
+                            <>
+                                <div className="stat-pill"><span className="live-dot"></span> 0</div>
+                                <div className="stat-pill"><i className="fas fa-comment"></i> 0</div>
+                            </>
+                        )}
+                        {ch.locked && <i className="fas fa-lock" style={{color:'#555'}}></i>}
                     </div>
                 </div>
             ))}
             <div className="construction-section">
-                <h3>{t.coming_soon}</h3>
-                <p>{t.construction_desc}</p>
+                <h3 style={{fontSize:'1rem'}}>{t.coming_soon}</h3>
+                <p style={{fontSize:'0.8rem', marginTop:'5px'}}>{t.construction_desc}</p>
             </div>
         </div>
     );
 };
 
 // --- COMPONENT: READER ---
-const ReaderPage = ({ t, chapterId, onBack }) => {
+const ReaderPage = ({ chapterId, onBack }) => {
     const chapter = window.APP_CONFIG.chapters.find(c => c.id === chapterId);
     return (
         <div className="reader-container fade-in">
+            {/* FIXED TOP TOOLBAR */}
+            <div className="reader-toolbar">
+                <i className="fas fa-home reader-icon" onClick={onBack}></i>
+                <span style={{color:'#fff',fontSize:'0.8rem',fontFamily:'Orbitron'}}>CH {chapterId}</span>
+                <div style={{display:'flex'}}>
+                    <i className="fas fa-heart reader-icon" onClick={()=>alert('Liked!')}></i>
+                    <i className="fas fa-comment reader-icon" onClick={()=>alert('Comments coming soon')}></i>
+                </div>
+            </div>
+
             {chapter.pages.map((img, i) => (
                 <img key={i} src={img} className="reader-img" loading="lazy" />
             ))}
-            <div className="reader-toolbar">
-                <i className="fas fa-home reader-icon" onClick={onBack}></i>
-                <i className="fas fa-arrow-left reader-icon" onClick={onBack}></i>
-                <i className="fas fa-heart reader-icon" onClick={()=>alert('Liked!')}></i>
-                <i className="fas fa-comment reader-icon" onClick={()=>alert('Comments coming soon')}></i>
-            </div>
         </div>
     );
 };
 
 // --- 📱 MAIN APP ---
 const App = () => {
-    const { t, lang, setLang } = useTranslation();
     const [view, setView] = useState('intro');
     const [activePerson, setActivePerson] = useState(null);
     const [showPaywall, setShowPaywall] = useState(false);
@@ -244,22 +246,15 @@ const App = () => {
                 </div>
             )}
 
-            {view==='home' && <HomePage onStart={handleStart} onViewCredits={setActivePerson} t={t} setLang={setLang} currentLang={lang} />}
-            {view==='manga' && <MangaPage t={t} onRead={(id)=>{setActiveChapter(id); setView('reader');}} />}
-            {view==='reader' && <ReaderPage t={t} chapterId={activeChapter} onBack={()=>setView('manga')} />}
+            {view==='home' && <HomePage onStart={handleStart} onViewCredits={setActivePerson} />}
+            {view==='manga' && <MangaPage onRead={(id)=>{setActiveChapter(id); setView('reader');}} />}
+            {view==='reader' && <ReaderPage chapterId={activeChapter} onBack={()=>setView('manga')} />}
 
-            {view!=='intro' && (
-                <div className="lang-fab">
-                    <div className="lang-fab-trigger">{lang}</div>
-                    <div className="lang-fab-menu">{['EN','SI','JP','FR'].map(l=><div key={l} className="lang-fab-item" onClick={()=>setLang(l)}>{l}</div>)}</div>
-                </div>
-            )}
-            
             {activePerson && <ThemeModal person={activePerson} onClose={()=>setActivePerson(null)} />}
-            {showPaywall && <Paywall onUnlock={unlockVIP} t={t} />}
+            {showPaywall && <Paywall onUnlock={unlockVIP} />}
         </div>
     );
 };
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(React.createElement(LanguageProvider, null, React.createElement(App)));
+root.render(React.createElement(App));
