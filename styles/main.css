@@ -96,7 +96,7 @@ body {
     align-items: center;
     padding: 0 2rem;
     text-align: center;
-    min-height: calc(100vh - 30px);
+
     justify-content: flex-start;
     gap: 2px; /* optional */
 
