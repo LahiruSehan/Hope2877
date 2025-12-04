@@ -76,14 +76,16 @@ body {
 .license-text {
     font-family: var(--font-tech); font-size: 0.65rem; color: #fff;
     letter-spacing: 2px; font-weight: bold; text-transform: uppercase;
-    animation: pulseRed 2s infinite; white-space: nowrap;
+    white-space: nowrap;
+    transition: opacity 0.5s ease-in-out;
+    opacity: 1;
 }
-@keyframes pulseRed { 0%,100%{ opacity: 1; text-shadow: 0 0 5px #fff; } 50%{ opacity: 0.7; } }
+.license-text.fade-out { opacity: 0; }
 
 /* =========================================
    📱 MAIN APP SHELL
    ========================================= */
-.app-shell { width: 100%; min-height: 100vh; position: relative; padding-top: 30px; padding-bottom: 60px; }
+.app-shell { width: 100%; min-height: 100vh; position: relative; padding-top: 30px; padding-bottom: 50px; }
 .app-shell.reader-mode { padding-top: 50px; padding-bottom: 0; }
 .fade-in { animation: simpleFadeIn 0.8s ease forwards; }
 @keyframes simpleFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -101,13 +103,13 @@ body {
     display: flex; justify-content: center;
 }
 .cover-art-gif {
-    max-width: 220px;
+    max-width: 200px; /* Adjusted size */
     height: auto;
-    object-fit: contain; /* FIX: prevent cropping */
+    object-fit: contain;
     border-radius: 12px;
-    /* Soft Backlight Glow */
-    box-shadow: 0 0 50px rgba(0, 246, 255, 0.15), 0 0 100px rgba(157, 0, 255, 0.1);
-    border: 1px solid rgba(255,255,255,0.1);
+    /* Soft Feathered Glow */
+    box-shadow: 0 0 60px 20px rgba(0, 246, 255, 0.1), 0 0 80px 30px rgba(157, 0, 255, 0.05);
+    border: 1px solid rgba(255,255,255,0.05);
 }
 
 .hero-title {
@@ -119,55 +121,76 @@ body {
     color: var(--accent-danger);
     text-shadow: 0 0 15px rgba(255, 0, 60, 0.6);
     display: block;
-    font-size: 0.9em; /* Smaller as requested */
+    font-size: 0.9em;
     letter-spacing: 2px;
 }
 
-/* SOFT EDGED EPIC START BUTTON */
+/* SOFT EDGED START BUTTON (SMALLER) */
 .start-btn-soft {
-    padding: 15px 40px;
+    padding: 12px 30px; /* Smaller padding */
     background: linear-gradient(135deg, rgba(0,246,255,0.1), rgba(157,0,255,0.1));
     border: 1px solid var(--accent-cyan);
-    border-radius: 20px; /* Soft Edge */
+    border-radius: 12px; /* Soft Edge */
     color: var(--accent-cyan);
     display: flex; align-items: center; justify-content: center;
-    font-family: var(--font-tech); font-weight: bold; font-size: 1.2rem;
+    font-family: var(--font-tech); font-weight: bold; font-size: 0.9rem; /* Smaller Font */
     cursor: pointer;
     box-shadow: 0 0 20px rgba(0, 246, 255, 0.2);
     transition: all 0.3s;
-    margin: 20px auto 10px auto;
+    margin: 15px auto 5px auto;
     position: relative;
     overflow: hidden;
     animation: pulseSoft 3s infinite;
+    text-transform: uppercase;
 }
-@keyframes pulseSoft { 0% { box-shadow: 0 0 15px rgba(0, 246, 255, 0.2); } 50% { box-shadow: 0 0 30px rgba(0, 246, 255, 0.5); } 100% { box-shadow: 0 0 15px rgba(0, 246, 255, 0.2); } }
+@keyframes pulseSoft { 0% { box-shadow: 0 0 10px rgba(0, 246, 255, 0.2); } 50% { box-shadow: 0 0 20px rgba(0, 246, 255, 0.4); } 100% { box-shadow: 0 0 10px rgba(0, 246, 255, 0.2); } }
 .start-btn-soft:hover { transform: scale(1.05); background: rgba(0, 246, 255, 0.15); color: #fff; }
+
+/* GLITCHED HUNT TEXT */
 .hunt-text {
     font-family: var(--font-tech); color: var(--accent-gold); 
-    letter-spacing: 4px; font-size: 0.8rem; margin-top: 5px; opacity: 0.9;
+    letter-spacing: 4px; font-size: 0.7rem; margin-top: 5px; opacity: 0.9;
+    position: relative;
+    animation: glitchAnim 3s infinite;
+}
+@keyframes glitchAnim {
+    0% { text-shadow: 1px 0 red, -1px 0 blue; opacity: 1; transform: translate(0); }
+    2% { text-shadow: -1px 0 red, 1px 0 blue; opacity: 0.8; transform: translate(-1px, 1px); }
+    4% { text-shadow: 0 0 0; opacity: 1; transform: translate(0); }
+    96% { text-shadow: 0 0 0; opacity: 1; transform: translate(0); }
+    98% { text-shadow: 1px 0 red, -1px 0 blue; opacity: 0.9; transform: translate(1px, -1px); }
+    100% { text-shadow: 0 0 0; opacity: 1; transform: translate(0); }
 }
 
-/* ✨ SPECIAL RECOGNITION (ROW) */
-.credits-section { margin-top: 2rem; width: 100%; }
-.credits-row { display: flex; justify-content: center; gap: 15px; margin-top: 15px; }
+/* ✨ SPECIAL RECOGNITION (ROW & SHINE) */
+.credits-section { margin-top: 1.5rem; width: 100%; }
+.credits-row { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
 .soft-credit-btn {
-    padding: 8px 15px;
-    border-radius: 15px; /* Soft Edge */
+    padding: 6px 12px;
+    border-radius: 10px;
     background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15);
-    color: #ccc; font-size: 0.75rem; font-family: var(--font-tech);
+    color: #ccc; font-size: 0.7rem; font-family: var(--font-tech);
     cursor: pointer; transition: 0.3s; text-align: center;
     box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    position: relative; overflow: hidden;
 }
+.soft-credit-btn::after {
+    content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    animation: btnShine 4s infinite;
+}
+@keyframes btnShine { 0%, 80% { left: -100%; } 100% { left: 100%; } }
 .soft-credit-btn:hover { border-color: var(--accent-gold); color: #fff; background: rgba(255,215,0,0.1); transform: translateY(-2px); }
-.credit-subtext { font-size: 0.6rem; color: #666; font-style: italic; margin-top: 10px; }
+.credit-subtext { font-size: 0.6rem; color: #666; font-style: italic; margin-top: 8px; }
 
 /* 🦶 FIXED FOOTER */
 .app-footer {
     position: fixed; bottom: 0; left: 0; width: 100%;
-    background: #000; border-top: 1px solid #222;
+    background: linear-gradient(0deg, #000, rgba(0,0,0,0.9));
+    border-top: 1px solid #222;
     padding: 10px; text-align: center;
-    color: #555; font-size: 0.7rem; font-family: var(--font-tech);
-    z-index: 100;
+    color: #555; font-size: 0.65rem; font-family: var(--font-tech);
+    z-index: 900;
 }
 
 /* 💰 EPIC GOLD PAYWALL */
@@ -207,7 +230,6 @@ body {
     box-shadow: 0 0 50px rgba(0,0,0,0.8);
     position: relative; overflow: hidden;
 }
-/* Theme Specific Glows */
 .theme-sakura .theme-content { border-color: #FFB7C5; box-shadow: 0 0 30px rgba(255, 183, 197, 0.2); }
 .theme-fire .theme-content { border-color: #FF4500; box-shadow: 0 0 30px rgba(255, 69, 0, 0.2); }
 .theme-blood .theme-content { border-color: #800000; box-shadow: 0 0 30px rgba(128, 0, 0, 0.3); }
@@ -245,13 +267,14 @@ body {
 /* 📖 READER MODE */
 .reader-container {
     background: #000; min-height: 100vh;
+    padding-top: 50px; /* Space for fixed toolbar */
 }
 /* FIXED TOP TOOLBAR */
 .reader-toolbar {
     position: fixed; top: 0; left: 0; width: 100%; height: 50px;
     background: rgba(0,0,0,0.9); border-bottom: 1px solid #333;
     display: flex; justify-content: space-around; align-items: center;
-    z-index: 1000; backdrop-filter: blur(5px);
+    z-index: 2000; backdrop-filter: blur(5px);
 }
 .reader-icon { color: #888; font-size: 1.1rem; cursor: pointer; padding: 10px; }
 .reader-icon:hover { color: var(--accent-cyan); }
