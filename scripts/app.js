@@ -1,10 +1,10 @@
 
 const { useState, useEffect, useRef, useContext, createContext } = React;
 
-// 🌍 TRANSLATIONS (English Only now, logic kept simple)
+// 🌍 TRANSLATIONS
 const t = window.APP_CONFIG.translations.EN;
 
-// 🌌 SLOW PARTICLE BACKGROUND (COOL COLORS ONLY)
+// 🌌 SLOW PARTICLE BACKGROUND
 const ParticleBackground = () => {
     const canvasRef = useRef(null);
     useEffect(() => {
@@ -20,10 +20,8 @@ const ParticleBackground = () => {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
                 this.size = Math.random() * 2 + 1;
-                // VERY SLOW SPEED
                 this.speedX = (Math.random() - 0.5) * 0.15; 
                 this.speedY = (Math.random() - 0.5) * 0.15;
-                // BLUE / PURPLE / CYAN ONLY
                 const hue = Math.random() > 0.5 ? 200 + Math.random() * 60 : 260 + Math.random() * 60; 
                 this.color = `hsla(${hue}, 70%, 50%, 0.3)`;
             }
@@ -55,17 +53,26 @@ const ParticleBackground = () => {
     return React.createElement('canvas', { id: 'particle-canvas', ref: canvasRef });
 };
 
-// 🚨 LICENSE BAR
+// 🚨 LICENSE BAR WITH SMOOTH FADE
 const LicenseBar = () => {
     const warnings = window.APP_CONFIG.legal.warnings;
     const [index, setIndex] = useState(0);
+    const [fade, setFade] = useState(false);
+
     useEffect(() => {
-        const interval = setInterval(() => setIndex(prev => (prev+1)%warnings.length), 3000);
+        const interval = setInterval(() => {
+            setFade(true); // Trigger fade out
+            setTimeout(() => {
+                setIndex(prev => (prev + 1) % warnings.length);
+                setFade(false); // Trigger fade in
+            }, 500);
+        }, 3500);
         return () => clearInterval(interval);
     }, []);
+
     return (
         <div className="license-bar">
-            <div className="license-text">{warnings[index]}</div>
+            <div className={`license-text ${fade ? 'fade-out' : ''}`}>{warnings[index]}</div>
         </div>
     );
 };
