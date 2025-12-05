@@ -423,6 +423,8 @@ body {
     text-align: center;
 }
 
+
+
 /* Grouping top elements closer */
 .home-top-section {
     display: flex;
@@ -1052,3 +1054,68 @@ body::before {
     transform: scale(1.1);
     transition: 0.2s;
 }
+
+
+
+
+/* ⚡ REAL LIGHTNING STRIKE EFFECT */
+.lightning-flash {
+    animation: lightningFlash 0.18s ease-out;
+}
+
+@keyframes lightningFlash {
+    0% {
+        filter: brightness(1);
+    }
+    20% {
+        filter: brightness(5) contrast(2);
+    }
+    40% {
+        filter: brightness(2.5);
+    }
+    100% {
+        filter: brightness(1);
+    }
+}
+
+/* Tiny blue electric bolt overlay */
+.lightning-bolt {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(
+        to bottom,
+        rgba(120,170,255,0) 0%,
+        rgba(180,220,255,1) 40%,
+        rgba(255,255,255,1) 50%,
+        rgba(180,220,255,1) 60%,
+        rgba(120,170,255,0) 100%
+    );
+    filter: blur(1px);
+    opacity: 0;
+    transform: translateX(-50%);
+    pointer-events: none;
+    animation: lightningBolt 0.15s ease-out forwards;
+}
+
+@keyframes lightningBolt {
+    0% { opacity: 0; transform: translateX(-50%) scaleY(0.2); }
+    25% { opacity: 1; transform: translateX(-50%) scaleY(1.1); }
+    100% { opacity: 0; transform: translateX(-50%) scaleY(0.3); }
+}
+
+/* Text shake */
+.lightning-shake {
+    animation: lightningShake 0.12s linear;
+}
+
+@keyframes lightningShake {
+    0% { transform: translate(0, 0); }
+    25% { transform: translate(-2px, 1px); }
+    50% { transform: translate(3px, -1px); }
+    75% { transform: translate(-1px, 2px); }
+    100% { transform: translate(0, 0); }
+}
+
