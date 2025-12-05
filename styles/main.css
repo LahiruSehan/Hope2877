@@ -90,7 +90,7 @@ body {
     opacity: 0;
     filter: blur(0px);
     transform: scale(0.9);
-    animation: igniteLetter 10s forwards; /* Animation defined in JS mainly for delays */
+    animation: igniteLetter 100s forwards; /* Animation defined in JS mainly for delays */
 }
 
 /* The Ignition Animation */
@@ -116,10 +116,32 @@ body {
     100% { opacity: 0.6; transform: scale(1.1); }
 }
 
-/* The Singularity (Exit Animation) */
 .implode {
-    animation: singularity 1.5s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+    animation: fadeFlash 1.4s ease-out forwards;
 }
+@keyframes fadeFlash {
+    0% {
+        opacity: 1;
+        filter: brightness(1);
+    }
+
+    40% {
+        filter: brightness(4); /* white flash */
+        opacity: 1;
+    }
+
+    70% {
+        filter: brightness(2);
+        opacity: 0.5;
+    }
+
+    100% {
+        filter: brightness(1);
+        opacity: 0;
+        display: none;
+    }
+}
+
 
 @keyframes singularity {
     0% { transform: scale(1); filter: brightness(1); }
