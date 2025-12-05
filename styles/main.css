@@ -250,31 +250,6 @@ body {
 .fade-in { animation: simpleFadeIn 1.5s ease forwards; }
 @keyframes simpleFadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-.home-layout {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 0 2rem;
-    text-align: center;
-
-    justify-content: flex-start;
-
-
-}
-
-/* Center Section */ 
-.home-center-action { 
-    margin: 5rem 0; /* Balanced spacing */ 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; }
-
-/* Grouping top elements closer */
-.home-top-section {
-    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-    margin-top: 25px; /* Closer to license bar */
-    flex: 1;
-}
 
 .cover-art-container {
     margin-bottom: 0.5rem; /* Reduced gap */
