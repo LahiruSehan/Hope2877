@@ -631,7 +631,7 @@ body {
         #00020a
     );
     background-size: 400% 400%;
-    animation: homeGradientShift 25s ease-in-out infinite;
+    animation: homeGradientShift 5s ease-in-out infinite;
     position: relative;
 }
 
