@@ -258,14 +258,8 @@ body {
     text-align: center;
     min-height: auto;
     justify-content: flex-start;
-    /* Color Shift Animation restricted to dark cool tones */
-    animation: bgColorShift 15s infinite alternate;
-}
+    gap: 4px; /* optional */
 
-@keyframes bgColorShift {
-    0% { background-color: #020205; } /* Deep Black-Blue */
-    50% { background-color: #0a001a; } /* Deep Purple */
-    100% { background-color: #000510; } /* Deep Navy */
 }
 
 /* Center Section */ 
@@ -275,10 +269,12 @@ body {
     flex-direction: column; 
     align-items: center; }
 
+
+
 /* Grouping top elements closer */
 .home-top-section {
     display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-    margin-top: 15px; /* Significantly reduced gap to license bar */
+    margin-top: 25px; /* Closer to license bar */
     flex: 1;
 }
 
@@ -289,12 +285,12 @@ body {
     display: flex; justify-content: center;
 }
 .cover-art-gif {
-    max-width: 180px; 
+    max-width: 180px; /* Slightly smaller to fit better */
     height: auto;
     object-fit: contain;
     border-radius: 12px;
-    /* Soft Feathered Glow (Backlight) */
-    box-shadow: 0 0 80px 10px rgba(0, 246, 255, 0.15);
+    /* Soft Feathered Glow */
+    box-shadow: 0 0 60px 20px rgba(0, 246, 255, 0.1), 0 0 80px 30px rgba(157, 0, 255, 0.05);
     border: 1px solid rgba(255,255,255,0.05);
 }
 
@@ -303,35 +299,34 @@ body {
     margin-bottom: 0; /* Tight spacing */
     color: #fff;
     text-shadow: 0 0 20px rgba(0, 246, 255, 0.4);
-    margin-top: 10px;
 }
 .title-red {
     color: var(--accent-danger);
     text-shadow: 0 0 15px rgba(255, 0, 60, 0.6);
     display: block;
-    font-size: 0.7em; /* Made smaller */
-    letter-spacing: 4px;
-    font-weight: 700;
+    font-size: 0.8em; /* Smaller as requested */
+    letter-spacing: 2px;
 }
+
+
 
 /* SOFT EDGED START BUTTON (SMALLER) */
 .start-btn-soft {
-    padding: 10px 30px; /* Smaller padding */
+    padding: 10px 25px; /* Smaller padding */
     background: linear-gradient(135deg, rgba(0,246,255,0.1), rgba(157,0,255,0.1));
     border: 1px solid var(--accent-cyan);
-    border-radius: 12px; /* Soft Edge, NOT Circle */
+    border-radius: 10px; /* Soft Edge */
     color: var(--accent-cyan);
     display: flex; align-items: center; justify-content: center;
     font-family: var(--font-tech); font-weight: bold; font-size: 0.8rem; /* Smaller Font */
     cursor: pointer;
     box-shadow: 0 0 20px rgba(0, 246, 255, 0.2);
     transition: all 0.3s;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     position: relative;
     overflow: hidden;
     animation: pulseSoft 3s infinite;
     text-transform: uppercase;
-    letter-spacing: 1px;
 }
 @keyframes pulseSoft { 0% { box-shadow: 0 0 10px rgba(0, 246, 255, 0.2); } 50% { box-shadow: 0 0 20px rgba(0, 246, 255, 0.4); } 100% { box-shadow: 0 0 10px rgba(0, 246, 255, 0.2); } }
 .start-btn-soft:hover { transform: scale(1.05); background: rgba(0, 246, 255, 0.15); color: #fff; }
@@ -341,48 +336,45 @@ body {
     font-family: var(--font-tech); color: var(--accent-gold); 
     letter-spacing: 3px; font-size: 0.65rem; opacity: 0.9;
     position: relative;
-    /* More chaotic animation */
-    animation: chaoticGlitch 2.5s infinite steps(2, end);
+    animation: chaoticGlitch 2s infinite steps(2, end);
 }
 @keyframes chaoticGlitch {
-    0% { opacity: 1; transform: translate(0); text-shadow: -1px -1px 0 #ff00de, 1px 1px 0 #00ffff; }
-    5% { opacity: 0.8; transform: translate(-2px, 1px); }
-    10% { opacity: 1; transform: translate(2px, -1px); clip-path: inset(10% 0 85% 0); }
-    15% { opacity: 0.4; }
-    20% { opacity: 1; transform: translate(-1px, 2px); clip-path: inset(40% 0 40% 0); }
+    0% { transform: translate(0); text-shadow: -1px -1px 0 #ff00de, 1px 1px 0 #00ffff; clip-path: inset(0 0 0 0); }
+    10% { transform: translate(-2px, 1px); clip-path: inset(10% 0 85% 0); }
+    20% { transform: translate(2px, -1px); clip-path: inset(80% 0 5% 0); }
+    30% { transform: translate(-1px, 2px); clip-path: inset(40% 0 40% 0); }
     40% { transform: translate(1px, -2px); clip-path: inset(10% 0 60% 0); }
-    50% { transform: translate(-1px, 1px); text-shadow: 1px 1px 0 #ff00de, -1px -1px 0 #00ffff; }
-    60% { opacity: 0.7; transform: translate(1px, -1px); }
+    50% { transform: translate(-1px, 1px); text-shadow: 1px 1px 0 #ff00de, -1px -1px 0 #00ffff; clip-path: inset(50% 0 30% 0); }
+    60% { transform: translate(1px, -1px); clip-path: inset(20% 0 70% 0); }
+    70% { transform: translate(-2px, 2px); clip-path: inset(60% 0 10% 0); }
     80% { transform: translate(2px, -2px); clip-path: inset(5% 0 90% 0); }
-    100% { opacity: 1; transform: translate(0); text-shadow: -1px -1px 0 #ff00de, 1px 1px 0 #00ffff; }
+    90% { transform: translate(-1px, 1px); clip-path: inset(30% 0 50% 0); }
+    100% { transform: translate(0); text-shadow: -1px -1px 0 #ff00de, 1px 1px 0 #00ffff; clip-path: inset(0 0 0 0); }
 }
 
-/* ✨ SPECIAL RECOGNITION (BOTTOM FIXED) */
+/* ✨ SPECIAL RECOGNITION (BOTTOM) */
 .credits-section { 
-    margin-top: auto; /* Pushes to bottom */
     margin-bottom: 20px; 
     width: 100%; 
     display: flex; flex-direction: column; align-items: center;
 }
-.credits-row { display: flex; justify-content: center; gap: 15px; margin-top: 10px; }
+.credits-row { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
 .soft-credit-btn {
-    width: 40px; height: 40px; /* Round buttons */
-    border-radius: 50%;
-    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.3);
-    color: #fff; font-size: 0.6rem; font-family: var(--font-tech);
-    cursor: pointer; transition: 0.3s; 
-    display: flex; align-items: center; justify-content: center;
+    padding: 6px 12px;
+    border-radius: 8px; /* Soft round */
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15);
+    color: #ccc; font-size: 0.65rem; font-family: var(--font-tech);
+    cursor: pointer; transition: 0.3s; text-align: center;
     box-shadow: 0 0 10px rgba(0,0,0,0.5);
     position: relative; overflow: hidden;
-    animation: shimmer 3s infinite linear;
 }
-@keyframes shimmer {
-    0% { border-color: rgba(255,255,255,0.3); box-shadow: 0 0 5px rgba(255,255,255,0.1); }
-    50% { border-color: var(--accent-cyan); box-shadow: 0 0 15px var(--accent-cyan); }
-    100% { border-color: rgba(255,255,255,0.3); box-shadow: 0 0 5px rgba(255,255,255,0.1); }
+.soft-credit-btn::after {
+    content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    animation: btnShine 4s infinite;
 }
-
-.soft-credit-btn:hover { border-color: var(--accent-gold); transform: scale(1.1); background: rgba(255,215,0,0.2); }
+@keyframes btnShine { 0%, 80% { left: -100%; } 100% { left: 100%; } }
+.soft-credit-btn:hover { border-color: var(--accent-gold); color: #fff; background: rgba(255,215,0,0.1); transform: translateY(-2px); }
 .credit-subtext { font-size: 0.55rem; color: #555; font-style: italic; margin-top: 8px; }
 
 /* 💰 EPIC GOLD PAYWALL */
