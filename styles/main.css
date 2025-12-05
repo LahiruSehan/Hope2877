@@ -621,6 +621,56 @@ body {
     margin-top: 8px;
 }
 
+/* 🌌 SUBTLE GRADIENT BACKGROUND ANIMATION FOR HOME */
+body {
+    background: linear-gradient(
+        120deg,
+        #0a0020,
+        #120040,
+        #001a4d,
+        #002f5e
+    );
+    background-size: 400% 400%;
+    animation: homeGradientShift 25s ease-in-out infinite;
+    position: relative;
+}
+
+/* Soft blur layer so particles blend smoothly */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -2;
+    background: inherit;
+    filter: blur(25px) brightness(0.8);
+    opacity: 0.6;
+}
+
+/* Gradient motion */
+@keyframes homeGradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Make particle canvas slightly glowing + soft */
+#particle-canvas {
+    opacity: 0.35; /* even softer */
+    filter: drop-shadow(0 0 6px rgba(150, 200, 255, 0.15));
+}
+
+
+
 /* 💰 EPIC GOLD PAYWALL */
 .paywall-modal {
     position: fixed;
