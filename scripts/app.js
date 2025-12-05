@@ -129,6 +129,39 @@ const CinematicIntro = ({ onComplete }) => {
         frame();
     }, []);
 
+// ⚡ LIGHTNING STRIKE EFFECT (Realistic Flash + Shake + Bolt)
+useEffect(() => {
+    // Strike happens ~6.5 seconds after intro begins
+    const timer = setTimeout(() => {
+        const intro = document.querySelector('.cinematic-intro');
+        const title = document.querySelector('.main-title-intro');
+
+        if (!intro || !title) return;
+
+        // Add flash + shake classes
+        intro.classList.add("lightning-flash");
+        title.classList.add("lightning-shake");
+
+        // Add lightning bolt element
+        const bolt = document.createElement("div");
+        bolt.className = "lightning-bolt";
+        intro.appendChild(bolt);
+
+        // Cleanup
+        setTimeout(() => {
+            intro.classList.remove("lightning-flash");
+            title.classList.remove("lightning-shake");
+            bolt.remove();
+        }, 250);
+
+    }, 6500); // timing synced to your letter animations
+
+    return () => clearTimeout(timer);
+}, []);
+
+
+    
+
     const titleStr = "OF A DYING SKY";
 
     return (
