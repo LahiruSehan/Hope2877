@@ -9,7 +9,11 @@ const ParticleBackground = () => {
     const canvasRef = useRef(null);
     useEffect(() => {
         const canvas = canvasRef.current;
+        if (!canvas) return; // 🛑 SAFETY CHECK TO PREVENT CRASH
+        
         const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
         let particles = [];
         const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
         window.addEventListener('resize', resize);
@@ -51,15 +55,16 @@ const ParticleBackground = () => {
         animate();
         return () => window.removeEventListener('resize', resize);
     }, []);
-    return React.createElement('canvas', { id: 'particle-canvas' });
+    return React.createElement('canvas', { id: 'particle-canvas', ref: canvasRef });
 };
 
-// 🎬 CINEMATIC VOID INTRO
+// 🎬 CINEMATIC VOID INTRO (Stranger Things Style)
 const CinematicIntro = ({ onComplete }) => {
     useEffect(() => {
         // Run for 11 seconds then trigger completion
         const timer = setTimeout(() => {
-            document.querySelector('.cinematic-intro').classList.add('implode');
+            const el = document.querySelector('.cinematic-intro');
+            if(el) el.classList.add('implode');
             setTimeout(onComplete, 1400); // Wait for implosion animation
         }, 11000);
         return () => clearTimeout(timer);
@@ -122,7 +127,8 @@ const ThemeModal = ({ person, onClose }) => {
             if (person.theme === 'fire') el.style.animation = `riseFire ${2 + Math.random()}s ease-in forwards`;
             else if (person.theme === 'sakura') el.style.animation = `fallSakura ${4 + Math.random()}s linear forwards`;
             else el.style.animation = `dripBlood ${3 + Math.random()}s ease-in forwards`;
-            document.getElementById('theme-layer').appendChild(el);
+            const container = document.getElementById('theme-layer');
+            if(container) container.appendChild(el);
             setTimeout(() => el.remove(), 4000);
         };
         const interval = setInterval(createParticles, 200);
