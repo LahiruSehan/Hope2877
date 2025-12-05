@@ -88,9 +88,9 @@ body {
     color: transparent;
     -webkit-text-stroke: 1px rgba(255, 0, 60, 0.5); /* Hollow Red */
     opacity: 0;
-    filter: blur(10px);
+    filter: blur(0px);
     transform: scale(0.9);
-    animation: igniteLetter 4s forwards; /* Animation defined in JS mainly for delays */
+    animation: igniteLetter 10s forwards; /* Animation defined in JS mainly for delays */
 }
 
 /* The Ignition Animation */
