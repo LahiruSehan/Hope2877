@@ -621,6 +621,116 @@ body {
     margin-top: 8px;
 }
 
+
+/* 🌈 EPIC MULTI-GRADIENT ANIMATED MODAL UPGRADE */
+.theme-modal {
+    background: radial-gradient(circle at center,
+        rgba(10, 0, 30, 0.9),
+        rgba(0, 0, 0, 0.92)
+    );
+    animation: modalFadeIn 0.8s ease forwards;
+    backdrop-filter: blur(25px) saturate(180%);
+}
+
+/* Smooth fade */
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* MODAL BODY – animated aura */
+.theme-content {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(
+        135deg,
+        rgba(20, 20, 30, 0.95),
+        rgba(10, 10, 15, 0.95)
+    );
+    border-radius: 25px;
+    animation: modalGlow 6s ease-in-out infinite;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Shifting border glow */
+@keyframes modalGlow {
+    0% { box-shadow: 0 0 20px rgba(140, 0, 255, 0.25); }
+    33% { box-shadow: 0 0 25px rgba(0, 200, 255, 0.25); }
+    66% { box-shadow: 0 0 25px rgba(255, 60, 120, 0.25); }
+    100% { box-shadow: 0 0 20px rgba(140, 0, 255, 0.25); }
+}
+
+/* ✨ ANIMATED GRADIENT TEXT FOR NAME */
+.theme-content h1 {
+    background: linear-gradient(90deg,
+        #ff4dff,
+        #7f7fff,
+        #4dffff,
+        #ff4dff
+    );
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    color: transparent !important;
+    animation: textSlide 6s linear infinite;
+}
+
+/* Text gradient movement */
+@keyframes textSlide {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* ✨ Animated subtext glow */
+.theme-content h3 {
+    animation: subtleGlow 3s ease-in-out infinite;
+    color: #ddd !important;
+}
+
+@keyframes subtleGlow {
+    0% { text-shadow: 0 0 3px rgba(0, 170, 255, 0.6); }
+    50% { text-shadow: 0 0 8px rgba(180, 0, 255, 0.8); }
+    100% { text-shadow: 0 0 3px rgba(0, 170, 255, 0.6); }
+}
+
+/* ✨ Animated aura ring inside modal */
+.theme-content::before {
+    content: "";
+    position: absolute;
+    inset: -20%;
+    background: conic-gradient(
+        from 0deg,
+        rgba(255, 0, 120, 0.25),
+        rgba(80, 0, 255, 0.25),
+        rgba(0, 180, 255, 0.25),
+        rgba(255, 0, 120, 0.25)
+    );
+    filter: blur(80px);
+    animation: auraSpin 12s linear infinite;
+    z-index: -1;
+}
+
+@keyframes auraSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Make modal text area feel alive */
+.theme-content p {
+    color: #ccc;
+    animation: colorShiftSoft 10s ease-in-out infinite;
+}
+
+@keyframes colorShiftSoft {
+    0% { color: #bbb; }
+    25% { color: #d8baff; }
+    50% { color: #b7e9ff; }
+    75% { color: #ffb7d0; }
+    100% { color: #bbb; }
+}
+
+
+
 /* 🌌 SUBTLE GRADIENT BACKGROUND ANIMATION FOR HOME */
 body {
     background: linear-gradient(
