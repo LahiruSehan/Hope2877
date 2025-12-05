@@ -39,7 +39,7 @@ credits: [
 
     { 
         name: "AROSHA", 
-        role: "The First Beta Reader (aka Chaveen)", 
+        role: "The First Beta Reader (aka GAMERLAZA)", 
         theme: "fire", 
         emoji: "🔥", 
         desc: "Early reviewer of HOPE 2877. Provided feedback, new ideas, and perspective to strengthen the storyline." 
