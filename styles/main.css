@@ -1,6 +1,7 @@
-/* ============================================================
-   🎨 GLOBAL THEME SETTINGS
-   ============================================================ */
+can we just organize the entire code.. add sections.. comments.. easy to edit.. organized.. ordered
+
+
+/* 🎨 GLOBAL VARIABLES */ 
 :root {
     --bg-deep: #020205;
     --text-primary: #e0e0e0;
@@ -8,86 +9,63 @@
     --accent-gold: #FFD700;
     --accent-magic: #9D00FF;
     --accent-danger: #FF003C;
-
     --font-cinematic: 'Cinzel', serif;
     --font-tech: 'Orbitron', sans-serif;
     --font-body: 'Inter', sans-serif;
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    -webkit-tap-highlight-color: transparent;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
 body {
-    background: #000;
+    background: #000; /* Start pure black for intro */
     color: var(--text-primary);
     font-family: var(--font-body);
-    width: 100vw;
-    min-height: 100vh;
+    width: 100vw; min-height: 100vh;
     overflow-x: hidden;
     overflow-y: auto;
 }
 
-
-
-/* ============================================================
-   🌌 GLOBAL BACKGROUND EFFECTS — PARTICLES
-   ============================================================ */
+/* 🌌 TOUCH REACTIVE PARTICLES (Home only) */
 #particle-canvas {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    z-index: -1;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 2s ease;
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: -1; pointer-events: none;
+    opacity: 0; transition: opacity 2s ease;
 }
 .show-particles #particle-canvas { opacity: 1; }
 
 
-
-/* ============================================================
-   🎬 VOID INTRO (STRANGER THINGS STYLE)
-   ============================================================ */
+/* =========================================
+   🎬 CINEMATIC VOID INTRO (STRANGER THINGS VIBE)
+   ========================================= */
 .cinematic-intro {
-    position: fixed; top: 0; left: 0;
-    width: 100%; height: 100%;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: #000;
     z-index: 9999;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
     overflow: hidden;
 }
 
-/* GRAIN */
+/* Film Grain Overlay */
 .film-grain {
-    position: absolute; top: 0; left: 0;
-    width: 100%; height: 100%;
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
     opacity: 0.4; pointer-events: none; z-index: 2;
-    background-image: url("data:image/svg+xml,%3Csvg ... %3C/svg%3E");
 }
 
-/* FOG */
+/* Volumetric Fog */
 .fog-container {
-    position: absolute;
-    width: 100%; height: 100%;
-    background: radial-gradient(circle, rgba(157,0,255,0.1), transparent 70%);
+    position: absolute; width: 100%; height: 100%; z-index: 1;
+    background: radial-gradient(circle at 50% 50%, rgba(157, 0, 255, 0.1), transparent 70%);
     animation: pulseVoid 4s infinite alternate;
-    z-index: 1;
 }
 
-/* INTRO TITLES */
+/* Typography Container */
 .title-container {
-    z-index: 10;
-    text-align: center;
-    position: relative;
+    z-index: 10; text-align: center; position: relative;
     mix-blend-mode: screen;
 }
 
-/* Small Top Title */
+/* "BENEATH THE LIGHT" - Small, Blue, Spaced */
 .sub-title-intro {
     font-family: var(--font-tech);
     color: var(--accent-cyan);
@@ -98,277 +76,402 @@ body {
     animation: driftIn 3s ease-out forwards 1s;
 }
 
-/* Big Main Title */
+/* "OF A DYING SKY" - Massive, Red, Hollow to Solid */
 .main-title-intro {
     font-family: var(--font-cinematic);
     font-size: clamp(2.5rem, 8vw, 6rem);
     line-height: 1;
+    position: relative;
+    display: block;
 }
 
 .char-span {
     display: inline-block;
     color: transparent;
-    -webkit-text-stroke: 1px rgba(255,0,60,0.5);
+    -webkit-text-stroke: 1px rgba(255, 0, 60, 0.5); /* Hollow Red */
     opacity: 0;
+    filter: blur(0px);
     transform: scale(0.9);
-    animation: igniteLetter 20s forwards;
+    animation: igniteLetter 20s forwards; /* Animation defined in JS mainly for delays */
 }
 
-/* Progress Bar */
 .intro-progress-bar {
-    position: absolute; top: 0; left: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
     height: 3px;
-    width: 0%;
     background: linear-gradient(90deg, #ff003c, #a00000, #ff003c);
     box-shadow: 0 0 12px #ff003c;
+    z-index: 10000;
+    width: 0%;
+    transition: width 0.1s linear;
 }
 
-/* Ember Particles */
+.intro-particle-zone {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 8;
+    pointer-events: none;
+}
+
 .intro-ember {
     position: absolute;
     border-radius: 50%;
     background: radial-gradient(circle, #ff003c, #800010);
     box-shadow: 0 0 10px #ff002b;
+    pointer-events: none;
 }
 
-/* Heat Ripple */
 .intro-heat-ripple {
     position: absolute;
-    top: 40%; left: 50%;
-    width: 220%; height: 200%;
+    top: 40%;
+    left: 50%;
+    width: 220%;
+    height: 200%;
     transform: translate(-50%, -50%);
     background: radial-gradient(circle, rgba(255,0,60,0.15), transparent 70%);
     filter: blur(40px);
     opacity: 0.4;
     animation: heatRipple 6s infinite ease-in-out;
+    z-index: 3; 
 }
 
-/* BACKGROUND PULSE */
+@keyframes heatRipple {
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 0.35; }
+    50% { transform: translate(-50%, -50%) scale(1.15); opacity: 0.55; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 0.35; }
+}
+
 .intro-pulse-layer {
     position: absolute;
-    top: 50%; left: 50%;
-    width: 130%; height: 130%;
+    top: 50%;
+    left: 50%;
+    width: 130%;
+    height: 130%;
     transform: translate(-50%, -50%);
     background: radial-gradient(circle, rgba(255,0,60,0.25), transparent 75%);
     filter: blur(60px);
     opacity: 0.35;
     animation: deepPulse 4.5s infinite ease-in-out;
+    z-index: 2;
+}
+
+@keyframes deepPulse {
+    0% { opacity: 0.25; transform: translate(-50%, -50%) scale(1); }
+    50% { opacity: 0.45; transform: translate(-50%, -50%) scale(1.15); }
+    100% { opacity: 0.25; transform: translate(-50%, -50%) scale(1); }
 }
 
 
-/* === INTRO ANIMATIONS === */
-@keyframes igniteLetter { ... }
-@keyframes driftIn { ... }
-@keyframes heatRipple { ... }
-@keyframes deepPulse { ... }
-@keyframes pulseVoid { ... }
-@keyframes fadeFlash { ... }
-@keyframes singularity { ... }
+/* The Ignition Animation */
+@keyframes igniteLetter {
+    0% { opacity: 0; filter: blur(20px); transform: scale(0.8); -webkit-text-stroke: 1px rgba(255, 0, 60, 0); }
+    20% { opacity: 1; filter: blur(0px); -webkit-text-stroke: 2px var(--accent-danger); color: transparent; }
+    50% { color: rgba(255, 0, 60, 0.1); text-shadow: 0 0 20px var(--accent-danger); }
+    100% { 
+        opacity: 1; transform: scale(1); 
+        -webkit-text-stroke: 0; 
+        color: #fff; 
+        text-shadow: 0 0 30px var(--accent-danger), 0 0 60px var(--accent-danger);
+    }
+}
+
+@keyframes driftIn {
+    from { opacity: 0; letter-spacing: 15px; filter: blur(5px); }
+    to { opacity: 0.8; letter-spacing: 5px; filter: blur(0); }
+}
+
+@keyframes pulseVoid {
+    0% { opacity: 0.3; transform: scale(1); }
+    100% { opacity: 0.6; transform: scale(1.1); }
+}
+
+.implode {
+    animation: fadeFlash 1.4s ease-out forwards;
+}
+@keyframes fadeFlash {
+    0% {
+        opacity: 1;
+        filter: brightness(1);
+    }
+
+    40% {
+        filter: brightness(4); /* white flash */
+        opacity: 1;
+    }
+
+    70% {
+        filter: brightness(2);
+        opacity: 0.5;
+    }
+
+    100% {
+        filter: brightness(1);
+        opacity: 0;
+        display: none;
+    }
+}
 
 
+@keyframes singularity {
+    0% { transform: scale(1); filter: brightness(1); }
+    50% { transform: scale(0.1); filter: brightness(50); opacity: 1; }
+    100% { transform: scale(0); opacity: 0; display: none;}
+}
 
-/* ============================================================
-   🚨 LICENSE BAR (RED TITLE STRIP)
-   ============================================================ */
+/* =========================================
+   🚨 RED ANIMATED LICENSE BAR
+   ========================================= */
 .license-bar {
-    position: fixed; top: 0; left: 0;
-    width: 100%; height: 30px;
+    position: fixed; top: 0; left: 0; width: 100%; height: 30px;
     background: linear-gradient(90deg, #400, #800, #400);
     border-bottom: 1px solid var(--accent-danger);
-    display: flex; justify-content: center; align-items: center;
-    z-index: 1000;
-    box-shadow: 0 5px 15px rgba(255,0,60,0.2);
+    display: flex; align-items: center; justify-content: center; z-index: 1000;
+    box-shadow: 0 5px 15px rgba(255, 0, 60, 0.2);
 }
-
 .license-text {
-    font-family: var(--font-tech);
-    font-size: 0.65rem;
-    color: #fff;
-    letter-spacing: 2px;
+    font-family: var(--font-tech); font-size: 0.65rem; color: #fff;
+    letter-spacing: 2px; font-weight: bold; text-transform: uppercase;
+    white-space: nowrap;
+    transition: opacity 0.5s ease-in-out;
+    opacity: 1;
 }
 .license-text.fade-out { opacity: 0; }
 
+/* =========================================
+   📱 MAIN APP SHELL
+   ========================================= */
+.app-shell { width: 100%; min-height: 100vh; position: relative; padding-top: 30px; }
 
-
-/* ============================================================
-   🏠 HOME SCREEN LAYOUT
-   ============================================================ */
-.app-shell {
-    width: 100%;
-    min-height: 100vh;
-    padding-top: 30px;
+/* Remove padding when in reader mode so toolbar sits ABOVE the page */
+.app-shell.reader-mode {
+    padding-top: 0 !important;
 }
-.app-shell.reader-mode { padding-top: 0 !important; }
+
+.fade-in { animation: simpleFadeIn 1.5s ease forwards; }
+@keyframes simpleFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+
+.cover-art-container {
+    margin-bottom: 20px; /* Reduced gap */
+    position: relative;
+    z-index: 1;
+    display: flex; justify-content: center;
+}
+.cover-art-gif {
+    max-width: 180px; /* Slightly smaller to fit better */
+    height: auto;
+    object-fit: contain;
+    border-radius: 12px;
+    /* Soft Feathered Glow */
+    box-shadow: 0 0 60px 20px rgba(0, 246, 255, 0.1), 0 0 80px 30px rgba(157, 0, 255, 0.05);
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.hero-title {
+    font-family: var(--font-cinematic); font-size: 1.6rem; 
+    margin-bottom: 0; /* Tight spacing */
+    color: #fff;
+    text-shadow: 0 0 20px rgba(0, 246, 255, 0.4);
+}
+.title-red {
+    color: var(--accent-danger);
+    text-shadow: 0 0 15px rgba(255, 0, 60, 0.6);
+    display: block;
+    font-size: 0.8em; /* Smaller as requested */
+    letter-spacing: 2px;
+}
 
 .home-layout {
     display: flex;
     flex-direction: column;
     align-items: center;
-    text-align: center;
     padding: 0 2rem;
+    text-align: center;
+
 }
 
-/* GROUPED TOP ELEMENTS */
+/* Add more breathing room between each top element */
 .home-top-section {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 18px;
+    gap: 18px; /* <-- new spacing between cover / title / button / hunt text */
 }
 
 
-
-/* ============================================================
-   📘 COVER IMAGE + TITLES
-   ============================================================ */
-.cover-art-container {
-    display: flex; justify-content: center;
-    margin-bottom: 20px;
-    position: relative;
-}
-
-.cover-art-gif {
-    max-width: 180px;
-    border-radius: 12px;
-    object-fit: contain;
-    box-shadow: 0 0 60px rgba(0,246,255,0.1);
-}
-
-/* Main hero text */
-.hero-title {
-    font-family: var(--font-cinematic);
-    font-size: 1.6rem;
-    color: #fff;
-    text-shadow: 0 0 20px rgba(0,246,255,0.4);
-}
-
-.title-red {
-    font-size: 0.8em;
-    letter-spacing: 2px;
-    display: block;
-    color: var(--accent-danger);
-    text-shadow: 0 0 15px rgba(255,0,60,0.6);
-}
-
-
-
-/* ============================================================
-   🚀 START BUTTON + HUNT TEXT
-   ============================================================ */
+/* SOFT EDGED START BUTTON (SMALLER) */
 .start-btn-soft {
-    padding: 10px 25px;
-    border-radius: 10px;
+    padding: 10px 25px; /* Smaller padding */
     background: linear-gradient(135deg, rgba(0,246,255,0.1), rgba(157,0,255,0.1));
     border: 1px solid var(--accent-cyan);
+    border-radius: 10px; /* Soft Edge */
     color: var(--accent-cyan);
-    font-family: var(--font-tech);
-    font-size: 0.8rem;
-    text-transform: uppercase;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-tech); font-weight: bold; font-size: 0.8rem; /* Smaller Font */
     cursor: pointer;
-    display: block;
-    margin: 0 auto;
+    box-shadow: 0 0 20px rgba(0, 246, 255, 0.2);
+    transition: all 0.3s;
+    margin-bottom: 10px;
+    position: relative;
+    overflow: hidden;
     animation: pulseSoft 3s infinite;
+    text-transform: uppercase;
 }
-@keyframes pulseSoft { ... }
+@keyframes pulseSoft { 0% { box-shadow: 0 0 10px rgba(0, 246, 255, 0.2); } 50% { box-shadow: 0 0 20px rgba(0, 246, 255, 0.4); } 100% { box-shadow: 0 0 10px rgba(0, 246, 255, 0.2); } }
+.start-btn-soft:hover { transform: scale(1.05); background: rgba(0, 246, 255, 0.15); color: #fff; }
 
+/* ENCRYPTED GLITCH HUNT TEXT */
 .hunt-text {
-    font-family: var(--font-tech);
-    color: var(--accent-gold);
-    font-size: 0.65rem;
-    opacity: 0.9;
-    letter-spacing: 3px;
-    animation: chaoticGlitch 2s infinite steps(2);
-    margin: 0 auto;
-    text-align: center;
+    font-family: var(--font-tech); color: var(--accent-gold); 
+    letter-spacing: 3px; font-size: 0.65rem; opacity: 0.9;
+    position: relative;
+    animation: chaoticGlitch 2s infinite steps(2, end);
 }
-@keyframes chaoticGlitch { ... }
-
-
-
-/* ============================================================
-   ⭐ SPECIAL RECOGNITION (BOTTOM CREDITS)
-   ============================================================ */
-.credits-section {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 60px;
-    margin-bottom: 40px;
+@keyframes chaoticGlitch {
+    0% { transform: translate(0); text-shadow: -1px -1px 0 #ff00de, 1px 1px 0 #00ffff; clip-path: inset(0 0 0 0); }
+    10% { transform: translate(-2px, 1px); clip-path: inset(10% 0 85% 0); }
+    20% { transform: translate(2px, -1px); clip-path: inset(80% 0 5% 0); }
+    30% { transform: translate(-1px, 2px); clip-path: inset(40% 0 40% 0); }
+    40% { transform: translate(1px, -2px); clip-path: inset(10% 0 60% 0); }
+    50% { transform: translate(-1px, 1px); text-shadow: 1px 1px 0 #ff00de, -1px -1px 0 #00ffff; clip-path: inset(50% 0 30% 0); }
+    60% { transform: translate(1px, -1px); clip-path: inset(20% 0 70% 0); }
+    70% { transform: translate(-2px, 2px); clip-path: inset(60% 0 10% 0); }
+    80% { transform: translate(2px, -2px); clip-path: inset(5% 0 90% 0); }
+    90% { transform: translate(-1px, 1px); clip-path: inset(30% 0 50% 0); }
+    100% { transform: translate(0); text-shadow: -1px -1px 0 #ff00de, 1px 1px 0 #00ffff; clip-path: inset(0 0 0 0); }
 }
 
-.credits-row {
-    display: flex;
-    gap: 10px;
+/* ✨ SPECIAL RECOGNITION (BOTTOM) */
+.credits-section { 
+    margin-bottom: 20px; 
+    width: 100%; 
+    display: flex; flex-direction: column; align-items: center;
 }
-
+.credits-row { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
 .soft-credit-btn {
     padding: 6px 12px;
-    border-radius: 8px;
-    font-family: var(--font-tech);
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.15);
-    color: #ccc;
-    cursor: pointer;
+    border-radius: 8px; /* Soft round */
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15);
+    color: #ccc; font-size: 0.65rem; font-family: var(--font-tech);
+    cursor: pointer; transition: 0.3s; text-align: center;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    position: relative; overflow: hidden;
+}
+.soft-credit-btn::after {
+    content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    animation: btnShine 4s infinite;
+}
+@keyframes btnShine { 0%, 80% { left: -100%; } 100% { left: 100%; } }
+.soft-credit-btn:hover { border-color: var(--accent-gold); color: #fff; background: rgba(255,215,0,0.1); transform: translateY(-2px); }
+.credit-subtext { font-size: 0.55rem; color: #555; font-style: italic; margin-top: 8px; }
+
+/* 💰 EPIC GOLD PAYWALL */
+.paywall-modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.95); z-index: 2000;
+    display: flex; align-items: center; justify-content: center; backdrop-filter: blur(20px);
+}
+.gold-card {
+    background: linear-gradient(135deg, #0a0a0a, #000);
+    border: 1px solid var(--accent-gold); border-radius: 20px;
+    padding: 30px; width: 90%; max-width: 450px; text-align: center;
+    box-shadow: 0 0 60px rgba(255, 215, 0, 0.1); position: relative; overflow: hidden;
+}
+.price-tag {
+    font-size: 3.5rem; color: #fff; font-family: var(--font-cinematic);
+    text-shadow: 0 0 20px var(--accent-gold); margin: 20px 0;
+}
+.pay-tabs { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+.pay-tab { padding: 10px 20px; background: #111; border: 1px solid #333; color: #888; cursor: pointer; border-radius: 8px; font-size: 0.8rem; }
+.pay-tab.active { background: rgba(255,215,0,0.1); color: var(--accent-gold); border-color: var(--accent-gold); }
+
+/* 🌸 ENHANCED THEMED MODALS */
+.theme-modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85); z-index: 3000;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    backdrop-filter: blur(15px);
+}
+.theme-content {
+    z-index: 10; text-align: center; 
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 25px; /* Soft edges */
+    padding: 40px; 
+    background: linear-gradient(180deg, rgba(20,20,20,0.9), rgba(10,10,10,0.95));
+    width: 85%; max-width: 400px;
+    box-shadow: 0 0 50px rgba(0,0,0,0.8);
+    position: relative; overflow: hidden;
+}
+.theme-sakura .theme-content { border-color: #FFB7C5; box-shadow: 0 0 30px rgba(255, 183, 197, 0.2); }
+.theme-fire .theme-content { border-color: #FF4500; box-shadow: 0 0 30px rgba(255, 69, 0, 0.2); }
+.theme-blood .theme-content { border-color: #800000; box-shadow: 0 0 30px rgba(128, 0, 0, 0.3); }
+
+.modal-particle { position: absolute; pointer-events: none; font-size: 1.5rem; }
+@keyframes fallSakura { 0%{transform:translateY(-10vh) rotate(0deg); opacity:0;} 20%{opacity:1;} 100%{transform:translateY(110vh) rotate(360deg); opacity:0;} }
+@keyframes riseFire { 0%{transform:translateY(110vh) scale(0.5); opacity:0;} 50%{opacity:1;} 100%{transform:translateY(-10vh) scale(1.5); opacity:0;} }
+@keyframes dripBlood { 0%{top:-5%; opacity:1;} 100%{top:105%; opacity:0; color:darkred;} }
+
+/* 📜 CHAPTER LIST */
+.manga-list { padding: 20px; max-width: 800px; margin: 0 auto 40px auto; }
+.ch-card {
+    background: rgba(20,20,25,0.6); border: 1px solid rgba(255,255,255,0.05);
+    padding: 15px 20px; margin-bottom: 12px; border-radius: 15px; display: flex;
+    align-items: center; justify-content: space-between; transition: 0.3s;
+}
+.ch-card:hover { border-color: var(--accent-cyan); background: rgba(0, 246, 255, 0.05); }
+.ch-card.locked { opacity: 0.5; filter: grayscale(1); cursor: not-allowed; }
+
+.ch-stats { display: flex; gap: 8px; }
+.stat-pill {
+    background: rgba(0,0,0,0.5); border: 1px solid #333;
+    padding: 4px 10px; border-radius: 12px;
+    font-size: 0.65rem; color: #aaa; display: flex; align-items: center; gap: 5px;
+}
+.stat-pill i { font-size: 0.6rem; }
+.live-dot { width: 6px; height: 6px; background: red; border-radius: 50%; box-shadow: 0 0 5px red; }
+
+.construction-section {
+    background: rgba(255, 215, 0, 0.05); border: 1px dashed var(--accent-gold); border-radius: 15px;
+    padding: 20px; text-align: center; color: var(--accent-gold); font-family: var(--font-tech);
+    margin-top: 30px;
 }
 
-
-
-/* ============================================================
-   💰 PAYWALL MODAL (GOLD CARD)
-   ============================================================ */
-.paywall-modal { ... }
-.gold-card { ... }
-.pay-tabs { ... }
-
-
-
-/* ============================================================
-   🌸 THEMED MODALS (Sakura / Fire / Blood)
-   ============================================================ */
-.theme-modal { ... }
-.theme-content { ... }
-.theme-sakura .theme-content { ... }
-.theme-fire .theme-content { ... }
-.theme-blood .theme-content { ... }
-
-
-
-/* ============================================================
-   📜 CHAPTER LIST PAGE
-   ============================================================ */
-.manga-list { ... }
-.ch-card { ... }
-.ch-card:hover { ... }
-.ch-stats { ... }
-
-
-
-/* ============================================================
-   📖 MANGA READER SCREEN
-   ============================================================ */
 .reader-container {
     background: #000;
     min-height: 100vh;
-    padding-top: 50px;
+    padding-top: 50px; /* height of toolbar */
 }
+
 
 .reader-toolbar {
-    position: fixed; top: 0; left: 0;
-    width: 100%; height: 50px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+
     background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(3px);
-    display: flex; justify-content: center;
-    gap: 25px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+
+    display: flex;
+    align-items: center;
+    justify-content: center; /* <-- center horizontally */
+
+    gap: 25px; /* evenly spaced icons */
+
     z-index: 2000;
+    backdrop-filter: blur(3px);
 }
 
-.reader-icon {
-    color: #fff;
-    font-size: 1.2rem;
-    cursor: pointer;
+.reader-img {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
 }
-.reader-icon:hover {
-    color: var(--accent-cyan);
-    transform: scale(1.1);
-}
+
+
+.reader-icon { color: #fff; font-size: 1.2rem; cursor: pointer; padding: 10px; text-shadow: 0 0 5px #000; filter: drop-shadow(0 0 5px #000); }
+.reader-icon:hover { color: var(--accent-cyan); transform: scale(1.1); transition: 0.2s; }
