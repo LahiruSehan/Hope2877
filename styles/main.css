@@ -86,7 +86,12 @@ body {
    📱 MAIN APP SHELL
    ========================================= */
 .app-shell { width: 100%; min-height: 100vh; position: relative; padding-top: 30px; }
-.app-shell.reader-mode { padding-top: 0; } /* Remove top padding in reader mode */
+
+/* Remove padding when in reader mode so toolbar sits ABOVE the page */
+.app-shell.reader-mode {
+    padding-top: 0 !important;
+}
+
 .fade-in { animation: simpleFadeIn 0.8s ease forwards; }
 @keyframes simpleFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -304,4 +309,9 @@ body {
 }
 .reader-icon { color: #fff; font-size: 1.1rem; cursor: pointer; padding: 10px; text-shadow: 0 0 5px #000; }
 .reader-icon:hover { color: var(--accent-cyan); }
-.reader-img { width: 100%; display: block; margin: 0; }
+.reader-img {
+    width: 100%;
+    display: block;
+    margin-top: 50px; /* SAME height as toolbar */
+}
+
