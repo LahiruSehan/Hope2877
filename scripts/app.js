@@ -1,10 +1,10 @@
 
 const { useState, useEffect, useRef, useContext, createContext } = React;
 
-// 🌍 TRANSLATIONS
+// 🌍 CONFIG ACCESS
 const t = window.APP_CONFIG.translations.EN;
 
-// 🌌 SLOW PARTICLE BACKGROUND
+// 🌌 SLOW PARTICLE BACKGROUND (COOL COLORS ONLY)
 const ParticleBackground = () => {
     const canvasRef = useRef(null);
     useEffect(() => {
@@ -19,11 +19,12 @@ const ParticleBackground = () => {
             constructor() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2 + 1;
-                this.speedX = (Math.random() - 0.5) * 0.1; // Very slow
-                this.speedY = (Math.random() - 0.5) * 0.1; // Very slow
-                const hue = Math.random() > 0.5 ? 200 + Math.random() * 60 : 260 + Math.random() * 60; // Cool colors
-                this.color = `hsla(${hue}, 70%, 50%, 0.3)`;
+                this.size = Math.random() * 2 + 0.5; // Smaller, star-like
+                this.speedX = (Math.random() - 0.5) * 0.05; // Extremely slow
+                this.speedY = (Math.random() - 0.5) * 0.05; 
+                // Blue / Purple / Cyan only
+                const hue = 200 + Math.random() * 80; 
+                this.color = `hsla(${hue}, 70%, 60%, ${Math.random() * 0.3 + 0.1})`;
             }
             update() {
                 this.x += this.speedX;
@@ -40,7 +41,7 @@ const ParticleBackground = () => {
                 ctx.fill();
             }
         }
-        const init = () => { particles = []; for(let i=0; i<30; i++) particles.push(new Particle()); };
+        const init = () => { particles = []; for(let i=0; i<40; i++) particles.push(new Particle()); };
         init();
         const animate = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -50,7 +51,39 @@ const ParticleBackground = () => {
         animate();
         return () => window.removeEventListener('resize', resize);
     }, []);
-    return React.createElement('canvas', { id: 'particle-canvas', ref: canvasRef });
+    return React.createElement('canvas', { id: 'particle-canvas' });
+};
+
+// 🎬 CINEMATIC VOID INTRO
+const CinematicIntro = ({ onComplete }) => {
+    useEffect(() => {
+        // Run for 11 seconds then trigger completion
+        const timer = setTimeout(() => {
+            document.querySelector('.cinematic-intro').classList.add('implode');
+            setTimeout(onComplete, 1400); // Wait for implosion animation
+        }, 11000);
+        return () => clearTimeout(timer);
+    }, []);
+
+    const titleStr = "OF A DYING SKY";
+
+    return (
+        <div className="cinematic-intro">
+            <div className="film-grain"></div>
+            <div className="fog-container"></div>
+            
+            <div className="title-container">
+                <div className="sub-title-intro">BENEATH THE LIGHT</div>
+                <div className="main-title-intro">
+                    {titleStr.split("").map((char, i) => (
+                        <span key={i} className="char-span" style={{animationDelay: `${2.5 + (i * 0.15)}s`}}>
+                            {char === " " ? "\u00A0" : char}
+                        </span>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
 };
 
 // 🚨 LICENSE BAR WITH SMOOTH FADE
@@ -135,10 +168,10 @@ const Paywall = ({ onUnlock }) => {
     );
 };
 
-// --- COMPONENT: HOME PAGE (Re-Ordered) ---
+// --- COMPONENT: HOME PAGE (Revised Layout) ---
 const HomePage = ({ onStart, onViewCredits }) => {
     return (
-        <div className="home-layout fade-in">
+        <div className="home-layout fade-in" style={{height:'100vh', display:'flex', flexDirection:'column'}}>
             {/* Top Section */}
             <div className="home-top-section">
                 <div className="cover-art-container">
@@ -157,13 +190,13 @@ const HomePage = ({ onStart, onViewCredits }) => {
                 <div className="hunt-text">{t.subtitle}</div>
             </div>
 
-            {/* Bottom Credits */}
+            {/* Bottom Credits (Fixed at bottom) */}
             <div className="credits-section">
                 <div className="section-header" style={{fontSize:'0.7rem', color:'#666', letterSpacing:'2px'}}>{t.special}</div>
                 <div className="credits-row">
                     {window.APP_CONFIG.credits.map((c, i) => (
                         <div key={i} className="soft-credit-btn" onClick={() => onViewCredits(c)}>
-                            {c.name}
+                            {c.name.charAt(0)}
                         </div>
                     ))}
                 </div>
@@ -203,15 +236,21 @@ const MangaPage = ({ onRead }) => {
     );
 };
 
-// --- COMPONENT: READER (Fixed Toolbar) ---
+// --- COMPONENT: READER (Fixed Toolbar + Back Function) ---
 const ReaderPage = ({ chapterId, onBack }) => {
     const chapter = window.APP_CONFIG.chapters.find(c => c.id === chapterId);
+    
+    // Auto-scroll to top when opening
+    useEffect(() => {
+        window.scrollTo(0,0);
+    }, []);
+
     return (
         <div className="reader-container fade-in">
             {/* FLOATING TRANSPARENT OVERLAY TOOLBAR */}
             <div className="reader-toolbar">
                 <i className="fas fa-arrow-left reader-icon" onClick={onBack}></i>
-                <span style={{color:'#fff',fontSize:'0.8rem',fontFamily:'Orbitron', textShadow:'0 0 5px #000'}}>CH {chapterId}</span>
+                <i className="fas fa-home reader-icon" onClick={onBack}></i>
                 <div style={{display:'flex'}}>
                     <i className="fas fa-heart reader-icon" onClick={()=>alert('Liked!')}></i>
                     <i className="fas fa-comment reader-icon" onClick={()=>alert('Comments coming soon')}></i>
@@ -232,7 +271,12 @@ const App = () => {
     const [showPaywall, setShowPaywall] = useState(false);
     const [activeChapter, setActiveChapter] = useState(1);
 
-    useEffect(() => { if(view==='intro') setTimeout(()=>setView('home'),5000); }, [view]);
+    // Initial Load Check
+    useEffect(() => {
+        if (!window.APP_CONFIG) {
+            console.error("Config not found");
+        }
+    }, []);
 
     const handleStart = () => {
         const saved = localStorage.getItem('vipAccess');
@@ -245,20 +289,19 @@ const App = () => {
 
     return (
         <div className={`app-shell ${view==='reader'?'reader-mode':''}`}>
-            {view !== 'reader' && <ParticleBackground />}
-            {view !== 'reader' && <LicenseBar />}
+            {/* Show Particle BG everywhere except Reader */}
+            {view !== 'reader' && view !== 'intro' && <ParticleBackground />}
             
-            {view==='intro' && (
-                <div className="intro-wrapper">
-                    <div className="top-loader-bar" style={{width:'100%',transition:'width 5s linear'}}></div>
-                    <h1 className="magical-title">{"BENEATH THE LIGHT".split("").map((c,i)=><span key={i} className="magical-char" style={{animationDelay:`${i*0.1}s`}}>{c}</span>)}</h1>
-                </div>
-            )}
-
+            {/* Show License Bar everywhere except Reader and Intro */}
+            {view !== 'reader' && view !== 'intro' && <LicenseBar />}
+            
+            {/* Views */}
+            {view==='intro' && <CinematicIntro onComplete={() => setView('home')} />}
             {view==='home' && <HomePage onStart={handleStart} onViewCredits={setActivePerson} />}
             {view==='manga' && <MangaPage onRead={(id)=>{setActiveChapter(id); setView('reader');}} />}
             {view==='reader' && <ReaderPage chapterId={activeChapter} onBack={()=>setView('manga')} />}
 
+            {/* Modals */}
             {activePerson && <ThemeModal person={activePerson} onClose={()=>setActivePerson(null)} />}
             {showPaywall && <Paywall onUnlock={unlockVIP} />}
         </div>
