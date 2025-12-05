@@ -301,13 +301,32 @@ body {
 
 /* OVERLAY FLOATING TOOLBAR */
 .reader-toolbar {
-    position: fixed; top: 0; left: 0; width: 100%; height: 50px;
-    background: rgba(0,0,0,0.5); /* Semi-transparent overlay */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+
+    background: rgba(0,0,0,0.5);
     border-bottom: 1px solid rgba(255,255,255,0.1);
-    display: flex; justify-content: space-around; align-items: center;
-    z-index: 2000; backdrop-filter: blur(3px);
-    transition: opacity 0.3s;
+
+    display: flex;
+    align-items: center;
+    justify-content: center; /* <-- center horizontally */
+
+    gap: 25px; /* evenly spaced icons */
+
+    z-index: 2000;
+    backdrop-filter: blur(3px);
 }
+
+.reader-img {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+}
+
+
 .reader-icon { color: #fff; font-size: 1.1rem; cursor: pointer; padding: 10px; text-shadow: 0 0 5px #000; }
 .reader-icon:hover { color: var(--accent-cyan); }
 
