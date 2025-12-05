@@ -400,7 +400,7 @@ body {
 .hero-title {
     font-family: var(--font-cinematic);
     font-size: 1.6rem;
-    margin-bottom: 0;
+    margin-bottom: 50px;
     /* Tight spacing */
     color: #fff;
     text-shadow: 0 0 20px rgba(0, 246, 255, 0.4);
