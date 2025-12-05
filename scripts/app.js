@@ -129,35 +129,105 @@ const CinematicIntro = ({ onComplete }) => {
         frame();
     }, []);
 
-// ⚡ LIGHTNING STRIKE EFFECT (Realistic Flash + Shake + Bolt)
+// ⚡ GOD-TIER REALISTIC LIGHTNING SYSTEM
 useEffect(() => {
-    // Strike happens ~6.5 seconds after intro begins
-    const timer = setTimeout(() => {
-        const intro = document.querySelector('.cinematic-intro');
-        const title = document.querySelector('.main-title-intro');
+    const canvas = document.getElementById("lightning-canvas");
+    const ctx = canvas.getContext("2d");
 
-        if (!intro || !title) return;
+    const resize = () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener("resize", resize);
 
-        // Add flash + shake classes
-        intro.classList.add("lightning-flash");
-        title.classList.add("lightning-shake");
+    // Generate lightning path (jagged)
+    const genBolt = (x, y, targetX, targetY, segments = 20) => {
+        let points = [{ x, y }];
+        for (let i = 1; i < segments; i++) {
+            let t = i / segments;
+            let px = x + (targetX - x) * t + (Math.random() - 0.5) * 60;
+            let py = y + (targetY - y) * t + (Math.random() - 0.5) * 60;
+            points.push({ x: px, y: py });
+        }
+        points.push({ x: targetX, y: targetY });
+        return points;
+    };
 
-        // Add lightning bolt element
-        const bolt = document.createElement("div");
-        bolt.className = "lightning-bolt";
-        intro.appendChild(bolt);
+    const drawBolt = (pts, thickness = 3, alpha = 1) => {
+        ctx.strokeStyle = `rgba(200,220,255,${alpha})`;
+        ctx.lineWidth = thickness;
+        ctx.shadowBlur = 25;
+        ctx.shadowColor = "rgba(180,200,255,1)";
 
-        // Cleanup
+        ctx.beginPath();
+        ctx.moveTo(pts[0].x, pts[0].y);
+        pts.forEach((p) => ctx.lineTo(p.x, p.y));
+        ctx.stroke();
+
+        // Glow pass
+        ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
+        ctx.lineWidth = thickness * 0.6;
+        ctx.shadowBlur = 40;
+        ctx.shadowColor = "white";
+        ctx.stroke();
+    };
+
+    // Branch bolts
+    const drawBranch = (p) => {
+        let len = 50 + Math.random() * 120;
+        let angle = (Math.random() - 0.5) * 1.2;
+        let endX = p.x + Math.cos(angle) * len;
+        let endY = p.y + Math.sin(angle) * len;
+
+        let branchPts = genBolt(p.x, p.y, endX, endY, 6);
+        drawBolt(branchPts, 1.6, 0.6);
+    };
+
+    // MASTER lightning trigger
+    const triggerLightning = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        let startX = canvas.width * 0.5 + (Math.random() - 0.5) * 150;
+        let startY = 0;
+        let endX = canvas.width * 0.5;
+        let endY = canvas.height * 0.45;
+
+        let mainBolt = genBolt(startX, startY, endX, endY, 25);
+
+        drawBolt(mainBolt, 3, 1);
+
+        // Branches (random ones)
+        for (let i = 3; i < mainBolt.length - 3; i += 4) {
+            if (Math.random() > 0.55) continue;
+            drawBranch(mainBolt[i]);
+        }
+
+        // Multi-flash effect
+        setTimeout(() => ctx.clearRect(0, 0, canvas.width, canvas.height), 80);
+        setTimeout(() => drawBolt(mainBolt, 2.5, 0.8), 120);
+        setTimeout(() => ctx.clearRect(0, 0, canvas.width, canvas.height), 200);
+
+        // Screen flash + shake
+        const intro = document.querySelector(".cinematic-intro");
+        intro.classList.add("lightning-screen-flash");
+        intro.classList.add("lightning-camera-shake");
+
         setTimeout(() => {
-            intro.classList.remove("lightning-flash");
-            title.classList.remove("lightning-shake");
-            bolt.remove();
-        }, 250);
+            intro.classList.remove("lightning-screen-flash");
+            intro.classList.remove("lightning-camera-shake");
+        }, 300);
+    };
 
-    }, 6500); // timing synced to your letter animations
+    // When to trigger (after your title appears)
+    const timer = setTimeout(triggerLightning, 6500);
 
-    return () => clearTimeout(timer);
+    return () => {
+        clearTimeout(timer);
+        window.removeEventListener("resize", resize);
+    };
 }, []);
+
 
 
     
@@ -181,6 +251,9 @@ useEffect(() => {
 
             <div className="film-grain"></div>
             <div className="fog-container"></div>
+
+            <canvas id="lightning-canvas"></canvas>
+
 
             {/* Particle container */}
             <div className="intro-particle-zone" ref={particleRef}></div>
