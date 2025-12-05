@@ -290,6 +290,13 @@ body {
 
 }
 
+/* Grouping top elements closer */
+.home-top-section {
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+    margin-top: 35px; /* Closer to license bar */
+
+}
+
 
 
 
