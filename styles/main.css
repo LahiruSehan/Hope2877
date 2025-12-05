@@ -627,8 +627,8 @@ body {
         120deg,
         #0a0020,
         #120040,
-        #001a4d,
-        #002f5e
+        #00020a
+        #00020a
     );
     background-size: 400% 400%;
     animation: homeGradientShift 25s ease-in-out infinite;
@@ -665,7 +665,7 @@ body::before {
 
 /* Make particle canvas slightly glowing + soft */
 #particle-canvas {
-    opacity: 0.35; /* even softer */
+    opacity: 0.50; /* even softer */
     filter: drop-shadow(0 0 6px rgba(150, 200, 255, 0.15));
 }
 
