@@ -60,13 +60,13 @@ credits: [
     chapters: [
         { 
             id: 1, 
-            title: "Everything Falls Apart",
+            title: "When the world begins to break, the truth finally shows.",
             date: "2025-01-01",
             locked: false, 
             pages: Array.from({length: 11}, (_, i) => `images/${i+1}.png`) 
         },
-        { id: 2, title: "Echoes of Silence", locked: true, pages: [] },
-        { id: 3, title: "The Red Horizon", locked: true, pages: [] },
-        { id: 4, title: "Shattered Glass", locked: true, pages: [] }
+        { id: 2, title: "A Brand New Life... Or...", locked: true, pages: [] },
+        { id: 3, title: "Never Ending Story", locked: true, pages: [] },
+        { id: 4, title: "FINALE", locked: true, pages: [] }
     ]
 };
