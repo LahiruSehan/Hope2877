@@ -400,7 +400,7 @@ body {
 .hero-title {
     font-family: var(--font-cinematic);
     font-size: 1.6rem;
-    margin-bottom: 50px;
+    margin-bottom: 160px;
     /* Tight spacing */
     color: #fff;
     text-shadow: 0 0 20px rgba(0, 246, 255, 0.4);
@@ -486,6 +486,7 @@ body {
     letter-spacing: 3px;
     font-size: 0.65rem;
     opacity: 0.9;
+    margin-bottom: 60px;
     position: relative;
     animation: chaoticGlitch 2s infinite steps(2, end);
 }
