@@ -58,30 +58,105 @@ const ParticleBackground = () => {
     return React.createElement('canvas', { id: 'particle-canvas', ref: canvasRef });
 };
 
-// 🎬 CINEMATIC VOID INTRO (Stranger Things Style)
+// 🎬 CINEMATIC VOID INTRO (Upgraded with particles, heat ripple & pulse)
 const CinematicIntro = ({ onComplete }) => {
+    const [progress, setProgress] = useState(0);
+    const particleRef = useRef(null);
+
+    // Progress Bar Animation (11 seconds sync)
     useEffect(() => {
-        // Run for 11 seconds then trigger completion
+        let start = performance.now();
+        const duration = 11000;
+
+        function animate(t) {
+            const elapsed = t - start;
+            const pct = Math.min(elapsed / duration, 1);
+            setProgress(pct * 100);
+            if (pct < 1) requestAnimationFrame(animate);
+        }
+        requestAnimationFrame(animate);
+    }, []);
+
+    // Finish + Implosion
+    useEffect(() => {
         const timer = setTimeout(() => {
             const el = document.querySelector('.cinematic-intro');
-            if(el) el.classList.add('implode');
-            setTimeout(onComplete, 1400); // Wait for implosion animation
+            if (el) el.classList.add('implode');
+            setTimeout(onComplete, 1400);
         }, 11000);
         return () => clearTimeout(timer);
+    }, []);
+
+    // Red drifting particles around text
+    useEffect(() => {
+        const container = particleRef.current;
+        if (!container) return;
+
+        const particles = [];
+
+        class Ember {
+            constructor() {
+                this.el = document.createElement('div');
+                this.el.className = "intro-ember";
+                this.reset(true);
+                container.appendChild(this.el);
+            }
+            reset(first = false) {
+                this.x = Math.random() * 80 + 10; 
+                this.y = first ? Math.random() * 80 + 10 : 100; 
+                this.size = Math.random() * 3 + 1;
+                this.speed = 0.05 + Math.random() * 0.2;
+                this.opacity = 0.2 + Math.random() * 0.4;
+                this.el.style.left = this.x + "%";
+                this.el.style.top = this.y + "%";
+                this.el.style.width = this.size + "px";
+                this.el.style.height = this.size + "px";
+                this.el.style.opacity = this.opacity;
+            }
+            update() {
+                this.y -= this.speed;
+                if (this.y < -5) this.reset(false);
+                this.el.style.top = this.y + "%";
+            }
+        }
+
+        for (let i = 0; i < 18; i++) particles.push(new Ember());
+
+        const frame = () => {
+            particles.forEach(p => p.update());
+            requestAnimationFrame(frame);
+        };
+        frame();
     }, []);
 
     const titleStr = "OF A DYING SKY";
 
     return (
         <div className="cinematic-intro">
+            
+            {/* 🔥 Ultra-thin loading bar */}
+            <div 
+                className="intro-progress-bar"
+                style={{ width: `${progress}%` }}
+            ></div>
+
+            {/* Heat Ripple Layer */}
+            <div className="intro-heat-ripple"></div>
+
+            {/* Pulse Glow Behind Text */}
+            <div className="intro-pulse-layer"></div>
+
             <div className="film-grain"></div>
             <div className="fog-container"></div>
-            
+
+            {/* Particle container */}
+            <div className="intro-particle-zone" ref={particleRef}></div>
+
             <div className="title-container">
                 <div className="sub-title-intro">BENEATH THE LIGHT</div>
                 <div className="main-title-intro">
                     {titleStr.split("").map((char, i) => (
-                        <span key={i} className="char-span" style={{animationDelay: `${2.5 + (i * 0.15)}s`}}>
+                        <span key={i} className="char-span" style={{ animationDelay: `${2.5 + (i * 0.15)}s` }}>
                             {char === " " ? "\u00A0" : char}
                         </span>
                     ))}
@@ -90,6 +165,7 @@ const CinematicIntro = ({ onComplete }) => {
         </div>
     );
 };
+
 
 // 🚨 LICENSE BAR WITH SMOOTH FADE
 const LicenseBar = () => {
