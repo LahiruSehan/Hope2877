@@ -27,12 +27,24 @@ window.APP_CONFIG = {
         }
     },
 
-    // 🏆 Credits with Themes
-    credits: [
-        { name: "MINASHA", role: "The Muse", theme: "sakura", emoji: "🌸", desc: "Character inspiration & style icon. Brings the beauty of the falling petals to the void." },
-        { name: "CHAVEEN", role: "The Strategist", theme: "fire", emoji: "🔥", desc: "First Beta Reader. Analyzed the plot holes and forged the story in fire." },
-        { name: "SAIDA", role: "The Consultant", theme: "blood", emoji: "💀", desc: "Manga logic & Anime lore expert. Dark arts advisor." }
-    ],
+// 🏆 Credits with Themes
+credits: [
+    { 
+        name: "MINASHA", 
+        role: "Character Inspiration", 
+        theme: "sakura", 
+        emoji: "🌸", 
+        desc: "Inspired the creation and personality of Viyona, shaping key emotional and stylistic elements of the story." 
+    },
+
+    { 
+        name: "AROSHA", 
+        role: "The First Beta Reader (aka Chaveen)", 
+        theme: "fire", 
+        emoji: "🔥", 
+        desc: "Early reviewer of HOPE 2877. Provided feedback, new ideas, and perspective to strengthen the storyline." 
+    }
+],
 
     legal: {
         license: "LICENSE: 978-624-94 186-0-2",
