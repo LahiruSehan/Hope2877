@@ -1,7 +1,7 @@
-import { requestNotificationPermission, onMessageListener } from "../src/firebase.js";
+// NOTE: no imports – firebase is exposed on window from src/firebase.js
 
-
-const { useState, useEffect, useRef, useContext, createContext } = React;
+const { useState, useEffect, useRef } = React;
+const h = React.createElement;
 
 // 🌍 CONFIG ACCESS
 const t = window.APP_CONFIG.translations.EN;
@@ -9,28 +9,34 @@ const t = window.APP_CONFIG.translations.EN;
 // 🌌 SLOW PARTICLE BACKGROUND (COOL COLORS ONLY)
 const ParticleBackground = () => {
     const canvasRef = useRef(null);
+
     useEffect(() => {
         const canvas = canvasRef.current;
-        if (!canvas) return; // 🛑 SAFETY CHECK TO PREVENT CRASH
-        
-        const ctx = canvas.getContext('2d');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
         let particles = [];
-        const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
-        window.addEventListener('resize', resize);
+
+        const resize = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        };
+        window.addEventListener("resize", resize);
         resize();
 
         class Particle {
             constructor() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2 + 0.5; // Smaller, star-like
-                this.speedX = (Math.random() - 0.5) * 0.05; // Extremely slow
-                this.speedY = (Math.random() - 0.5) * 0.05; 
-                // Blue / Purple / Cyan only
-                const hue = 200 + Math.random() * 80; 
-                this.color = `hsla(${hue}, 70%, 60%, ${Math.random() * 0.3 + 0.1})`;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.05;
+                this.speedY = (Math.random() - 0.5) * 0.05;
+                const hue = 200 + Math.random() * 80;
+                this.color = `hsla(${hue}, 70%, 60%, ${
+                    Math.random() * 0.3 + 0.1
+                })`;
             }
             update() {
                 this.x += this.speedX;
@@ -47,25 +53,37 @@ const ParticleBackground = () => {
                 ctx.fill();
             }
         }
-        const init = () => { particles = []; for(let i=0; i<40; i++) particles.push(new Particle()); };
+
+        const init = () => {
+            particles = [];
+            for (let i = 0; i < 40; i++) particles.push(new Particle());
+        };
+
         init();
+
         const animate = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(p => { p.update(); p.draw(); });
+            particles.forEach((p) => {
+                p.update();
+                p.draw();
+            });
             requestAnimationFrame(animate);
         };
+
         animate();
-        return () => window.removeEventListener('resize', resize);
+
+        return () => window.removeEventListener("resize", resize);
     }, []);
-    return React.createElement('canvas', { id: 'particle-canvas', ref: canvasRef });
+
+    return h("canvas", { id: "particle-canvas", ref: canvasRef });
 };
 
-// 🎬 CINEMATIC VOID INTRO (Upgraded with particles, heat ripple & pulse)
+// 🎬 CINEMATIC VOID INTRO
 const CinematicIntro = ({ onComplete }) => {
     const [progress, setProgress] = useState(0);
     const particleRef = useRef(null);
 
-    // Progress Bar Animation (11 seconds sync)
+    // Progress bar
     useEffect(() => {
         let start = performance.now();
         const duration = 11000;
@@ -79,15 +97,15 @@ const CinematicIntro = ({ onComplete }) => {
         requestAnimationFrame(animate);
     }, []);
 
-    // Finish + Implosion
+    // Finish + implosion
     useEffect(() => {
         const timer = setTimeout(() => {
-            const el = document.querySelector('.cinematic-intro');
-            if (el) el.classList.add('implode');
+            const el = document.querySelector(".cinematic-intro");
+            if (el) el.classList.add("implode");
             setTimeout(onComplete, 1400);
         }, 11000);
         return () => clearTimeout(timer);
-    }, []);
+    }, [onComplete]);
 
     // Red drifting particles around text
     useEffect(() => {
@@ -98,14 +116,14 @@ const CinematicIntro = ({ onComplete }) => {
 
         class Ember {
             constructor() {
-                this.el = document.createElement('div');
+                this.el = document.createElement("div");
                 this.el.className = "intro-ember";
                 this.reset(true);
                 container.appendChild(this.el);
             }
             reset(first = false) {
-                this.x = Math.random() * 80 + 10; 
-                this.y = first ? Math.random() * 80 + 10 : 100; 
+                this.x = Math.random() * 80 + 10;
+                this.y = first ? Math.random() * 80 + 10 : 100;
                 this.size = Math.random() * 3 + 1;
                 this.speed = 0.05 + Math.random() * 0.2;
                 this.opacity = 0.2 + Math.random() * 0.4;
@@ -125,157 +143,163 @@ const CinematicIntro = ({ onComplete }) => {
         for (let i = 0; i < 18; i++) particles.push(new Ember());
 
         const frame = () => {
-            particles.forEach(p => p.update());
+            particles.forEach((p) => p.update());
             requestAnimationFrame(frame);
         };
         frame();
     }, []);
 
-// ⚡ GOD-TIER REALISTIC LIGHTNING SYSTEM
-useEffect(() => {
-    const canvas = document.getElementById("lightning-canvas");
-    const ctx = canvas.getContext("2d");
+    // ⚡ LIGHTNING SYSTEM
+    useEffect(() => {
+        const canvas = document.getElementById("lightning-canvas");
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
 
-    const resize = () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    };
-    resize();
-    window.addEventListener("resize", resize);
+        const resize = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        };
+        resize();
+        window.addEventListener("resize", resize);
 
-    // Generate lightning path (jagged)
-    const genBolt = (x, y, targetX, targetY, segments = 20) => {
-        let points = [{ x, y }];
-        for (let i = 1; i < segments; i++) {
-            let t = i / segments;
-            let px = x + (targetX - x) * t + (Math.random() - 0.5) * 60;
-            let py = y + (targetY - y) * t + (Math.random() - 0.5) * 60;
-            points.push({ x: px, y: py });
-        }
-        points.push({ x: targetX, y: targetY });
-        return points;
-    };
+        const genBolt = (x, y, targetX, targetY, segments = 20) => {
+            let points = [{ x, y }];
+            for (let i = 1; i < segments; i++) {
+                let t = i / segments;
+                let px =
+                    x +
+                    (targetX - x) * t +
+                    (Math.random() - 0.5) * 60;
+                let py =
+                    y +
+                    (targetY - y) * t +
+                    (Math.random() - 0.5) * 60;
+                points.push({ x: px, y: py });
+            }
+            points.push({ x: targetX, y: targetY });
+            return points;
+        };
 
-    const drawBolt = (pts, thickness = 3, alpha = 1) => {
-        ctx.strokeStyle = `rgba(200,220,255,${alpha})`;
-        ctx.lineWidth = thickness;
-        ctx.shadowBlur = 25;
-        ctx.shadowColor = "rgba(180,200,255,1)";
+        const drawBolt = (pts, thickness = 3, alpha = 1) => {
+            ctx.strokeStyle = `rgba(200,220,255,${alpha})`;
+            ctx.lineWidth = thickness;
+            ctx.shadowBlur = 25;
+            ctx.shadowColor = "rgba(180,200,255,1)";
 
-        ctx.beginPath();
-        ctx.moveTo(pts[0].x, pts[0].y);
-        pts.forEach((p) => ctx.lineTo(p.x, p.y));
-        ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(pts[0].x, pts[0].y);
+            pts.forEach((p) => ctx.lineTo(p.x, p.y));
+            ctx.stroke();
 
-        // Glow pass
-        ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
-        ctx.lineWidth = thickness * 0.6;
-        ctx.shadowBlur = 40;
-        ctx.shadowColor = "white";
-        ctx.stroke();
-    };
+            ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
+            ctx.lineWidth = thickness * 0.6;
+            ctx.shadowBlur = 40;
+            ctx.shadowColor = "white";
+            ctx.stroke();
+        };
 
-    // Branch bolts
-    const drawBranch = (p) => {
-        let len = 50 + Math.random() * 120;
-        let angle = (Math.random() - 0.5) * 1.2;
-        let endX = p.x + Math.cos(angle) * len;
-        let endY = p.y + Math.sin(angle) * len;
+        const drawBranch = (p) => {
+            let len = 50 + Math.random() * 120;
+            let angle = (Math.random() - 0.5) * 1.2;
+            let endX = p.x + Math.cos(angle) * len;
+            let endY = p.y + Math.sin(angle) * len;
+            let branchPts = genBolt(p.x, p.y, endX, endY, 6);
+            drawBolt(branchPts, 1.6, 0.6);
+        };
 
-        let branchPts = genBolt(p.x, p.y, endX, endY, 6);
-        drawBolt(branchPts, 1.6, 0.6);
-    };
+        const triggerLightning = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // MASTER lightning trigger
-    const triggerLightning = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+            let startX = canvas.width * 0.5 + (Math.random() - 0.5) * 150;
+            let startY = 0;
+            let endX = canvas.width * 0.5;
+            let endY = canvas.height * 0.45;
 
-        let startX = canvas.width * 0.5 + (Math.random() - 0.5) * 150;
-        let startY = 0;
-        let endX = canvas.width * 0.5;
-        let endY = canvas.height * 0.45;
+            let mainBolt = genBolt(startX, startY, endX, endY, 25);
 
-        let mainBolt = genBolt(startX, startY, endX, endY, 25);
+            drawBolt(mainBolt, 3, 1);
 
-        drawBolt(mainBolt, 3, 1);
+            for (let i = 3; i < mainBolt.length - 3; i += 4) {
+                if (Math.random() > 0.55) continue;
+                drawBranch(mainBolt[i]);
+            }
 
-        // Branches (random ones)
-        for (let i = 3; i < mainBolt.length - 3; i += 4) {
-            if (Math.random() > 0.55) continue;
-            drawBranch(mainBolt[i]);
-        }
+            setTimeout(
+                () => ctx.clearRect(0, 0, canvas.width, canvas.height),
+                80
+            );
+            setTimeout(() => drawBolt(mainBolt, 2.5, 0.8), 120);
+            setTimeout(
+                () => ctx.clearRect(0, 0, canvas.width, canvas.height),
+                200
+            );
 
-        // Multi-flash effect
-        setTimeout(() => ctx.clearRect(0, 0, canvas.width, canvas.height), 80);
-        setTimeout(() => drawBolt(mainBolt, 2.5, 0.8), 120);
-        setTimeout(() => ctx.clearRect(0, 0, canvas.width, canvas.height), 200);
+            const intro = document.querySelector(".cinematic-intro");
+            if (!intro) return;
+            intro.classList.add("lightning-screen-flash");
+            intro.classList.add("lightning-camera-shake");
 
-        // Screen flash + shake
-        const intro = document.querySelector(".cinematic-intro");
-        intro.classList.add("lightning-screen-flash");
-        intro.classList.add("lightning-camera-shake");
+            setTimeout(() => {
+                intro.classList.remove("lightning-screen-flash");
+                intro.classList.remove("lightning-camera-shake");
+            }, 300);
+        };
 
-        setTimeout(() => {
-            intro.classList.remove("lightning-screen-flash");
-            intro.classList.remove("lightning-camera-shake");
-        }, 300);
-    };
+        const timer = setTimeout(triggerLightning, 6500);
 
-    // When to trigger (after your title appears)
-    const timer = setTimeout(triggerLightning, 6500);
-
-    return () => {
-        clearTimeout(timer);
-        window.removeEventListener("resize", resize);
-    };
-}, []);
-
-
-
-    
+        return () => {
+            clearTimeout(timer);
+            window.removeEventListener("resize", resize);
+        };
+    }, []);
 
     const titleStr = "OF A DYING SKY";
 
-    return (
-        <div className="cinematic-intro">
-            
-            {/* 🔥 Ultra-thin loading bar */}
-            <div 
-                className="intro-progress-bar"
-                style={{ width: `${progress}%` }}
-            ></div>
-
-            {/* Heat Ripple Layer */}
-            <div className="intro-heat-ripple"></div>
-
-            {/* Pulse Glow Behind Text */}
-            <div className="intro-pulse-layer"></div>
-
-            <div className="film-grain"></div>
-            <div className="fog-container"></div>
-
-            <canvas id="lightning-canvas"></canvas>
-
-
-            {/* Particle container */}
-            <div className="intro-particle-zone" ref={particleRef}></div>
-
-            <div className="title-container">
-                <div className="sub-title-intro">BENEATH THE LIGHT</div>
-                <div className="main-title-intro">
-                    {titleStr.split("").map((char, i) => (
-                        <span key={i} className="char-span" style={{ animationDelay: `${2.5 + (i * 0.15)}s` }}>
-                            {char === " " ? "\u00A0" : char}
-                        </span>
-                    ))}
-                </div>
-            </div>
-        </div>
+    return h(
+        "div",
+        { className: "cinematic-intro" },
+        h("div", {
+            className: "intro-progress-bar",
+            style: { width: progress + "%" }
+        }),
+        h("div", { className: "intro-heat-ripple" }),
+        h("div", { className: "intro-pulse-layer" }),
+        h("div", { className: "film-grain" }),
+        h("div", { className: "fog-container" }),
+        h("canvas", { id: "lightning-canvas" }),
+        h("div", { className: "intro-particle-zone", ref: particleRef }),
+        h(
+            "div",
+            { className: "title-container" },
+            h(
+                "div",
+                { className: "sub-title-intro" },
+                "BENEATH THE LIGHT"
+            ),
+            h(
+                "div",
+                { className: "main-title-intro" },
+                titleStr.split("").map((char, i) =>
+                    h(
+                        "span",
+                        {
+                            key: i,
+                            className: "char-span",
+                            style: {
+                                animationDelay:
+                                    2.5 + i * 0.15 + "s"
+                            }
+                        },
+                        char === " " ? "\u00A0" : char
+                    )
+                )
+            )
+        )
     );
 };
 
-
-// 🚨 LICENSE BAR WITH SMOOTH FADE
+// 🚨 LICENSE BAR
 const LicenseBar = () => {
     const warnings = window.APP_CONFIG.legal.warnings;
     const [index, setIndex] = useState(0);
@@ -283,197 +307,525 @@ const LicenseBar = () => {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            setFade(true); // Trigger fade out
+            setFade(true);
             setTimeout(() => {
-                setIndex(prev => (prev + 1) % warnings.length);
-                setFade(false); // Trigger fade in
+                setIndex((prev) => (prev + 1) % warnings.length);
+                setFade(false);
             }, 500);
         }, 3500);
         return () => clearInterval(interval);
-    }, []);
+    }, [warnings]);
 
-    return (
-        <div className="license-bar">
-            <div className={`license-text ${fade ? 'fade-out' : ''}`}>{warnings[index]}</div>
-        </div>
+    return h(
+        "div",
+        { className: "license-bar" },
+        h(
+            "div",
+            {
+                className:
+                    "license-text " + (fade ? "fade-out" : "")
+            },
+            warnings[index]
+        )
     );
 };
 
 // 🌸 THEMED MODAL
 const ThemeModal = ({ person, onClose }) => {
     if (!person) return null;
+
     useEffect(() => {
         const createParticles = () => {
-            const el = document.createElement('div');
+            const el = document.createElement("div");
             el.innerText = person.emoji;
-            el.className = 'modal-particle';
-            el.style.left = Math.random() * 100 + 'vw';
-            if (person.theme === 'fire') el.style.animation = `riseFire ${2 + Math.random()}s ease-in forwards`;
-            else if (person.theme === 'sakura') el.style.animation = `fallSakura ${4 + Math.random()}s linear forwards`;
-            else el.style.animation = `dripBlood ${3 + Math.random()}s ease-in forwards`;
-            const container = document.getElementById('theme-layer');
-            if(container) container.appendChild(el);
+            el.className = "modal-particle";
+            el.style.left = Math.random() * 100 + "vw";
+            if (person.theme === "fire")
+                el.style.animation = `riseFire ${
+                    2 + Math.random()
+                }s ease-in forwards`;
+            else if (person.theme === "sakura")
+                el.style.animation = `fallSakura ${
+                    4 + Math.random()
+                }s linear forwards`;
+            else
+                el.style.animation = `dripBlood ${
+                    3 + Math.random()
+                }s ease-in forwards`;
+            const container = document.getElementById("theme-layer");
+            if (container) container.appendChild(el);
             setTimeout(() => el.remove(), 4000);
         };
         const interval = setInterval(createParticles, 200);
         return () => clearInterval(interval);
     }, [person]);
-    return (
-        <div className={`theme-modal theme-${person.theme}`}>
-            <div id="theme-layer" style={{position:'absolute',width:'100%',height:'100%',overflow:'hidden'}}></div>
-            <div className="theme-content">
-                <h1 style={{color:person.theme==='sakura'?'#FFB7C5':person.theme==='fire'?'#FF4500':'#800000', fontFamily:'Orbitron', marginBottom:'5px'}}>{person.name}</h1>
-                <h3 style={{color:'#fff', fontSize:'0.9rem', marginBottom:'15px'}}>{person.role}</h3>
-                <p style={{color:'#ccc',fontSize:'0.85rem', lineHeight:'1.4'}}>{person.desc}</p>
-                <button onClick={onClose} style={{marginTop:'25px',padding:'8px 25px',background:'rgba(255,255,255,0.1)',border:'1px solid #777',color:'#fff',cursor:'pointer',borderRadius:'20px'}}>CLOSE</button>
-            </div>
-        </div>
+
+    return h(
+        "div",
+        { className: "theme-modal theme-" + person.theme },
+        h("div", {
+            id: "theme-layer",
+            style: {
+                position: "absolute",
+                width: "100%",
+                height: "100%",
+                overflow: "hidden"
+            }
+        }),
+        h(
+            "div",
+            { className: "theme-content" },
+            h(
+                "h1",
+                {
+                    style: {
+                        color:
+                            person.theme === "sakura"
+                                ? "#FFB7C5"
+                                : person.theme === "fire"
+                                ? "#FF4500"
+                                : "#800000",
+                        fontFamily: "Orbitron",
+                        marginBottom: "5px"
+                    }
+                },
+                person.name
+            ),
+            h(
+                "h3",
+                {
+                    style: {
+                        color: "#fff",
+                        fontSize: "0.9rem",
+                        marginBottom: "15px"
+                    }
+                },
+                person.role
+            ),
+            h(
+                "p",
+                {
+                    style: {
+                        color: "#ccc",
+                        fontSize: "0.85rem",
+                        lineHeight: "1.4"
+                    }
+                },
+                person.desc
+            ),
+            h(
+                "button",
+                {
+                    onClick: onClose,
+                    style: {
+                        marginTop: "25px",
+                        padding: "8px 25px",
+                        background: "rgba(255,255,255,0.1)",
+                        border: "1px solid #777",
+                        color: "#fff",
+                        cursor: "pointer",
+                        borderRadius: "20px"
+                    }
+                },
+                "CLOSE"
+            )
+        )
     );
 };
 
 // 💰 PAYWALL
 const Paywall = ({ onUnlock }) => {
-    const [mode, setMode] = useState('vip');
-    const [code, setCode] = useState('');
-    return (
-        <div className="paywall-modal">
-            <div className="gold-card">
-                <div className="pay-tabs">
-                    <div className={`pay-tab ${mode==='vip'?'active':''}`} onClick={()=>setMode('vip')}>{t.unlock}</div>
-                    <div className={`pay-tab ${mode==='card'?'active':''}`} onClick={()=>setMode('card')}>{t.card_pay}</div>
-                </div>
-                <h2 style={{color:'#FFD700',fontFamily:'Cinzel',fontSize:'1.2rem'}}>{t.paywall_title}</h2>
-                <div className="price-tag">$4.99</div>
-                <p style={{color:'#aaa',marginBottom:'20px',fontSize:'0.8rem'}}>{t.paywall_desc}</p>
-                {mode === 'vip' ? (
-                    <div>
-                        <input className="cc-input" style={{width:'100%',textAlign:'center',marginBottom:'15px',color:'#FFD700',border:'1px solid #FFD700',background:'#000',padding:'12px',borderRadius:'8px'}} placeholder="ENTER VIP KEY" value={code} onChange={e=>setCode(e.target.value.toUpperCase())} />
-                        <button className="start-btn-soft" style={{width:'100%',margin:'0',background:'#FFD700',color:'#000',fontSize:'0.9rem'}} onClick={()=>onUnlock(code)}>{t.unlock}</button>
-                    </div>
-                ) : (
-                    <div><button className="start-btn-soft" style={{width:'100%',margin:'0',fontSize:'1rem'}} onClick={()=>alert("ERROR: BANK UNREACHABLE")}>PAY NOW</button></div>
-                )}
-            </div>
-        </div>
+    const [mode, setMode] = useState("vip");
+    const [code, setCode] = useState("");
+
+    return h(
+        "div",
+        { className: "paywall-modal" },
+        h(
+            "div",
+            { className: "gold-card" },
+            h(
+                "div",
+                { className: "pay-tabs" },
+                h(
+                    "div",
+                    {
+                        className:
+                            "pay-tab " +
+                            (mode === "vip" ? "active" : ""),
+                        onClick: () => setMode("vip")
+                    },
+                    t.unlock
+                ),
+                h(
+                    "div",
+                    {
+                        className:
+                            "pay-tab " +
+                            (mode === "card" ? "active" : ""),
+                        onClick: () => setMode("card")
+                    },
+                    t.card_pay
+                )
+            ),
+            h(
+                "h2",
+                {
+                    style: {
+                        color: "#FFD700",
+                        fontFamily: "Cinzel",
+                        fontSize: "1.2rem"
+                    }
+                },
+                t.paywall_title
+            ),
+            h("div", { className: "price-tag" }, "$4.99"),
+            h(
+                "p",
+                {
+                    style: {
+                        color: "#aaa",
+                        marginBottom: "20px",
+                        fontSize: "0.8rem"
+                    }
+                },
+                t.paywall_desc
+            ),
+            mode === "vip"
+                ? h(
+                      "div",
+                      null,
+                      h("input", {
+                          className: "cc-input",
+                          style: {
+                              width: "100%",
+                              textAlign: "center",
+                              marginBottom: "15px",
+                              color: "#FFD700",
+                              border: "1px solid #FFD700",
+                              background: "#000",
+                              padding: "12px",
+                              borderRadius: "8px"
+                          },
+                          placeholder: "ENTER VIP KEY",
+                          value: code,
+                          onChange: (e) =>
+                              setCode(
+                                  e.target.value.toUpperCase()
+                              )
+                      }),
+                      h(
+                          "button",
+                          {
+                              className: "start-btn-soft",
+                              style: {
+                                  width: "100%",
+                                  margin: "0",
+                                  background: "#FFD700",
+                                  color: "#000",
+                                  fontSize: "0.9rem"
+                              },
+                              onClick: () => onUnlock(code)
+                          },
+                          t.unlock
+                      )
+                  )
+                : h(
+                      "div",
+                      null,
+                      h(
+                          "button",
+                          {
+                              className: "start-btn-soft",
+                              style: {
+                                  width: "100%",
+                                  margin: "0",
+                                  fontSize: "1rem"
+                              },
+                              onClick: () =>
+                                  alert("ERROR: BANK UNREACHABLE")
+                          },
+                          "PAY NOW"
+                      )
+                  )
+        )
     );
 };
 
-// --- COMPONENT: HOME PAGE (Revised Layout) ---
-const HomePage = ({ onStart, onViewCredits }) => {
-    return (
-        <div className="home-layout fade-in" style={{height:'100vh', display:'flex', flexDirection:'column'}}>
-            {/* Top Section */}
-            <div className="home-top-section">
-                <div className="cover-art-container">
-                    <img src={window.APP_CONFIG.assets.cover} className="cover-art-gif" alt="Cover" />
-                </div>
-
-                <h1 className="hero-title">
-                    {t.title_start}<br />
-                    <span className="title-red">{t.title_end}</span>
-                </h1>
-            </div>
-
-            {/* Center Actions */}
-            <div className="home-center-action">
-                <div className="start-btn-soft" onClick={onStart}>{t.start}</div>
-                <div className="hunt-text">{t.subtitle}</div>
-            </div>
-
-            {/* Bottom Credits (Fixed at bottom) */}
-            <div className="credits-section">
-                <div className="section-header" style={{fontSize:'0.7rem', color:'#666', letterSpacing:'2px'}}>{t.special}</div>
-                <div className="credits-row">
-                    {window.APP_CONFIG.credits.map((c, i) => (
-                        <div key={i} className="soft-credit-btn" onClick={() => onViewCredits(c)}>
-                            {c.name.charAt(0)}
-                        </div>
-                    ))}
-                </div>
-                <p className="credit-subtext">{t.more_info}</p>
-            </div>
-        </div>
+// --- HOME PAGE ---
+const HomePage = ({ onStart, onViewCredits }) =>
+    h(
+        "div",
+        {
+            className: "home-layout fade-in",
+            style: {
+                height: "100vh",
+                display: "flex",
+                flexDirection: "column"
+            }
+        },
+        h(
+            "div",
+            { className: "home-top-section" },
+            h(
+                "div",
+                { className: "cover-art-container" },
+                h("img", {
+                    src: window.APP_CONFIG.assets.cover,
+                    className: "cover-art-gif",
+                    alt: "Cover"
+                })
+            ),
+            h(
+                "h1",
+                { className: "hero-title" },
+                t.title_start,
+                h("br"),
+                h(
+                    "span",
+                    { className: "title-red" },
+                    t.title_end
+                )
+            )
+        ),
+        h(
+            "div",
+            { className: "home-center-action" },
+            h(
+                "div",
+                {
+                    className: "start-btn-soft",
+                    onClick: onStart
+                },
+                t.start
+            ),
+            h("div", { className: "hunt-text" }, t.subtitle)
+        ),
+        h(
+            "div",
+            { className: "credits-section" },
+            h(
+                "div",
+                {
+                    className: "section-header",
+                    style: {
+                        fontSize: "0.7rem",
+                        color: "#666",
+                        letterSpacing: "2px"
+                    }
+                },
+                t.special
+            ),
+            h(
+                "div",
+                { className: "credits-row" },
+                window.APP_CONFIG.credits.map((c, i) =>
+                    h(
+                        "div",
+                        {
+                            key: i,
+                            className: "soft-credit-btn",
+                            onClick: () => onViewCredits(c)
+                        },
+                        c.name.charAt(0)
+                    )
+                )
+            ),
+            h(
+                "p",
+                { className: "credit-subtext" },
+                t.more_info
+            )
+        )
     );
-};
 
-// --- COMPONENT: MANGA LIST ---
-const MangaPage = ({ onRead }) => {
-    return (
-        <div className="manga-list fade-in">
-            <h2 style={{color:'var(--accent-cyan)',fontFamily:'Orbitron',marginBottom:'20px',textAlign:'center',marginTop:'10px'}}>{t.chapters}</h2>
-            {window.APP_CONFIG.chapters.map((ch) => (
-                <div key={ch.id} className={`ch-card ${ch.locked?'locked':''}`} onClick={()=>!ch.locked && onRead(ch.id)}>
-                    <div className="ch-info">
-                        <h3 style={{color:'#fff',fontSize:'1rem'}}>{ch.id}. {ch.title}</h3>
-                        <div style={{color:'#666',fontSize:'0.7rem'}}>{ch.locked ? t.locked : ch.date}</div>
-                    </div>
-                    <div className="ch-stats">
-                        {!ch.locked && (
-                            <>
-                                <div className="stat-pill"><span className="live-dot"></span> 0</div>
-                                <div className="stat-pill"><i className="fas fa-comment"></i> 0</div>
-                            </>
-                        )}
-                        {ch.locked && <i className="fas fa-lock" style={{color:'#555'}}></i>}
-                    </div>
-                </div>
-            ))}
-            <div className="construction-section">
-                <h3 style={{fontSize:'1rem'}}>{t.coming_soon}</h3>
-                <p style={{fontSize:'0.8rem', marginTop:'5px'}}>{t.construction_desc}</p>
-            </div>
-        </div>
+// --- MANGA LIST ---
+const MangaPage = ({ onRead }) =>
+    h(
+        "div",
+        { className: "manga-list fade-in" },
+        h(
+            "h2",
+            {
+                style: {
+                    color: "var(--accent-cyan)",
+                    fontFamily: "Orbitron",
+                    marginBottom: "20px",
+                    textAlign: "center",
+                    marginTop: "10px"
+                }
+            },
+            t.chapters
+        ),
+        window.APP_CONFIG.chapters.map((ch) =>
+            h(
+                "div",
+                {
+                    key: ch.id,
+                    className:
+                        "ch-card " +
+                        (ch.locked ? "locked" : ""),
+                    onClick: () =>
+                        !ch.locked && onRead(ch.id)
+                },
+                h(
+                    "div",
+                    { className: "ch-info" },
+                    h(
+                        "h3",
+                        {
+                            style: {
+                                color: "#fff",
+                                fontSize: "1rem"
+                            }
+                        },
+                        ch.id + ". " + ch.title
+                    ),
+                    h(
+                        "div",
+                        {
+                            style: {
+                                color: "#666",
+                                fontSize: "0.7rem"
+                            }
+                        },
+                        ch.locked ? t.locked : ch.date
+                    )
+                ),
+                h(
+                    "div",
+                    { className: "ch-stats" },
+                    !ch.locked
+                        ? [
+                              h(
+                                  "div",
+                                  {
+                                      key: "live",
+                                      className: "stat-pill"
+                                  },
+                                  h("span", {
+                                      className: "live-dot"
+                                  }),
+                                  " 0"
+                              ),
+                              h(
+                                  "div",
+                                  {
+                                      key: "comments",
+                                      className: "stat-pill"
+                                  },
+                                  h("i", {
+                                      className:
+                                          "fas fa-comment"
+                                  }),
+                                  " 0"
+                              )
+                          ]
+                        : h("i", {
+                              className: "fas fa-lock",
+                              style: { color: "#555" }
+                          })
+                )
+            )
+        ),
+        h(
+            "div",
+            { className: "construction-section" },
+            h(
+                "h3",
+                { style: { fontSize: "1rem" } },
+                t.coming_soon
+            ),
+            h(
+                "p",
+                {
+                    style: {
+                        fontSize: "0.8rem",
+                        marginTop: "5px"
+                    }
+                },
+                t.construction_desc
+            )
+        )
     );
-};
 
-// --- COMPONENT: READER (Fixed Toolbar + Back Function) ---
+// --- READER ---
 const ReaderPage = ({ chapterId, onBack }) => {
-    const chapter = window.APP_CONFIG.chapters.find(c => c.id === chapterId);
-    
-    // Auto-scroll to top when opening
+    const chapter = window.APP_CONFIG.chapters.find(
+        (c) => c.id === chapterId
+    );
+
     useEffect(() => {
-        window.scrollTo(0,0);
+        window.scrollTo(0, 0);
     }, []);
 
-    return (
-        <div className="reader-container fade-in">
-            {/* FLOATING TRANSPARENT OVERLAY TOOLBAR */}
-            <div className="reader-toolbar">
-                <i className="fas fa-arrow-left reader-icon" onClick={onBack}></i>
-                <i className="fas fa-home reader-icon" onClick={onBack}></i>
-                <div style={{display:'flex'}}>
-                    <i className="fas fa-heart reader-icon" onClick={()=>alert('Liked!')}></i>
-                    <i className="fas fa-comment reader-icon" onClick={()=>alert('Comments coming soon')}></i>
-                </div>
-            </div>
-
-            {chapter.pages.map((img, i) => (
-                <img key={i} src={img} className="reader-img" loading="lazy" />
-            ))}
-        </div>
+    return h(
+        "div",
+        { className: "reader-container fade-in" },
+        h(
+            "div",
+            { className: "reader-toolbar" },
+            h("i", {
+                className: "fas fa-arrow-left reader-icon",
+                onClick: onBack
+            }),
+            h("i", {
+                className: "fas fa-home reader-icon",
+                onClick: onBack
+            }),
+            h(
+                "div",
+                { style: { display: "flex" } },
+                h("i", {
+                    className: "fas fa-heart reader-icon",
+                    onClick: () => alert("Liked!")
+                }),
+                h("i", {
+                    className: "fas fa-comment reader-icon",
+                    onClick: () =>
+                        alert("Comments coming soon")
+                })
+            )
+        ),
+        chapter.pages.map((img, i) =>
+            h("img", {
+                key: i,
+                src: img,
+                className: "reader-img",
+                loading: "lazy"
+            })
+        )
     );
 };
 
-// --- 📱 MAIN APP ---
+// --- MAIN APP ---
 const App = () => {
-    const [view, setView] = useState('intro');
+    const [view, setView] = useState("intro");
     const [activePerson, setActivePerson] = useState(null);
     const [showPaywall, setShowPaywall] = useState(false);
     const [activeChapter, setActiveChapter] = useState(1);
-   
-    // 🔔 Notifications 
-    useEffect(() => {
-        window.requestNotificationPermission().then((token) => {
-            console.log("User Token:", token);
-        });
 
-        window.onFirebaseForegroundMessage((payload) => {
-            alert("🔥 New Update: " + payload.notification.title);
-        });
+    // 🔔 Notifications
+    useEffect(() => {
+        if (window.requestNotificationPermission) {
+            window.requestNotificationPermission().then(
+                (token) => {
+                    console.log("User Token:", token);
+                }
+            );
+        }
+
+        if (window.onFirebaseForegroundMessage) {
+            window.onFirebaseForegroundMessage((payload) => {
+                alert(
+                    "🔥 New Update: " +
+                        payload.notification.title
+                );
+            });
+        }
     }, []);
 
-
-    // Initial Load Check
+    // Config check
     useEffect(() => {
         if (!window.APP_CONFIG) {
             console.error("Config not found");
@@ -481,34 +833,64 @@ const App = () => {
     }, []);
 
     const handleStart = () => {
-        const saved = localStorage.getItem('vipAccess');
-        if (saved) setView('manga'); else setShowPaywall(true);
+        const saved = localStorage.getItem("vipAccess");
+        if (saved) setView("manga");
+        else setShowPaywall(true);
     };
+
     const unlockVIP = (code) => {
-        if(window.APP_CONFIG.vipCodes.includes(code)){ localStorage.setItem('vipAccess','true'); setShowPaywall(false); setView('manga'); }
-        else alert("ACCESS DENIED");
+        if (window.APP_CONFIG.vipCodes.includes(code)) {
+            localStorage.setItem("vipAccess", "true");
+            setShowPaywall(false);
+            setView("manga");
+        } else alert("ACCESS DENIED");
     };
 
-    return (
-        <div className={`app-shell ${view==='reader'?'reader-mode':''}`}>
-            {/* Show Particle BG everywhere except Reader */}
-            {view !== 'reader' && view !== 'intro' && <ParticleBackground />}
-            
-            {/* Show License Bar everywhere except Reader and Intro */}
-            {view !== 'reader' && view !== 'intro' && <LicenseBar />}
-            
-            {/* Views */}
-            {view==='intro' && <CinematicIntro onComplete={() => setView('home')} />}
-            {view==='home' && <HomePage onStart={handleStart} onViewCredits={setActivePerson} />}
-            {view==='manga' && <MangaPage onRead={(id)=>{setActiveChapter(id); setView('reader');}} />}
-            {view==='reader' && <ReaderPage chapterId={activeChapter} onBack={()=>setView('manga')} />}
-
-            {/* Modals */}
-            {activePerson && <ThemeModal person={activePerson} onClose={()=>setActivePerson(null)} />}
-            {showPaywall && <Paywall onUnlock={unlockVIP} />}
-        </div>
+    return h(
+        "div",
+        {
+            className:
+                "app-shell " +
+                (view === "reader" ? "reader-mode" : "")
+        },
+        view !== "reader" &&
+            view !== "intro" &&
+            h(ParticleBackground),
+        view !== "reader" &&
+            view !== "intro" &&
+            h(LicenseBar),
+        view === "intro" &&
+            h(CinematicIntro, {
+                onComplete: () => setView("home")
+            }),
+        view === "home" &&
+            h(HomePage, {
+                onStart: handleStart,
+                onViewCredits: setActivePerson
+            }),
+        view === "manga" &&
+            h(MangaPage, {
+                onRead: (id) => {
+                    setActiveChapter(id);
+                    setView("reader");
+                }
+            }),
+        view === "reader" &&
+            h(ReaderPage, {
+                chapterId: activeChapter,
+                onBack: () => setView("manga")
+            }),
+        activePerson &&
+            h(ThemeModal, {
+                person: activePerson,
+                onClose: () => setActivePerson(null)
+            }),
+        showPaywall &&
+            h(Paywall, {
+                onUnlock: unlockVIP
+            })
     );
 };
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(React.createElement(App));
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(h(App));

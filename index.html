@@ -1,48 +1,45 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
     <title>Beneath the Light of a Dying Sky</title>
-    <!-- Firebase (must load first) -->
-    <script src="src/firebase.js"></script>
 
-<!-- Config -->
-    <script src="scripts/config.js"></script>
+    <!-- 🎨 Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&family=Orbitron:wght@400;700&display=swap" rel="stylesheet" />
 
-<!-- Main Application -->
-    <script type="text/babel" src="scripts/app.js"></script>
+    <!-- 🎭 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
-    
-    <!-- Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 🎨 Main Styles -->
+    <link rel="stylesheet" href="styles/main.css" />
 
-    <!-- Main Styles -->
-    <link rel="stylesheet" href="styles/main.css">
-
-    <!-- ⚛️ REACT CORE (Global/UMD) -->
+    <!-- ⚛️ React Core (UMD CDN) -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    
-    <!-- ⚛️ BABEL -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Firebase -->
+
+    <!-- 🔥 Firebase SDK (MUST load before firebase.js) -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-messaging-compat.js"></script>
 
+    <!-- ❌ REMOVE BABEL (not allowed on your domain because of CSP blocking) -->
+    <!-- <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script> -->
+
 </head>
+
 <body>
+
     <div id="root"></div>
 
-    <!-- 1. Config -->
+    <!-- 🔥 Firebase config + functions you wrote -->
+    <script src="src/firebase.js"></script>
+
+    <!-- ⚙️ App config JSON -->
     <script src="scripts/config.js"></script>
 
-    <!-- 2. Main Application -->
-    <script type="text/babel" src="scripts/app.js"></script>
+    <!-- 🚀 Main Application (NO type="module", NO Babel, PURE JS) -->
+    <script src="scripts/app.js"></script>
+
 </body>
 </html>
