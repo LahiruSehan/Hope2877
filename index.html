@@ -2,10 +2,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Beneath the Light of a Dying Sky</title>
-    
+    <!-- Firebase (must load first) -->
+    <script src="src/firebase.js"></script>
+
+<!-- Config -->
+    <script src="scripts/config.js"></script>
+
+<!-- Main Application -->
+    <script type="text/babel" src="scripts/app.js"></script>
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
@@ -22,6 +31,10 @@
     
     <!-- ⚛️ BABEL -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-messaging-compat.js"></script>
+
 </head>
 <body>
     <div id="root"></div>

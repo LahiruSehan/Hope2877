@@ -1,3 +1,5 @@
+import { requestNotificationPermission, onMessageListener } from "../src/firebase.js";
+
 
 const { useState, useEffect, useRef, useContext, createContext } = React;
 
@@ -458,6 +460,18 @@ const App = () => {
     const [activePerson, setActivePerson] = useState(null);
     const [showPaywall, setShowPaywall] = useState(false);
     const [activeChapter, setActiveChapter] = useState(1);
+   
+    // 🔔 Notifications 
+    useEffect(() => {
+        window.requestNotificationPermission().then((token) => {
+            console.log("User Token:", token);
+        });
+
+        window.onFirebaseForegroundMessage((payload) => {
+            alert("🔥 New Update: " + payload.notification.title);
+        });
+    }, []);
+
 
     // Initial Load Check
     useEffect(() => {
