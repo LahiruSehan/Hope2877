@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+    <script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/firebase-messaging-sw.js', {scope: "/"})
+    .then(() => console.log("🔥 Manual Service Worker Registered"))
+    .catch(err => console.error("SW registration failed:", err));
+}
+</script>
+
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
     <title>Beneath the Light of a Dying Sky</title>
