@@ -63,7 +63,7 @@ credits: [
             title: "A world Filled with Rage",
             date: "When the world begins to break, the truth finally shows.",
             locked: false, 
-            pages: Array.from({length: 15}, (_, i) => `images/${i+1}.png`) 
+            pages: Array.from({length: 20}, (_, i) => `images/${i+1}.png`) 
         },
         { id: 2, title: "A Brand New Life... Or...", locked: true, pages: [] },
         { id: 3, title: "Never Ending Story", locked: true, pages: [] },
