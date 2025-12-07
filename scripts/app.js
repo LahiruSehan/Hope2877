@@ -767,9 +767,16 @@ const ReaderPage = ({ chapterId, onBack }) => {
 
             function step(now) {
                 let p = Math.min((now - startTime) / duration, 1);
-                audio.volume = start + diff * p;
+                let newVolume = start + diff * p;
+
+                // 🔥 FIX: Clamp volume between 0 and 1
+                newVolume = Math.max(0, Math.min(1, newVolume));
+
+                audio.volume = newVolume;
+
                 if (p < 1) requestAnimationFrame(step);
             }
+
             requestAnimationFrame(step);
         };
 
