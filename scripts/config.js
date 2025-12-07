@@ -63,9 +63,15 @@ credits: [
             title: "A world Filled with Rage",
             date: "When the world begins to break, the truth finally shows.",
             locked: false, 
-            pages: Array.from({length: 24}, (_, i) => `images/${i+1}.png`) 
+            pages: Array.from({length: 24}, (_, i) => `imageschapter1/${i+1}.png`) 
         },
-        { id: 2, title: "A Brand New Life... Or...", locked: true, pages: [] },
+        { 
+            id: 2, 
+            title: "A Whole new world",
+            date: "Secrets within.",
+            locked: false, 
+            pages: Array.from({length: 11}, (_, i) => `imageschapter2/${i+1}.png`) 
+        },
         { id: 3, title: "Never Ending Story", locked: true, pages: [] },
         { id: 4, title: "FINALE", locked: true, pages: [] }
     ]

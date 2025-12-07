@@ -11,6 +11,12 @@ window.MUSIC_CONFIG = {
             { track: "assets/musics/Love.mp3", pages: [15, 18] },
             { track: "assets/musics/Panic.mp3", pages: [19, 22] },
             { track: "assets/musics/newworld.mp3", pages: [23, 24] }
+        ],
+                2: [
+            { track: "assets/musics/TheWastelandEdge.mp3", pages: [2, 5] },
+            { track: "assets/musics/WhisperedHearts.mp3", pages: [6, 9] },
+            { track: "assets/musics/WhispersofTomorrow.mp3", pages: [10, 11] },
+
         ]
     }
 };
