@@ -34,9 +34,8 @@ const ParticleBackground = () => {
                 this.speedX = (Math.random() - 0.5) * 0.05;
                 this.speedY = (Math.random() - 0.5) * 0.05;
                 const hue = 200 + Math.random() * 80;
-                this.color = `hsla(${hue}, 70%, 60%, ${
-                    Math.random() * 0.3 + 0.1
-                })`;
+                this.color = `hsla(${hue}, 70%, 60%, ${Math.random() * 0.3 + 0.1
+                    })`;
             }
             update() {
                 this.x += this.speedX;
@@ -341,17 +340,14 @@ const ThemeModal = ({ person, onClose }) => {
             el.className = "modal-particle";
             el.style.left = Math.random() * 100 + "vw";
             if (person.theme === "fire")
-                el.style.animation = `riseFire ${
-                    2 + Math.random()
-                }s ease-in forwards`;
+                el.style.animation = `riseFire ${2 + Math.random()
+                    }s ease-in forwards`;
             else if (person.theme === "sakura")
-                el.style.animation = `fallSakura ${
-                    4 + Math.random()
-                }s linear forwards`;
+                el.style.animation = `fallSakura ${4 + Math.random()
+                    }s linear forwards`;
             else
-                el.style.animation = `dripBlood ${
-                    3 + Math.random()
-                }s ease-in forwards`;
+                el.style.animation = `dripBlood ${3 + Math.random()
+                    }s ease-in forwards`;
             const container = document.getElementById("theme-layer");
             if (container) container.appendChild(el);
             setTimeout(() => el.remove(), 4000);
@@ -383,8 +379,8 @@ const ThemeModal = ({ person, onClose }) => {
                             person.theme === "sakura"
                                 ? "#FFB7C5"
                                 : person.theme === "fire"
-                                ? "#FF4500"
-                                : "#800000",
+                                    ? "#FF4500"
+                                    : "#800000",
                         fontFamily: "Orbitron",
                         marginBottom: "5px"
                     }
@@ -493,61 +489,61 @@ const Paywall = ({ onUnlock }) => {
             ),
             mode === "vip"
                 ? h(
-                      "div",
-                      null,
-                      h("input", {
-                          className: "cc-input",
-                          style: {
-                              width: "100%",
-                              textAlign: "center",
-                              marginBottom: "15px",
-                              color: "#FFD700",
-                              border: "1px solid #FFD700",
-                              background: "#000",
-                              padding: "12px",
-                              borderRadius: "8px"
-                          },
-                          placeholder: "ENTER VIP KEY",
-                          value: code,
-                          onChange: (e) =>
-                              setCode(
-                                  e.target.value.toUpperCase()
-                              )
-                      }),
-                      h(
-                          "button",
-                          {
-                              className: "start-btn-soft",
-                              style: {
-                                  width: "100%",
-                                  margin: "0",
-                                  background: "#FFD700",
-                                  color: "#000",
-                                  fontSize: "0.9rem"
-                              },
-                              onClick: () => onUnlock(code)
-                          },
-                          t.unlock
-                      )
-                  )
+                    "div",
+                    null,
+                    h("input", {
+                        className: "cc-input",
+                        style: {
+                            width: "100%",
+                            textAlign: "center",
+                            marginBottom: "15px",
+                            color: "#FFD700",
+                            border: "1px solid #FFD700",
+                            background: "#000",
+                            padding: "12px",
+                            borderRadius: "8px"
+                        },
+                        placeholder: "ENTER VIP KEY",
+                        value: code,
+                        onChange: (e) =>
+                            setCode(
+                                e.target.value.toUpperCase()
+                            )
+                    }),
+                    h(
+                        "button",
+                        {
+                            className: "start-btn-soft",
+                            style: {
+                                width: "100%",
+                                margin: "0",
+                                background: "#FFD700",
+                                color: "#000",
+                                fontSize: "0.9rem"
+                            },
+                            onClick: () => onUnlock(code)
+                        },
+                        t.unlock
+                    )
+                )
                 : h(
-                      "div",
-                      null,
-                      h(
-                          "button",
-                          {
-                              className: "start-btn-soft",
-                              style: {
-                                  width: "100%",
-                                  margin: "0",
-                                  fontSize: "1rem"
-                              },
-                              onClick: () =>
-                                  alert("ERROR: BANK UNREACHABLE")
-                          },
-                          "PAY NOW"
-                      )
-                  )
+                    "div",
+                    null,
+                    h(
+                        "button",
+                        {
+                            className: "start-btn-soft",
+                            style: {
+                                width: "100%",
+                                margin: "0",
+                                fontSize: "1rem"
+                            },
+                            onClick: () =>
+                                alert("ERROR: BANK UNREACHABLE")
+                        },
+                        "PAY NOW"
+                    )
+                )
         )
     );
 };
@@ -697,34 +693,34 @@ const MangaPage = ({ onRead }) =>
                     { className: "ch-stats" },
                     !ch.locked
                         ? [
-                              h(
-                                  "div",
-                                  {
-                                      key: "live",
-                                      className: "stat-pill"
-                                  },
-                                  h("span", {
-                                      className: "live-dot"
-                                  }),
-                                  " 0"
-                              ),
-                              h(
-                                  "div",
-                                  {
-                                      key: "comments",
-                                      className: "stat-pill"
-                                  },
-                                  h("i", {
-                                      className:
-                                          "fas fa-comment"
-                                  }),
-                                  " 0"
-                              )
-                          ]
+                            h(
+                                "div",
+                                {
+                                    key: "live",
+                                    className: "stat-pill"
+                                },
+                                h("span", {
+                                    className: "live-dot"
+                                }),
+                                " 0"
+                            ),
+                            h(
+                                "div",
+                                {
+                                    key: "comments",
+                                    className: "stat-pill"
+                                },
+                                h("i", {
+                                    className:
+                                        "fas fa-comment"
+                                }),
+                                " 0"
+                            )
+                        ]
                         : h("i", {
-                              className: "fas fa-lock",
-                              style: { color: "#555" }
-                          })
+                            className: "fas fa-lock",
+                            style: { color: "#555" }
+                        })
                 )
             )
         ),
@@ -758,6 +754,74 @@ const ReaderPage = ({ chapterId, onBack }) => {
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
+
+    // 🎵 MUSIC ENGINE SYSTEM
+    useEffect(() => {
+        let activeTrack = null;
+        let currentAudio = null;
+
+        const fade = (audio, target, duration) => {
+            let start = audio.volume;
+            let diff = target - start;
+            let startTime = performance.now();
+
+            function step(now) {
+                let p = Math.min((now - startTime) / duration, 1);
+                audio.volume = start + diff * p;
+                if (p < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        };
+
+        const chapterRules = window.MUSIC_CONFIG.chapters[chapterId] || [];
+
+        const checkActivePage = () => {
+            const imgs = document.querySelectorAll(".reader-img");
+            let activePage = null;
+
+            imgs.forEach((img, index) => {
+                const rect = img.getBoundingClientRect();
+                if (rect.top < window.innerHeight * 0.5 &&
+                    rect.bottom > window.innerHeight * 0.5) {
+                    activePage = index + 1;
+                }
+            });
+
+            if (!activePage) return;
+
+            const rule = chapterRules.find(r =>
+                activePage >= r.pages[0] && activePage <= r.pages[1]
+            );
+
+            if (!rule) return;
+
+            if (activeTrack === rule.track) return;
+
+            // Fade out previous
+            if (currentAudio) fade(currentAudio, 0, window.MUSIC_CONFIG.fadeDuration);
+
+            // Load new
+            const audio = new Audio(rule.track);
+            audio.volume = 0;
+            audio.loop = true;
+            audio.play();
+
+            fade(audio, 1, window.MUSIC_CONFIG.fadeDuration);
+
+            currentAudio = audio;
+            activeTrack = rule.track;
+        };
+
+        window.addEventListener("scroll", checkActivePage);
+        setTimeout(checkActivePage, 800);
+
+        return () => {
+            window.removeEventListener("scroll", checkActivePage);
+            if (currentAudio) currentAudio.pause();
+        };
+    }, [chapterId]);
+
+
 
     return h(
         "div",
@@ -819,7 +883,7 @@ const App = () => {
             window.onFirebaseForegroundMessage((payload) => {
                 alert(
                     "🔥 New Update: " +
-                        payload.notification.title
+                    payload.notification.title
                 );
             });
         }
@@ -854,41 +918,41 @@ const App = () => {
                 (view === "reader" ? "reader-mode" : "")
         },
         view !== "reader" &&
-            view !== "intro" &&
-            h(ParticleBackground),
+        view !== "intro" &&
+        h(ParticleBackground),
         view !== "reader" &&
-            view !== "intro" &&
-            h(LicenseBar),
+        view !== "intro" &&
+        h(LicenseBar),
         view === "intro" &&
-            h(CinematicIntro, {
-                onComplete: () => setView("home")
-            }),
+        h(CinematicIntro, {
+            onComplete: () => setView("home")
+        }),
         view === "home" &&
-            h(HomePage, {
-                onStart: handleStart,
-                onViewCredits: setActivePerson
-            }),
+        h(HomePage, {
+            onStart: handleStart,
+            onViewCredits: setActivePerson
+        }),
         view === "manga" &&
-            h(MangaPage, {
-                onRead: (id) => {
-                    setActiveChapter(id);
-                    setView("reader");
-                }
-            }),
+        h(MangaPage, {
+            onRead: (id) => {
+                setActiveChapter(id);
+                setView("reader");
+            }
+        }),
         view === "reader" &&
-            h(ReaderPage, {
-                chapterId: activeChapter,
-                onBack: () => setView("manga")
-            }),
+        h(ReaderPage, {
+            chapterId: activeChapter,
+            onBack: () => setView("manga")
+        }),
         activePerson &&
-            h(ThemeModal, {
-                person: activePerson,
-                onClose: () => setActivePerson(null)
-            }),
+        h(ThemeModal, {
+            person: activePerson,
+            onClose: () => setActivePerson(null)
+        }),
         showPaywall &&
-            h(Paywall, {
-                onUnlock: unlockVIP
-            })
+        h(Paywall, {
+            onUnlock: unlockVIP
+        })
     );
 };
 
