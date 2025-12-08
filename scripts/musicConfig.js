@@ -17,7 +17,8 @@ window.MUSIC_CONFIG = {
             { track: "assets/musics/WhisperedHearts.mp3", pages: [6, 9] },
             { track: "assets/musics/WhispersofTomorrow.mp3", pages: [10, 11] },
             { track: "assets/musics/emotional.mp3", pages: [12, 16] },
-            { track: "assets/musics/Park.mp3", pages: [17, 31] }
+            { track: "assets/musics/Park.mp3", pages: [17, 31] },
+            { track: "assets/musics/Park.mp3", pages: [32, 37] }
 
         ]
     }
