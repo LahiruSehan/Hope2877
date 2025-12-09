@@ -70,7 +70,7 @@ credits: [
             title: "A Whole new world",
             date: "Secrets within.",
             locked: false, 
-            pages: Array.from({length: 40}, (_, i) => `imageschapter2/${i+1}.png`) 
+            pages: Array.from({length: 38}, (_, i) => `imageschapter2/${i+1}.png`) 
         },
         { id: 3, title: "Never Ending Story", locked: true, pages: [] },
         { id: 4, title: "FINALE", locked: true, pages: [] }
