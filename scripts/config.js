@@ -70,9 +70,15 @@ credits: [
             title: "A Whole new world",
             date: "Secrets within.",
             locked: false, 
-            pages: Array.from({length: 38}, (_, i) => `imageschapter2/${i+1}.png`) 
+            pages: Array.from({length: 39}, (_, i) => `imageschapter2/${i+1}.png`) 
         },
-        { id: 3, title: "Never Ending Story", locked: true, pages: [] },
-        { id: 4, title: "FINALE", locked: true, pages: [] }
+        { 
+            id: 3, 
+            title: "Nothing is what it seems",
+            date: "Coming Soon",
+            locked: false, 
+            pages: Array.from({length: 1}, (_, i) => `imageschapter3/${i+1}.png`) 
+        },
+        { id: 4, title: "CRUEL", locked: true, pages: [] }
     ]
 };
