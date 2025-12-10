@@ -80,7 +80,7 @@ window.APP_CONFIG = {
             title: "Broken Promisses",
             date: "The Last Day",
             locked: false,
-            pages: Array.from({ length: 12 }, (_, i) => `imageschapter3/${i + 1}.png`)
+            pages: Array.from({ length: 13 }, (_, i) => `imageschapter3/${i + 1}.png`)
         },
         { id: 4, title: "CRUEL", locked: true, pages: [] }
     ]
