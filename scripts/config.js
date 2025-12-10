@@ -2,10 +2,10 @@
 // ⚙️ CENTRAL CONFIGURATION & DATA
 window.APP_CONFIG = {
     assets: {
-        cover: "images/cover.gif", 
+        cover: "images/cover.gif",
     },
     vipCodes: ["CHAVEEN", "SAIDA", "LAHIRU"],
-    
+
     // 🌍 Language Dictionary (English Only Active)
     translations: {
         EN: {
@@ -27,24 +27,24 @@ window.APP_CONFIG = {
         }
     },
 
-// 🏆 Credits with Themes
-credits: [
-    { 
-        name: "MINASHA", 
-        role: "Character Inspiration", 
-        theme: "sakura", 
-        emoji: "🌸", 
-        desc: "Inspired the creation and personality of Viyona, shaping key emotional and stylistic elements of the story." 
-    },
+    // 🏆 Credits with Themes
+    credits: [
+        {
+            name: "MINASHA",
+            role: "Character Inspiration",
+            theme: "sakura",
+            emoji: "🌸",
+            desc: "Inspired the creation and personality of Viyona, shaping key emotional and stylistic elements of the story."
+        },
 
-    { 
-        name: "AROSHA", 
-        role: "The First Beta Reader (aka GAMERLAZA)", 
-        theme: "fire", 
-        emoji: "🔥", 
-        desc: "Early reviewer of HOPE 2877. Provided feedback, new ideas, and perspective to strengthen the storyline." 
-    }
-],
+        {
+            name: "AROSHA",
+            role: "The First Beta Reader (aka GAMERLAZA)",
+            theme: "fire",
+            emoji: "🔥",
+            desc: "Early reviewer of HOPE 2877. Provided feedback, new ideas, and perspective to strengthen the storyline."
+        }
+    ],
 
     legal: {
         license: "LICENSE: 978-624-94 186-0-2",
@@ -58,26 +58,29 @@ credits: [
 
     // Generate pages 1-11 for Chapter 1
     chapters: [
-        { 
-            id: 1, 
+        {
+            id: 1,
             title: "A world Filled with Rage",
-            date: "When the world begins to break, the truth finally shows.",
-            locked: false, 
-            pages: Array.from({length: 24}, (_, i) => `imageschapter1/${i+1}.png`) 
+            date: "A Shattered Dawn",
+            locked: false,
+            pages: Array.from({ length: 24 }, (_, i) => `imageschapter1/${i + 1}.png`)
         },
-        { 
-            id: 2, 
-            title: "A Whole new world",
-            date: "Secrets within.",
-            locked: false, 
-            pages: Array.from({length: 39}, (_, i) => `imageschapter2/${i+1}.png`) 
+        {
+            id: 2,
+            title: "A Whole New World",
+            date: "Beauty is a lie.",
+            locked: false,
+            pages: [...Array(39)].flatMap((_, i) =>
+                i + 1 === 27 ? [] : `imageschapter2/${i + 1}.png`
+            )
         },
-        { 
-            id: 3, 
-            title: "Nothing is what it seems",
-            date: "Coming Soon",
-            locked: false, 
-            pages: Array.from({length: 1}, (_, i) => `imageschapter3/${i+1}.png`) 
+
+        {
+            id: 3,
+            title: "Broken Promisses",
+            date: "The Last Day",
+            locked: false,
+            pages: Array.from({ length: 12 }, (_, i) => `imageschapter3/${i + 1}.png`)
         },
         { id: 4, title: "CRUEL", locked: true, pages: [] }
     ]

@@ -12,7 +12,7 @@ window.MUSIC_CONFIG = {
             { track: "assets/musics/Panic.mp3", pages: [19, 22] },
             { track: "assets/musics/newworld.mp3", pages: [23, 24] }
         ],
-                2: [
+        2: [
             { track: "assets/musics/TheWastelandEdge.mp3", pages: [2, 5] },
             { track: "assets/musics/WhisperedHearts.mp3", pages: [6, 9] },
             { track: "assets/musics/WhispersofTomorrow.mp3", pages: [10, 11] },
@@ -20,6 +20,11 @@ window.MUSIC_CONFIG = {
             { track: "assets/musics/Park.mp3", pages: [17, 31] },
             { track: "assets/musics/Park.mp3", pages: [32, 36] },
             { track: "assets/musics/Villan.mp3", pages: [37, 39] }
+
+        ],
+        3: [
+            { track: "assets/musics/Life.mp3", pages: [1, 9] },
+            { track: "assets/musics/SadTruth.mp3", pages: [10, 14] }
 
         ]
     }

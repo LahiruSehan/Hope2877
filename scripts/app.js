@@ -584,6 +584,51 @@ const HomePage = ({ onStart, onViewCredits }) =>
                 )
             )
         ),
+
+        h(
+            "div",
+            { className: "novel-meta", style: { textAlign: "center", marginTop: "10px" } },
+
+            // GENRES
+            h(
+                "div",
+                {
+                    style: {
+                        color: "#aaa",
+                        fontSize: "0.75rem",
+                        letterSpacing: "1.5px",
+                        marginBottom: "6px"
+                    }
+                },
+                "Sci-Fi   Romance   Action   Mystery   Horror   Adventure"
+            ),
+
+            // SUMMARY
+            h(
+                "p",
+                {
+                    style: {
+                        color: "#ccc",
+                        fontSize: "0.8rem",
+                        width: "85%",
+                        margin: "0 auto",
+                        lineHeight: "1.4",
+                        marginTop: "4px"
+                    }
+                },
+                "As humanity faces its final hours, a hidden conspiracy awakens — forcing Jake and Viyona to choose between the world they know and the truth that could rewrite everything."
+            )
+        ),
+
+
+
+
+
+
+
+
+
+
         h(
             "div",
             { className: "home-center-action" },
@@ -623,7 +668,7 @@ const HomePage = ({ onStart, onViewCredits }) =>
                             className: "soft-credit-btn",
                             onClick: () => onViewCredits(c)
                         },
-                        c.name.charAt(0)
+                        c.name
                     )
                 )
             ),
