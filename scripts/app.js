@@ -729,328 +729,419 @@ const Paywall = ({ onUnlock }) => {
         )
     );
 };
-// --- HOME PAGE (LANDSCAPE & COMPACT GOD MODE) ---
+// --- HOME PAGE (PIXEL PERFECT REPLICA) ---
 const HomePage = ({ onStart, onViewCredits }) => {
-    
+
     const styles = `
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Rajdhani:wght@300;400;500;600;700&display=swap');
 
-        /* RESET */
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        .apocalypse-wrapper {
+        /* RESET & CONTAINER */
+        * { box-sizing: border-box; }
+        
+        .home-container {
             position: relative;
-            height: 100vh;
             width: 100vw;
+            height: 100vh;
+            background-color: #050000;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             align-items: center;
-            /* CENTER CONTENT VERTICALLY WITH SPACE DISTRIBUTION */
-            justify-content: center; 
-            gap: 2vh; 
-            background-color: #000;
-            color: #fff;
+            justify-content: center;
             font-family: 'Rajdhani', sans-serif;
+            color: #fff;
             padding: 20px;
         }
 
-        /* INFERNO BACKGROUND (No Particles) */
-        .bg-inferno {
+        /* --- BACKGROUND FX --- */
+        .bg-fire-gradient {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, #000000 10%, #1a0000 60%, #4a0000 100%);
-            z-index: 0;
+            background: radial-gradient(circle at center, #2a0500 0%, #000000 80%);
+            z-index: 1;
         }
 
-        .bg-smoke {
+        .ember {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, transparent 0%, #000 150%);
-            opacity: 0.4;
-            z-index: 0;
-            animation: pulseSmoke 10s infinite alternate;
+            bottom: -10px;
+            width: 4px; height: 4px;
+            background: #ff4500;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ff4500;
+            animation: rise 4s linear infinite;
+            z-index: 2;
+            opacity: 0;
+        }
+        @keyframes rise {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-80vh) scale(0); opacity: 0; }
         }
 
-        /* --- SECTION 1: COVER ART (LANDSCAPE) --- */
-        .cover-frame {
-            position: relative;
-            width: 90%; 
-            max-width: 500px;
-            /* LANDSCAPE RATIO FIX */
-            aspect-ratio: 16/9; 
-            border-radius: 12px;
-            box-shadow: 0 0 40px rgba(255, 0, 0, 0.3);
-            border: 1px solid rgba(255,255,255,0.15);
-            overflow: hidden;
-            animation: floatHero 8s ease-in-out infinite;
+        /* --- TYPOGRAPHY & TITLE --- */
+        .content-layer {
             z-index: 10;
-        }
-
-        .cover-img { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; 
-        }
-
-        /* --- SECTION 2: TITLES --- */
-        .title-group {
-            text-align: center;
-            z-index: 10;
-            margin-top: -10px; /* Pull closer to image */
-        }
-
-        .main-title {
-            font-family: 'Cinzel', serif;
-            font-size: clamp(1rem, 2.5vh, 1.5rem);
-            line-height: 1.2;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: #fff;
-            /* SMOKE EFFECT */
-            animation: smokeText 5s ease-in-out infinite alternate;
-        }
-
-        .sub-title {
-            font-family: 'Cinzel', serif;
-            font-size: clamp(1.5rem, 4vh, 3rem);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: 700;
-            margin-top: 5px;
-            /* RED SHIFT EFFECT */
-            animation: redShift 6s infinite;
-        }
-
-        /* --- SECTION 3: META & BUTTON --- */
-        .meta-container {
-            z-index: 10;
+            width: 100%;
+            max-width: 800px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 100%;
+            text-align: center;
         }
 
-        .genres-row {
+        .top-title {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            color: #e0e0e0;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            margin-bottom: -5px;
+        }
+
+        .main-title-graphic {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 700;
+            text-transform: uppercase;
+            /* FIERY TEXT GRADIENT */
+            background: linear-gradient(180deg, #ffcccc 0%, #ff4d4d 40%, #800000 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 15px rgba(255, 69, 0, 0.6));
+            letter-spacing: 1px;
+            margin-bottom: 25px;
+            line-height: 1;
+        }
+
+        /* --- GENRE TAGS --- */
+        .tags-row {
             display: flex;
+            gap: 12px;
             justify-content: center;
-            gap: 6px;
             flex-wrap: wrap;
-            margin-bottom: 15px;
+            margin-bottom: 30px;
         }
 
-        .genre-chip {
-            font-size: 0.6rem;
-            color: #ffcccc;
-            border: 1px solid rgba(255, 50, 50, 0.3);
-            padding: 3px 10px;
-            border-radius: 20px;
-            background: rgba(50, 0, 0, 0.5);
+        .tag-pill {
+            padding: 6px 18px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid;
             backdrop-filter: blur(4px);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            text-transform: capitalize;
+        }
+        
+        /* Specific Colors from Image */
+        .tag-scifi { border-color: #2de2e6; color: #2de2e6; box-shadow: 0 0 8px rgba(45, 226, 230, 0.3); }
+        .tag-romance { border-color: #ff99cc; color: #ff99cc; box-shadow: 0 0 8px rgba(255, 153, 204, 0.3); }
+        .tag-action { border-color: #ff9933; color: #ff9933; box-shadow: 0 0 8px rgba(255, 153, 51, 0.3); }
+        .tag-mystery { border-color: #9933ff; color: #9933ff; box-shadow: 0 0 8px rgba(153, 51, 255, 0.3); }
+        .tag-horror { border-color: #ff0000; color: #ff0000; box-shadow: 0 0 8px rgba(255, 0, 0, 0.4); }
+
+        /* --- DESCRIPTION & CIRCUIT LINES --- */
+        .desc-container {
+            position: relative;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .circuit-line {
+            height: 1px;
+            background: #552222;
+            flex-grow: 1;
+            position: relative;
+            opacity: 0.6;
+            margin: 0 15px;
+            display: none; /* Mobile hide, desktop show */
+        }
+        
+        /* Little nodes on the lines */
+        .circuit-line::before {
+            content: ''; position: absolute; top: -2px; width: 4px; height: 4px; background: #ff4444; border-radius: 50%;
+        }
+        .circuit-line.left::before { right: 0; }
+        .circuit-line.right::before { left: 0; }
+        
+        /* Adding the visible tech borders from image */
+        .tech-border-overlay {
+            position: absolute;
+            top: 50%; left: 0; width: 100%; height: 60px;
+            transform: translateY(-50%);
+            border-left: 2px solid #552222;
+            border-right: 2px solid #552222;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+        .tech-border-overlay::after, .tech-border-overlay::before {
+            content: ''; position: absolute; height: 2px; width: 20px; background: #552222;
+        }
+        .tech-border-overlay::before { top: 0; left: 0; box-shadow: 10px 0 0 #552222; } /* Circuit bits */
+        .tech-border-overlay::after { bottom: 0; right: 0; }
+
+        @media (min-width: 600px) {
+            .circuit-line { display: block; }
+            .tech-border-overlay { width: 90%; left: 5%; }
         }
 
         .desc-text {
-            font-size: clamp(0.75rem, 1.8vh, 0.9rem);
-            color: #ddd;
-            line-height: 1.4;
+            max-width: 550px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #ccc;
             text-align: center;
-            font-weight: 400;
-            max-width: 650px;
-            text-shadow: 0 1px 4px #000;
-            margin-bottom: 20px;
             padding: 0 10px;
         }
 
-        .btn-start-reading {
-            background: rgba(255, 0, 0, 0.1);
+        /* --- START BUTTON (THE COMPLEX ONE) --- */
+        .btn-wrapper-outer {
+            position: relative;
+            padding: 4px;
+            border-radius: 8px;
+            /* Glowing Outer Rim */
+            background: linear-gradient(90deg, transparent, rgba(255, 60, 0, 0.5), transparent);
+            box-shadow: 0 0 20px rgba(255, 60, 0, 0.2);
+            margin-bottom: 50px;
+            transition: transform 0.3s;
+        }
+        .btn-wrapper-outer:hover { transform: scale(1.03); }
+
+        .btn-frame {
+            position: relative;
+            padding: 6px;
+            border: 2px solid #ff5555;
+            border-radius: 12px;
+            background: rgba(40, 0, 0, 0.6);
+            box-shadow: 
+                0 0 10px rgba(255, 0, 0, 0.4),
+                inset 0 0 20px rgba(255, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* The cut corners effect */
+        .btn-frame::before, .btn-frame::after {
+            content: ''; position: absolute; width: 10px; height: 100%; border: 1px solid #ff8888; top: -1px;
+            border-top: none; border-bottom: none;
+        }
+        .btn-frame::before { left: -6px; border-left: none; } /* Illusion */
+        .btn-frame::after { right: -6px; border-right: none; }
+
+        .start-btn-inner {
+            background: linear-gradient(180deg, #aa0000 0%, #440000 100%);
             color: #fff;
             font-family: 'Cinzel', serif;
-            font-size: 1.2rem;
-            padding: 14px 50px;
-            border: 1px solid rgba(255, 50, 50, 0.6);
-            letter-spacing: 4px;
-            cursor: pointer;
-            box-shadow: 0 0 25px rgba(255, 0, 0, 0.2);
-            animation: pulseBtn 3s infinite;
-            backdrop-filter: blur(5px);
-            transition: 0.3s;
-            text-transform: uppercase;
-            margin-bottom: 25px; /* Space before credits */
-        }
-        .btn-start-reading:hover { 
-            background: #ff0000; 
-            box-shadow: 0 0 40px rgba(255, 0, 0, 0.6);
-            transform: scale(1.05);
-        }
-
-        /* --- SECTION 4: SPECIAL RECOGNITION (REDESIGNED) --- */
-        .recognition-panel {
-            z-index: 10;
-            width: 100%;
-            max-width: 550px;
-            background: linear-gradient(180deg, rgba(20,0,0,0.6) 0%, rgba(50,0,0,0.3) 100%);
-            border-top: 2px solid #ff3333;
-            border-bottom: 1px solid rgba(255, 50, 50, 0.3);
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            backdrop-filter: blur(8px);
-            /* Sci-Fi Corners using clip-path */
-            clip-path: polygon(
-                0 0, 
-                100% 0, 
-                100% 85%, 
-                95% 100%, 
-                5% 100%, 
-                0 85%
-            );
-        }
-
-        .rec-label {
-            font-size: 0.6rem;
-            color: #ff5555;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            margin-bottom: 12px;
+            font-size: 1.6rem;
             font-weight: 700;
-            text-shadow: 0 0 8px rgba(255, 0, 0, 0.5);
-        }
-
-        .rec-grid {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        /* BUTTON STYLE FOR NAMES */
-        .rec-btn {
-            font-size: 0.75rem;
-            color: #fff;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 8px 18px;
-            border-radius: 4px;
-            cursor: pointer;
+            padding: 12px 60px;
+            border: 1px solid rgba(255, 150, 150, 0.4);
+            border-radius: 6px;
             text-transform: uppercase;
-            font-weight: 600;
-            transition: all 0.2s ease;
+            letter-spacing: 2px;
+            cursor: pointer;
+            text-shadow: 0 2px 2px rgba(0,0,0,0.5);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
             position: relative;
             overflow: hidden;
         }
-
-        .rec-btn::before {
+        
+        /* Shine effect on button */
+        .start-btn-inner::after {
             content: '';
             position: absolute;
-            top: 0; left: 0; width: 3px; height: 100%;
-            background: #ff3333;
-            opacity: 0.5;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: btnShine 3s infinite;
+        }
+        
+        /* Decorative lines on button sides */
+        .btn-deco-line {
+            position: absolute;
+            top: 50%; 
+            width: 40px; 
+            height: 2px; 
+            background: linear-gradient(90deg, #ff4400, transparent);
+        }
+        .btn-deco-line.left { right: 100%; margin-right: 15px; transform: scaleX(-1); }
+        .btn-deco-line.right { left: 100%; margin-left: 15px; }
+
+        /* --- FOOTER RECOGNITION --- */
+        .rec-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .rec-title {
+            font-family: 'Cinzel', serif;
+            color: #ccc;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .rec-btn-container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .rec-btn {
+            position: relative;
+            background: linear-gradient(180deg, #500000 0%, #200000 100%);
+            border: 1px solid #ff3333;
+            color: #ffcccc;
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            padding: 10px 30px;
+            /* Hexagon-ish shape clip */
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.2);
+            transition: 0.2s;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .rec-btn:hover {
-            background: rgba(255, 50, 50, 0.3);
-            border-color: #ff3333;
-            box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+            background: #700000;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
             transform: translateY(-2px);
         }
 
-        /* ANIMATIONS */
-        @keyframes floatHero { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-        
-        @keyframes smokeText { 
-            0% { text-shadow: 0 0 5px rgba(255,255,255,0.3); filter: blur(0.3px); } 
-            100% { text-shadow: 0 -5px 15px rgba(255,255,255,0.8); filter: blur(0px); } 
+        /* Tiny icon inside rec button */
+        .rec-icon {
+            font-size: 0.7rem;
+            margin-left: 8px;
+            opacity: 0.7;
+            border: 1px solid currentColor;
+            border-radius: 50%;
+            width: 14px; height: 14px;
+            display: flex; align-items: center; justify-content: center;
         }
 
-        @keyframes redShift {
-            0% { color: #ff0000; text-shadow: 0 0 10px #500000; }
-            33% { color: #ff4d4d; text-shadow: 0 0 20px #ff0000; }
-            66% { color: #8b0000; text-shadow: 0 0 10px #300000; }
-            100% { color: #ff0000; text-shadow: 0 0 10px #500000; }
-        }
-
-        @keyframes pulseBtn { 0% { box-shadow: 0 0 10px rgba(255,0,0,0.2); } 50% { box-shadow: 0 0 30px rgba(255,0,0,0.5); } 100% { box-shadow: 0 0 10px rgba(255,0,0,0.2); } }
-        @keyframes pulseSmoke { 0% { opacity: 0.3; } 100% { opacity: 0.5; } }
+        @keyframes btnShine { 0% { left: -100%; } 20% { left: 100%; } 100% { left: 100%; } }
     `;
+
+    // Generate embers for background
+    const [embers, setEmbers] = React.useState([]);
+    React.useEffect(() => {
+        const e = [];
+        for(let i=0; i<30; i++) {
+            e.push({
+                left: Math.random() * 100 + "%",
+                delay: Math.random() * 5 + "s",
+                duration: Math.random() * 3 + 3 + "s"
+            });
+        }
+        setEmbers(e);
+    }, []);
+
+    // Helper to find credit object safely
+    const getCredit = (name) => {
+        return window.APP_CONFIG.credits.find(c => c.name.toUpperCase().includes(name)) || window.APP_CONFIG.credits[0];
+    };
 
     return h(
         "div",
-        { className: "apocalypse-wrapper" },
+        { className: "home-container fade-in" },
         h("style", null, styles),
-        
-        // BACKGROUNDS (NO PARTICLES, JUST ATMOSPHERE)
-        h("div", { className: "bg-inferno" }),
-        h("div", { className: "bg-smoke" }),
 
-        // 1. COVER ART (Landscape)
+        // 1. BACKGROUND
+        h("div", { className: "bg-fire-gradient" }),
+        embers.map((emb, i) => h("div", { 
+            key: i, 
+            className: "ember", 
+            style: { left: emb.left, animationDelay: emb.delay, animationDuration: emb.duration } 
+        })),
+
+        // 2. MAIN CONTENT
         h(
             "div",
-            { className: "cover-frame" },
-            h("img", { 
-                // Using the specific file name you asked for
-                src: "./cover.png", 
-                // Fallback to config if local file fails (safety)
-                onError: (e) => { e.target.src = window.APP_CONFIG.assets.cover; },
-                className: "cover-img", 
-                alt: "Cover" 
-            })
-        ),
-
-        // 2. TITLES (Compact)
-        h(
-            "div",
-            { className: "title-group" },
-            h("h2", { className: "main-title" }, t.title_start), // Beneath the light
-            h("h1", { className: "sub-title" }, t.title_end)   // Of a dying sky
-        ),
-
-        // 3. META + ACTION
-        h(
-            "div",
-            { className: "meta-container" },
+            { className: "content-layer" },
             
-            // Genres
+            // TITLES
+            h("div", { className: "top-title" }, "BENEATH THE LIGHT"),
+            h("div", { className: "main-title-graphic" }, "OF A DYING SKY"),
+
+            // GENRE TAGS
             h(
                 "div",
-                { className: "genres-row" },
-                ["Sci-Fi", "Romance", "Action", "Mystery", "Horror"].map(g => 
-                    h("span", { key: g, className: "genre-chip" }, g)
+                { className: "tags-row" },
+                h("span", { className: "tag-pill tag-scifi" }, "Sci-Fi"),
+                h("span", { className: "tag-pill tag-romance" }, "Romance"),
+                h("span", { className: "tag-pill tag-action" }, "Action"),
+                h("span", { className: "tag-pill tag-mystery" }, "Mystery"),
+                h("span", { className: "tag-pill tag-horror" }, "Horror")
+            ),
+
+            // DESCRIPTION WITH CIRCUIT LINES
+            h(
+                "div",
+                { className: "desc-container" },
+                h("div", { className: "tech-border-overlay" }), // The bracket lines
+                h("div", { className: "circuit-line left" }),
+                h(
+                    "p",
+                    { className: "desc-text" },
+                    "As humanity faces its final hours, a hidden conspiracy awakens — forcing Jake and Viyona to choose between the world they know and the truth that could rewrite everything."
+                ),
+                h("div", { className: "circuit-line right" })
+            ),
+
+            // START BUTTON
+            h(
+                "div",
+                { className: "btn-wrapper-outer" },
+                h(
+                    "div",
+                    { className: "btn-frame" },
+                    h("div", { className: "btn-deco-line left" }),
+                    h("div", { className: "btn-deco-line right" }),
+                    h(
+                        "button",
+                        { className: "start-btn-inner", onClick: onStart },
+                        "START READING"
+                    )
                 )
             ),
 
-            // Description
-            h(
-                "p",
-                { className: "desc-text" },
-                "As humanity faces its final hours, a hidden conspiracy awakens — forcing Jake and Viyona to choose between the world they know and the truth that could rewrite everything."
-            ),
-
-            // Start Button
-            h(
-                "button",
-                { className: "btn-start-reading", onClick: onStart },
-                t.start
-            ),
-
-            // 4. SPECIAL RECOGNITION (Now a visible panel)
+            // RECOGNITION FOOTER
             h(
                 "div",
-                { className: "recognition-panel" },
-                h("div", { className: "rec-label" }, "// " + t.special + " //"),
+                { className: "rec-section" },
+                h("div", { className: "rec-title" }, "SPECIAL RECOGNITION"),
                 h(
                     "div",
-                    { className: "rec-grid" },
-                    window.APP_CONFIG.credits.map((c, i) =>
-                        h(
-                            "div",
-                            {
-                                key: i,
-                                className: "rec-btn",
-                                onClick: () => onViewCredits(c)
-                            },
-                            c.name
-                        )
+                    { className: "rec-btn-container" },
+                    h(
+                        "div",
+                        { 
+                            className: "rec-btn",
+                            onClick: () => onViewCredits(getCredit("MINASHA"))
+                        },
+                        "MINASHA",
+                        h("span", { className: "rec-icon" }, h("i", { className: "fas fa-star" }))
+                    ),
+                    h(
+                        "div",
+                        { 
+                            className: "rec-btn",
+                            onClick: () => onViewCredits(getCredit("AROSHA"))
+                        },
+                        "AROSHA",
+                        h("span", { className: "rec-icon" }, h("i", { className: "fas fa-star" }))
                     )
                 )
             )
