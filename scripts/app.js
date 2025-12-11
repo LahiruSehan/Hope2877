@@ -737,6 +737,69 @@ const HomePage = ({ onStart, onViewCredits }) => {
 
         /* RESET & CONTAINER */
         * { box-sizing: border-box; }
+
+        /* --- COVER BACKGROUND FUSION --- */
+.cover-bg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-size: cover;
+    background-position: center top;
+    opacity: 0.35;
+    filter: blur(3px);
+    mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,1) 40%);
+    z-index: 2;
+}
+
+/* ENERGY & MAGIC OVERLAY */
+.energy-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: radial-gradient(circle at center, rgba(255,50,0,0.15), transparent 70%);
+    mix-blend-mode: screen;
+    z-index: 4;
+}
+
+/* ENHANCED EMBERS */
+.enhanced-ember {
+    width: 5px; height: 5px;
+    background: #ff5533;
+    box-shadow: 0 0 15px #ff3300;
+    animation: rise 5s linear infinite;
+    z-index: 6;
+}
+
+/* SMALLER TEXT */
+.small-title { 
+    font-size: 1rem !important; 
+}
+.main-title-small { 
+    font-size: 3rem !important; 
+}
+.tags-small .tag-pill { 
+    font-size: 0.75rem !important; 
+    padding: 5px 14px !important; 
+}
+.desc-small { 
+    font-size: 0.85rem !important; 
+}
+.btn-small .start-btn-inner { 
+    font-size: 1.2rem !important; 
+    padding: 10px 40px !important; 
+}
+.rec-small .rec-btn { 
+    font-size: 0.8rem !important; 
+    padding: 8px 20px !important; 
+}
+
+/* FLOATING LIGHT SWIRLS */
+@keyframes swirl {
+    0% { transform: translateY(0) translateX(0) scale(1); opacity: 0.2; }
+    50% { transform: translateY(-40px) translateX(20px) scale(1.2); opacity: 0.5; }
+    100% { transform: translateY(-80px) translateX(-10px) scale(0.8); opacity: 0; }
+}
+
         
         .home-container {
             position: relative;
@@ -1062,7 +1125,7 @@ const HomePage = ({ onStart, onViewCredits }) => {
         h("div", {
             className: "cover-bg",
             style: {
-                backgroundImage: "url('/images/cover.png')", // <-- replace with your cover path
+                backgroundImage: "url('/images/Cover.png')", // <-- replace with your cover path
             }
         }),
 
