@@ -737,75 +737,12 @@ const HomePage = ({ onStart, onViewCredits }) => {
 
         /* RESET & CONTAINER */
         * { box-sizing: border-box; }
-
-        /* --- COVER BACKGROUND FUSION --- */
-.cover-bg {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background-size: cover;
-    background-position: center top;
-    opacity: 0.35;
-    filter: blur(3px);
-    mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,1) 40%);
-    z-index: 2;
-}
-
-/* ENERGY & MAGIC OVERLAY */
-.energy-overlay {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: radial-gradient(circle at center, rgba(255,50,0,0.15), transparent 70%);
-    mix-blend-mode: screen;
-    z-index: 4;
-}
-
-/* ENHANCED EMBERS */
-.enhanced-ember {
-    width: 5px; height: 5px;
-    background: #ff5533;
-    box-shadow: 0 0 15px #ff3300;
-    animation: rise 5s linear infinite;
-    z-index: 6;
-}
-
-/* SMALLER TEXT */
-.small-title { 
-    font-size: 1rem !important; 
-}
-.main-title-small { 
-    font-size: 3rem !important; 
-}
-.tags-small .tag-pill { 
-    font-size: 0.75rem !important; 
-    padding: 5px 14px !important; 
-}
-.desc-small { 
-    font-size: 0.85rem !important; 
-}
-.btn-small .start-btn-inner { 
-    font-size: 1.2rem !important; 
-    padding: 10px 40px !important; 
-}
-.rec-small .rec-btn { 
-    font-size: 0.8rem !important; 
-    padding: 8px 20px !important; 
-}
-
-/* FLOATING LIGHT SWIRLS */
-@keyframes swirl {
-    0% { transform: translateY(0) translateX(0) scale(1); opacity: 0.2; }
-    50% { transform: translateY(-40px) translateX(20px) scale(1.2); opacity: 0.5; }
-    100% { transform: translateY(-80px) translateX(-10px) scale(0.8); opacity: 0; }
-}
-
         
         .home-container {
             position: relative;
             width: 100vw;
             height: 100vh;
-            background-color: #050000;
+            background-color: #000000; /* Deep black background */
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -816,12 +753,23 @@ const HomePage = ({ onStart, onViewCredits }) => {
             padding: 20px;
         }
 
-        /* --- BACKGROUND FX --- */
-        .bg-fire-gradient {
+        /* ENERGY & MAGIC OVERLAY */
+        .energy-overlay {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at center, #2a0500 0%, #000000 80%);
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: radial-gradient(circle at center, rgba(255,50,0,0.05), transparent 70%);
+            mix-blend-mode: screen;
             z-index: 1;
+        }
+
+        /* ENHANCED EMBERS */
+        .enhanced-ember {
+            width: 5px; height: 5px;
+            background: #ff5533;
+            box-shadow: 0 0 15px #ff3300;
+            animation: rise 5s linear infinite;
+            z-index: 2;
         }
 
         .ember {
@@ -840,7 +788,7 @@ const HomePage = ({ onStart, onViewCredits }) => {
             100% { transform: translateY(-80vh) scale(0); opacity: 0; }
         }
 
-        /* --- TYPOGRAPHY & TITLE --- */
+        /* --- TYPOGRAPHY & CONTENT --- */
         .content-layer {
             z-index: 10;
             width: 100%;
@@ -849,62 +797,106 @@ const HomePage = ({ onStart, onViewCredits }) => {
             flex-direction: column;
             align-items: center;
             text-align: center;
+            /* Scrollable if height is too small on weird devices */
+            overflow-y: auto;
+            max-height: 100vh;
+            scrollbar-width: none;
+        }
+        .content-layer::-webkit-scrollbar { display: none; }
+
+        /* HERO IMAGE (New Implementation) */
+        .hero-img-container {
+            width: 100%;
+            max-width: 500px; /* Limit on desktop */
+            position: relative;
+            margin: 0 auto 15px auto;
+            display: flex;
+            justify-content: center;
+        }
+
+        .hero-image {
+            width: 100%; /* Fits width to screen on mobiles */
+            height: auto;
+            object-fit: cover;
+            /* Light fade to bottom */
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%);
+            -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%);
         }
 
         .top-title {
             font-family: 'Cinzel', serif;
-            font-size: clamp(1.2rem, 3vw, 1.8rem);
-            color: #e0e0e0;
+            font-size: clamp(1rem, 2.5vw, 1.4rem);
+            color: #a0a0a0;
             letter-spacing: 2px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-            margin-bottom: -5px;
+            margin-bottom: 5px;
         }
 
-        .main-title-graphic {
+        /* RED ELECTRIC TITLE */
+        .main-title-electric {
             font-family: 'Cinzel', serif;
-            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-size: 1.8rem; /* Very smaller */
             font-weight: 700;
             text-transform: uppercase;
-            /* FIERY TEXT GRADIENT */
-            background: linear-gradient(180deg, #ffcccc 0%, #ff4d4d 40%, #800000 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 15px rgba(255, 69, 0, 0.6));
-            letter-spacing: 1px;
+            color: #ff0000;
+            letter-spacing: 2px;
             margin-bottom: 25px;
-            line-height: 1;
+            position: relative;
+            text-shadow: 0 0 5px #ff0000;
+            animation: electric-glitch 2.5s infinite alternate;
         }
 
-        /* --- GENRE TAGS --- */
+        @keyframes electric-glitch {
+            0% { text-shadow: 0 0 5px #ff0000; opacity: 1; transform: skewX(0); }
+            5% { text-shadow: 0 0 20px #ff0000, 2px 2px 0px #880000; opacity: 0.8; transform: skewX(-5deg); }
+            10% { text-shadow: 0 0 5px #ff0000; opacity: 1; transform: skewX(0); }
+            50% { text-shadow: 0 0 5px #ff0000; opacity: 1; }
+            55% { text-shadow: 0 0 15px #ff0000; opacity: 0.9; transform: skewX(3deg); }
+            60% { text-shadow: 0 0 5px #ff0000; opacity: 1; transform: skewX(0); }
+            100% { text-shadow: 0 0 5px #ff0000; opacity: 1; }
+        }
+
+        /* --- GENRE TAGS (SCROLLABLE NO-BREAK) --- */
         .tags-row {
             display: flex;
+            flex-wrap: nowrap; /* Prevent breaking */
+            overflow-x: auto; /* Allow horizontal scroll */
             gap: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
+            width: 100%;
+            justify-content: flex-start; /* Start allows scrolling from beginning */
             margin-bottom: 30px;
+            padding: 0 10px 10px 10px; /* Padding for scrollbar breathing room */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        .tags-row::-webkit-scrollbar { display: none; }
+        
+        @media (min-width: 600px) {
+           .tags-row { justify-content: center; } /* Center on big screens where they fit */
         }
 
         .tag-pill {
             padding: 6px 18px;
             border-radius: 50px;
-            font-size: 0.85rem;
+            font-size: 0.75rem; /* Smaller text */
             font-weight: 600;
             letter-spacing: 0.5px;
-            background: rgba(0,0,0,0.4);
+            background: rgba(0,0,0,0.6);
             border: 1px solid;
             backdrop-filter: blur(4px);
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
             text-transform: capitalize;
+            white-space: nowrap; /* Never break text inside */
+            flex-shrink: 0; /* Never shrink the pill itself */
         }
         
-        /* Specific Colors from Image */
+        /* Specific Colors */
         .tag-scifi { border-color: #2de2e6; color: #2de2e6; box-shadow: 0 0 8px rgba(45, 226, 230, 0.3); }
         .tag-romance { border-color: #ff99cc; color: #ff99cc; box-shadow: 0 0 8px rgba(255, 153, 204, 0.3); }
         .tag-action { border-color: #ff9933; color: #ff9933; box-shadow: 0 0 8px rgba(255, 153, 51, 0.3); }
         .tag-mystery { border-color: #9933ff; color: #9933ff; box-shadow: 0 0 8px rgba(153, 51, 255, 0.3); }
         .tag-horror { border-color: #ff0000; color: #ff0000; box-shadow: 0 0 8px rgba(255, 0, 0, 0.4); }
 
-        /* --- DESCRIPTION & CIRCUIT LINES --- */
+        /* --- DESCRIPTION --- */
         .desc-container {
             position: relative;
             width: 100%;
@@ -914,44 +906,6 @@ const HomePage = ({ onStart, onViewCredits }) => {
             margin-bottom: 40px;
         }
 
-        .circuit-line {
-            height: 1px;
-            background: #552222;
-            flex-grow: 1;
-            position: relative;
-            opacity: 0.6;
-            margin: 0 15px;
-            display: none; /* Mobile hide, desktop show */
-        }
-        
-        /* Little nodes on the lines */
-        .circuit-line::before {
-            content: ''; position: absolute; top: -2px; width: 4px; height: 4px; background: #ff4444; border-radius: 50%;
-        }
-        .circuit-line.left::before { right: 0; }
-        .circuit-line.right::before { left: 0; }
-        
-        /* Adding the visible tech borders from image */
-        .tech-border-overlay {
-            position: absolute;
-            top: 50%; left: 0; width: 100%; height: 60px;
-            transform: translateY(-50%);
-            border-left: 2px solid #552222;
-            border-right: 2px solid #552222;
-            pointer-events: none;
-            opacity: 0.5;
-        }
-        .tech-border-overlay::after, .tech-border-overlay::before {
-            content: ''; position: absolute; height: 2px; width: 20px; background: #552222;
-        }
-        .tech-border-overlay::before { top: 0; left: 0; box-shadow: 10px 0 0 #552222; } /* Circuit bits */
-        .tech-border-overlay::after { bottom: 0; right: 0; }
-
-        @media (min-width: 600px) {
-            .circuit-line { display: block; }
-            .tech-border-overlay { width: 90%; left: 5%; }
-        }
-
         .desc-text {
             max-width: 550px;
             font-size: 0.95rem;
@@ -959,14 +913,34 @@ const HomePage = ({ onStart, onViewCredits }) => {
             color: #ccc;
             text-align: center;
             padding: 0 10px;
+            font-weight: 700; /* BOLD SUMMARY */
         }
 
-        /* --- START BUTTON (THE COMPLEX ONE) --- */
+        /* Circuit Lines (Mobile Hidden) */
+        .circuit-line {
+            height: 1px;
+            background: #552222;
+            flex-grow: 1;
+            position: relative;
+            opacity: 0.6;
+            margin: 0 15px;
+            display: none; 
+        }
+        .circuit-line::before {
+            content: ''; position: absolute; top: -2px; width: 4px; height: 4px; background: #ff4444; border-radius: 50%;
+        }
+        .circuit-line.left::before { right: 0; }
+        .circuit-line.right::before { left: 0; }
+        
+        @media (min-width: 600px) {
+            .circuit-line { display: block; }
+        }
+
+        /* --- START BUTTON --- */
         .btn-wrapper-outer {
             position: relative;
             padding: 4px;
             border-radius: 8px;
-            /* Glowing Outer Rim */
             background: linear-gradient(90deg, transparent, rgba(255, 60, 0, 0.5), transparent);
             box-shadow: 0 0 20px rgba(255, 60, 0, 0.2);
             margin-bottom: 50px;
@@ -988,21 +962,13 @@ const HomePage = ({ onStart, onViewCredits }) => {
             justify-content: center;
         }
 
-        /* The cut corners effect */
-        .btn-frame::before, .btn-frame::after {
-            content: ''; position: absolute; width: 10px; height: 100%; border: 1px solid #ff8888; top: -1px;
-            border-top: none; border-bottom: none;
-        }
-        .btn-frame::before { left: -6px; border-left: none; } /* Illusion */
-        .btn-frame::after { right: -6px; border-right: none; }
-
         .start-btn-inner {
             background: linear-gradient(180deg, #aa0000 0%, #440000 100%);
             color: #fff;
             font-family: 'Cinzel', serif;
-            font-size: 1.6rem;
+            font-size: 1.2rem;
             font-weight: 700;
-            padding: 12px 60px;
+            padding: 10px 40px;
             border: 1px solid rgba(255, 150, 150, 0.4);
             border-radius: 6px;
             text-transform: uppercase;
@@ -1013,8 +979,6 @@ const HomePage = ({ onStart, onViewCredits }) => {
             position: relative;
             overflow: hidden;
         }
-        
-        /* Shine effect on button */
         .start-btn-inner::after {
             content: '';
             position: absolute;
@@ -1023,17 +987,7 @@ const HomePage = ({ onStart, onViewCredits }) => {
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
             animation: btnShine 3s infinite;
         }
-        
-        /* Decorative lines on button sides */
-        .btn-deco-line {
-            position: absolute;
-            top: 50%; 
-            width: 40px; 
-            height: 2px; 
-            background: linear-gradient(90deg, #ff4400, transparent);
-        }
-        .btn-deco-line.left { right: 100%; margin-right: 15px; transform: scaleX(-1); }
-        .btn-deco-line.right { left: 100%; margin-left: 15px; }
+        @keyframes btnShine { 0% { left: -100%; } 20% { left: 100%; } 100% { left: 100%; } }
 
         /* --- FOOTER RECOGNITION --- */
         .rec-section {
@@ -1042,21 +996,19 @@ const HomePage = ({ onStart, onViewCredits }) => {
             align-items: center;
             gap: 15px;
             width: 100%;
+            margin-bottom: 20px;
         }
-
         .rec-title {
             font-family: 'Cinzel', serif;
-            color: #ccc;
-            font-size: 1rem;
+            color: #666;
+            font-size: 0.8rem;
             letter-spacing: 1px;
             text-transform: uppercase;
         }
-
         .rec-btn-container {
             display: flex;
             gap: 20px;
         }
-
         .rec-btn {
             position: relative;
             background: linear-gradient(180deg, #500000 0%, #200000 100%);
@@ -1064,9 +1016,8 @@ const HomePage = ({ onStart, onViewCredits }) => {
             color: #ffcccc;
             font-family: 'Cinzel', serif;
             font-weight: 700;
-            font-size: 0.9rem;
-            padding: 10px 30px;
-            /* Hexagon-ish shape clip */
+            font-size: 0.8rem;
+            padding: 8px 20px;
             clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
             cursor: pointer;
             box-shadow: 0 0 10px rgba(255, 0, 0, 0.2);
@@ -1076,14 +1027,11 @@ const HomePage = ({ onStart, onViewCredits }) => {
             align-items: center;
             justify-content: center;
         }
-
         .rec-btn:hover {
             background: #700000;
             box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
             transform: translateY(-2px);
         }
-
-        /* Tiny icon inside rec button */
         .rec-icon {
             font-size: 0.7rem;
             margin-left: 8px;
@@ -1093,8 +1041,6 @@ const HomePage = ({ onStart, onViewCredits }) => {
             width: 14px; height: 14px;
             display: flex; align-items: center; justify-content: center;
         }
-
-        @keyframes btnShine { 0% { left: -100%; } 20% { left: 100%; } 100% { left: 100%; } }
     `;
 
     // Generate embers for background
@@ -1121,18 +1067,10 @@ const HomePage = ({ onStart, onViewCredits }) => {
         { className: "home-container fade-in" },
         h("style", null, styles),
 
-        /* COVER IMAGE + GRADIENT FUSE */
-        h("div", {
-            className: "cover-bg",
-            style: {
-                backgroundImage: "url('/images/Cover.png')", // <-- replace with your cover path
-            }
-        }),
-
-        /* MAGIC ENERGY OVERLAY */
+        /* MAGIC ENERGY OVERLAY (Kept subtle) */
         h("div", { className: "energy-overlay" }),
 
-        /* FLOATING EMBERS / SPARKS */
+        /* FLOATING EMBERS */
         embers.map((emb, i) =>
             h("div", {
                 key: i,
@@ -1148,16 +1086,27 @@ const HomePage = ({ onStart, onViewCredits }) => {
         /* --- MAIN CONTENT --- */
         h(
             "div",
-            { className: "content-layer upgraded-content" },
+            { className: "content-layer" },
 
-            // TITLES
-            h("div", { className: "top-title small-title" }, "BENEATH THE LIGHT"),
-            h("div", { className: "main-title-graphic main-title-small" }, "OF A DYING SKY"),
-
-            // TAGS
+            // COVER IMAGE (MOVED HERE, ABOVE TITLE)
             h(
                 "div",
-                { className: "tags-row tags-small" },
+                { className: "hero-img-container" },
+                h("img", {
+                    src: "/images/Cover.png",
+                    className: "hero-image",
+                    alt: "Cover Art"
+                })
+            ),
+
+            // TITLES
+            h("div", { className: "top-title" }, "BENEATH THE LIGHT"),
+            h("div", { className: "main-title-electric" }, "OF A DYING SKY"),
+
+            // TAGS (SCROLLABLE ROW)
+            h(
+                "div",
+                { className: "tags-row" },
                 h("span", { className: "tag-pill tag-scifi" }, "Sci-Fi"),
                 h("span", { className: "tag-pill tag-romance" }, "Romance"),
                 h("span", { className: "tag-pill tag-action" }, "Action"),
@@ -1165,15 +1114,14 @@ const HomePage = ({ onStart, onViewCredits }) => {
                 h("span", { className: "tag-pill tag-horror" }, "Horror")
             ),
 
-            // DESCRIPTION
+            // DESCRIPTION (BOLD)
             h(
                 "div",
-                { className: "desc-container desc-tight" },
-                h("div", { className: "tech-border-overlay" }),
+                { className: "desc-container" },
                 h("div", { className: "circuit-line left" }),
                 h(
                     "p",
-                    { className: "desc-text desc-small" },
+                    { className: "desc-text" },
                     "As humanity faces its final hours, a hidden conspiracy awakens — forcing Jake and Viyona to choose between the world they know and the truth that could rewrite everything."
                 ),
                 h("div", { className: "circuit-line right" })
@@ -1182,12 +1130,10 @@ const HomePage = ({ onStart, onViewCredits }) => {
             // START BUTTON
             h(
                 "div",
-                { className: "btn-wrapper-outer btn-small" },
+                { className: "btn-wrapper-outer" },
                 h(
                     "div",
                     { className: "btn-frame" },
-                    h("div", { className: "btn-deco-line left" }),
-                    h("div", { className: "btn-deco-line right" }),
                     h(
                         "button",
                         { className: "start-btn-inner", onClick: onStart },
@@ -1199,20 +1145,20 @@ const HomePage = ({ onStart, onViewCredits }) => {
             // FOOTER
             h(
                 "div",
-                { className: "rec-section rec-small" },
+                { className: "rec-section" },
                 h("div", { className: "rec-title" }, "SPECIAL RECOGNITION"),
                 h(
                     "div",
                     { className: "rec-btn-container" },
                     h(
                         "div",
-                        { className: "rec-btn rec-btn-small", onClick: () => onViewCredits(getCredit('MINASHA')) },
+                        { className: "rec-btn", onClick: () => onViewCredits(getCredit('MINASHA')) },
                         "MINASHA",
                         h("span", { className: "rec-icon" })
                     ),
                     h(
                         "div",
-                        { className: "rec-btn rec-btn-small", onClick: () => onViewCredits(getCredit('AROSHA')) },
+                        { className: "rec-btn", onClick: () => onViewCredits(getCredit('AROSHA')) },
                         "AROSHA",
                         h("span", { className: "rec-icon" })
                     )
@@ -1246,56 +1192,6 @@ const MangaPage = ({ onRead, onBack }) => {
         /* HEADER */
         .header-zone { flex: 0 0 auto; display: flex; justify-content: center; align-items: center; padding: 20px 0; z-index: 10; background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent); position: relative; width: 100%; }
         
-/* --- COVER BACKGROUND FUSION --- */
-.cover-bg {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background-size: cover;
-    background-position: center top;
-    opacity: 0.35;
-    filter: blur(3px);
-    mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,1) 40%);
-    z-index: 2;
-}
-
-/* ENERGY & MAGIC OVERLAY */
-.energy-overlay {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: radial-gradient(circle at center, rgba(255,50,0,0.15), transparent 70%);
-    mix-blend-mode: screen;
-    z-index: 4;
-}
-
-/* ENHANCED EMBERS */
-.enhanced-ember {
-    width: 5px; height: 5px;
-    background: #ff5533;
-    box-shadow: 0 0 15px #ff3300;
-    animation: rise 5s linear infinite;
-    z-index: 6;
-}
-
-/* SMALLER TEXT */
-.small-title { font-size: 1rem !important; }
-.main-title-small { font-size: 3rem !important; }
-.tags-small .tag-pill { font-size: 0.75rem !important; padding: 5px 14px !important; }
-.desc-small { font-size: 0.85rem !important; }
-.btn-small .start-btn-inner { font-size: 1.2rem !important; padding: 10px 40px !important; }
-.rec-small .rec-btn { font-size: 0.8rem !important; padding: 8px 20px !important; }
-
-/* FLOATING LIGHT SWIRLS */
-@keyframes swirl {
-    0% { transform: translateY(0) translateX(0) scale(1); opacity: 0.2; }
-    50% { transform: translateY(-40px) translateX(20px) scale(1.2); opacity: 0.5; }
-    100% { transform: translateY(-80px) translateX(-10px) scale(0.8); opacity: 0; }
-}
-
-
-
-
         /* BUTTONS */
         .icon-btn {
             position: absolute;
@@ -1392,7 +1288,9 @@ const MangaPage = ({ onRead, onBack }) => {
                     ),
                     h(
                         "div",
-                        { style: { display: "flex", alignItems: "center" } },
+                        {
+                            style: { display: "flex", alignItems: "center" }
+                        },
                         h("div", { className: "status-pill", style: { color: theme.color, borderColor: theme.color, boxShadow: `0 0 5px ${theme.color}, inset 0 0 5px ${theme.color}20`, textShadow: theme.glow } }, statusText),
                         ch.locked && h("i", { className: "fas fa-lock lock-icon" })
                     )
