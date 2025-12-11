@@ -2,7 +2,7 @@
 // ⚙️ CENTRAL CONFIGURATION & DATA
 window.APP_CONFIG = {
     assets: {
-        cover: "images/cover.gif",
+        cover: "images/cover.png",
     },
     vipCodes: ["CHAVEEN", "SAIDA", "LAHIRU"],
 

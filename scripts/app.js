@@ -380,7 +380,7 @@ const ThemeModal = ({ person, onClose }) => {
             const el = document.createElement("div");
             el.innerText = currentTheme.particle;
             el.className = "magic-particle";
-            
+
             // Randomize physics
             const startLeft = Math.random() * 100;
             const size = Math.random() * 1.5 + 0.5; // Scale multiplier
@@ -389,7 +389,7 @@ const ThemeModal = ({ person, onClose }) => {
             el.style.left = startLeft + "%";
             el.style.fontSize = size + "rem";
             el.style.animation = `${currentTheme.particleAnim} ${duration}s linear forwards`;
-            
+
             // Blur for depth
             if (Math.random() > 0.5) el.style.filter = "blur(2px)";
 
@@ -587,13 +587,13 @@ const ThemeModal = ({ person, onClose }) => {
                     boxShadow: `0 0 30px ${currentTheme.color}40` // Hex alpha 40%
                 }
             },
-            
+
             // Name with specific animation class
             h("h1", { className: currentTheme.titleClass }, person.name),
-            
+
             // Role
             h("div", { className: "role-text" }, person.role),
-            
+
             // Description
             h("p", { className: "desc-text" }, person.desc),
 
@@ -1038,7 +1038,7 @@ const HomePage = ({ onStart, onViewCredits }) => {
     const [embers, setEmbers] = React.useState([]);
     React.useEffect(() => {
         const e = [];
-        for(let i=0; i<30; i++) {
+        for (let i = 0; i < 30; i++) {
             e.push({
                 left: Math.random() * 100 + "%",
                 delay: Math.random() * 5 + "s",
@@ -1058,27 +1058,43 @@ const HomePage = ({ onStart, onViewCredits }) => {
         { className: "home-container fade-in" },
         h("style", null, styles),
 
-        // 1. BACKGROUND
-        h("div", { className: "bg-fire-gradient" }),
-        embers.map((emb, i) => h("div", { 
-            key: i, 
-            className: "ember", 
-            style: { left: emb.left, animationDelay: emb.delay, animationDuration: emb.duration } 
-        })),
+        /* COVER IMAGE + GRADIENT FUSE */
+        h("div", {
+            className: "cover-bg",
+            style: {
+                backgroundImage: "url('/assets/cover.jpg')", // <-- replace with your cover path
+            }
+        }),
 
-        // 2. MAIN CONTENT
+        /* MAGIC ENERGY OVERLAY */
+        h("div", { className: "energy-overlay" }),
+
+        /* FLOATING EMBERS / SPARKS */
+        embers.map((emb, i) =>
+            h("div", {
+                key: i,
+                className: "ember enhanced-ember",
+                style: {
+                    left: emb.left,
+                    animationDelay: emb.delay,
+                    animationDuration: emb.duration
+                }
+            })
+        ),
+
+        /* --- MAIN CONTENT --- */
         h(
             "div",
-            { className: "content-layer" },
-            
-            // TITLES
-            h("div", { className: "top-title" }, "BENEATH THE LIGHT"),
-            h("div", { className: "main-title-graphic" }, "OF A DYING SKY"),
+            { className: "content-layer upgraded-content" },
 
-            // GENRE TAGS
+            // TITLES
+            h("div", { className: "top-title small-title" }, "BENEATH THE LIGHT"),
+            h("div", { className: "main-title-graphic main-title-small" }, "OF A DYING SKY"),
+
+            // TAGS
             h(
                 "div",
-                { className: "tags-row" },
+                { className: "tags-row tags-small" },
                 h("span", { className: "tag-pill tag-scifi" }, "Sci-Fi"),
                 h("span", { className: "tag-pill tag-romance" }, "Romance"),
                 h("span", { className: "tag-pill tag-action" }, "Action"),
@@ -1086,15 +1102,15 @@ const HomePage = ({ onStart, onViewCredits }) => {
                 h("span", { className: "tag-pill tag-horror" }, "Horror")
             ),
 
-            // DESCRIPTION WITH CIRCUIT LINES
+            // DESCRIPTION
             h(
                 "div",
-                { className: "desc-container" },
-                h("div", { className: "tech-border-overlay" }), // The bracket lines
+                { className: "desc-container desc-tight" },
+                h("div", { className: "tech-border-overlay" }),
                 h("div", { className: "circuit-line left" }),
                 h(
                     "p",
-                    { className: "desc-text" },
+                    { className: "desc-text desc-small" },
                     "As humanity faces its final hours, a hidden conspiracy awakens — forcing Jake and Viyona to choose between the world they know and the truth that could rewrite everything."
                 ),
                 h("div", { className: "circuit-line right" })
@@ -1103,7 +1119,7 @@ const HomePage = ({ onStart, onViewCredits }) => {
             // START BUTTON
             h(
                 "div",
-                { className: "btn-wrapper-outer" },
+                { className: "btn-wrapper-outer btn-small" },
                 h(
                     "div",
                     { className: "btn-frame" },
@@ -1117,36 +1133,31 @@ const HomePage = ({ onStart, onViewCredits }) => {
                 )
             ),
 
-            // RECOGNITION FOOTER
+            // FOOTER
             h(
                 "div",
-                { className: "rec-section" },
+                { className: "rec-section rec-small" },
                 h("div", { className: "rec-title" }, "SPECIAL RECOGNITION"),
                 h(
                     "div",
                     { className: "rec-btn-container" },
                     h(
                         "div",
-                        { 
-                            className: "rec-btn",
-                            onClick: () => onViewCredits(getCredit("MINASHA"))
-                        },
+                        { className: "rec-btn rec-btn-small", onClick: () => onViewCredits(getCredit('MINASHA')) },
                         "MINASHA",
-                        h("span", { className: "rec-icon" }, h("i", { className: "fas fa-star" }))
+                        h("span", { className: "rec-icon" })
                     ),
                     h(
                         "div",
-                        { 
-                            className: "rec-btn",
-                            onClick: () => onViewCredits(getCredit("AROSHA"))
-                        },
+                        { className: "rec-btn rec-btn-small", onClick: () => onViewCredits(getCredit('AROSHA')) },
                         "AROSHA",
-                        h("span", { className: "rec-icon" }, h("i", { className: "fas fa-star" }))
+                        h("span", { className: "rec-icon" })
                     )
                 )
             )
         )
     );
+
 };
 // --- MANGA LIST (NEON GOD UPGRADE) ---
 const MangaPage = ({ onRead, onBack }) => {
@@ -1158,8 +1169,8 @@ const MangaPage = ({ onRead, onBack }) => {
     };
 
     const STATUS_COLORS = {
-        "FINISHED":    { color: "#00ff9d", glow: "0 0 10px #00ff9d" },
-        "ONGOING":     { color: "#00e5ff", glow: "0 0 10px #00e5ff" },
+        "FINISHED": { color: "#00ff9d", glow: "0 0 10px #00ff9d" },
+        "ONGOING": { color: "#00e5ff", glow: "0 0 10px #00e5ff" },
         "COMING SOON": { color: "#ff3333", glow: "0 0 10px #ff3333" }
     };
 
@@ -1172,6 +1183,56 @@ const MangaPage = ({ onRead, onBack }) => {
         /* HEADER */
         .header-zone { flex: 0 0 auto; display: flex; justify-content: center; align-items: center; padding: 20px 0; z-index: 10; background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent); position: relative; width: 100%; }
         
+/* --- COVER BACKGROUND FUSION --- */
+.cover-bg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-size: cover;
+    background-position: center top;
+    opacity: 0.35;
+    filter: blur(3px);
+    mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,1) 40%);
+    z-index: 2;
+}
+
+/* ENERGY & MAGIC OVERLAY */
+.energy-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: radial-gradient(circle at center, rgba(255,50,0,0.15), transparent 70%);
+    mix-blend-mode: screen;
+    z-index: 4;
+}
+
+/* ENHANCED EMBERS */
+.enhanced-ember {
+    width: 5px; height: 5px;
+    background: #ff5533;
+    box-shadow: 0 0 15px #ff3300;
+    animation: rise 5s linear infinite;
+    z-index: 6;
+}
+
+/* SMALLER TEXT */
+.small-title { font-size: 1rem !important; }
+.main-title-small { font-size: 3rem !important; }
+.tags-small .tag-pill { font-size: 0.75rem !important; padding: 5px 14px !important; }
+.desc-small { font-size: 0.85rem !important; }
+.btn-small .start-btn-inner { font-size: 1.2rem !important; padding: 10px 40px !important; }
+.rec-small .rec-btn { font-size: 0.8rem !important; padding: 8px 20px !important; }
+
+/* FLOATING LIGHT SWIRLS */
+@keyframes swirl {
+    0% { transform: translateY(0) translateX(0) scale(1); opacity: 0.2; }
+    50% { transform: translateY(-40px) translateX(20px) scale(1.2); opacity: 0.5; }
+    100% { transform: translateY(-80px) translateX(-10px) scale(0.8); opacity: 0; }
+}
+
+
+
+
         /* BUTTONS */
         .icon-btn {
             position: absolute;
@@ -1228,7 +1289,7 @@ const MangaPage = ({ onRead, onBack }) => {
             { className: "header-zone" },
             // HOME ICON (LEFT)
             h(
-                "button", 
+                "button",
                 { className: "icon-btn home-btn", onClick: onBack },
                 h("i", { className: "fas fa-home" })
             ),
@@ -1236,7 +1297,7 @@ const MangaPage = ({ onRead, onBack }) => {
             h("h2", { className: "holo-title" }, t.chapters),
             // SETTINGS ICON (RIGHT)
             h(
-                "button", 
+                "button",
                 { className: "icon-btn settings-btn", onClick: () => alert("Settings Menu Coming Soon") },
                 h("i", { className: "fas fa-cog" })
             )
@@ -1257,7 +1318,7 @@ const MangaPage = ({ onRead, onBack }) => {
                     {
                         key: ch.id,
                         className: "god-card " + (ch.locked ? "locked" : ""),
-                        style: { animationDelay: `${index * 0.1}s` }, 
+                        style: { animationDelay: `${index * 0.1}s` },
                         onClick: () => !ch.locked && onRead(ch.id)
                     },
                     h(
@@ -1435,35 +1496,35 @@ const App = () => {
     return h(
         "div",
         { className: "app-shell " + (view === "reader" ? "reader-mode" : "") },
-        
+
         // --- FIX: ONLY SHOW BLUE PARTICLES ON PAYWALL OR OTHER MENUS, NOT HOME/MANGA ---
         // Home has Fire, Manga has Space, so we hide ParticleBackground for them
         view !== "reader" && view !== "intro" && view !== "home" && view !== "manga" && h(ParticleBackground),
-        
+
         view !== "reader" && view !== "intro" && h(LicenseBar),
-        
+
         view === "intro" && h(CinematicIntro, { onComplete: () => setView("home") }),
-        
+
         view === "home" && h(HomePage, {
             onStart: handleStart,
             onViewCredits: setActivePerson
         }),
-        
+
         view === "manga" && h(MangaPage, {
             onRead: (id) => { setActiveChapter(id); setView("reader"); },
             onBack: () => setView("home") // <--- THIS MAKES THE HOME BUTTON WORK
         }),
-        
+
         view === "reader" && h(ReaderPage, {
             chapterId: activeChapter,
             onBack: () => setView("manga")
         }),
-        
+
         activePerson && h(ThemeModal, {
             person: activePerson,
             onClose: () => setActivePerson(null)
         }),
-        
+
         showPaywall && h(Paywall, { onUnlock: unlockVIP })
     );
 };
