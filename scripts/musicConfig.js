@@ -32,6 +32,11 @@ window.MUSIC_CONFIG = {
             { track: "assets/musics/Odyssey.mp3", pages: [1, 19] }
 
 
+        ],
+        5: [
+            { track: "assets/musics/Goodbye.mp3", pages: [1, 19] }
+
+
         ]
     }
 };
