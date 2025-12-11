@@ -611,6 +611,102 @@ const ThemeModal = ({ person, onClose }) => {
     );
 };
 
+// ⚙️ COMPLEX SETTINGS MODAL
+const SettingsModal = ({ onClose }) => {
+    // Generate dummy settings
+    const [settings] = useState(() => {
+        const categories = ["SYSTEM", "AUDIO", "VISUAL", "NETWORK", "AI CORE"];
+        const opts = [];
+        for (let i = 0; i < 60; i++) {
+            opts.push({
+                id: i,
+                label: `OPT_${Math.floor(Math.random() * 9000) + 1000}`,
+                val: Math.random() > 0.5,
+                type: Math.random() > 0.7 ? "slider" : "toggle",
+                cat: categories[Math.floor(Math.random() * categories.length)]
+            });
+        }
+        return opts;
+    });
+
+    const styles = `
+        .settings-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 5, 10, 0.95);
+            z-index: 10000;
+            display: flex; flex-direction: column;
+            padding: 40px;
+            font-family: 'Rajdhani', sans-serif;
+            color: #00e5ff;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.3s ease-out;
+        }
+        .settings-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 2px solid #00e5ff;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        .settings-title { font-family: 'Orbitron'; font-size: 2rem; letter-spacing: 5px; }
+        .close-settings { background: transparent; border: 1px solid #00e5ff; color: #00e5ff; padding: 10px 30px; cursor: pointer; font-weight: bold; }
+        .close-settings:hover { background: rgba(0, 229, 255, 0.2); }
+        
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        .setting-item {
+            background: rgba(0, 229, 255, 0.05);
+            border: 1px solid rgba(0, 229, 255, 0.1);
+            padding: 10px;
+            display: flex; flex-direction: column; gap: 5px;
+        }
+        .setting-label { font-size: 0.8rem; opacity: 0.7; }
+        .setting-val { font-weight: bold; font-size: 1.1rem; }
+        .slider-bar { height: 4px; background: #333; width: 100%; position: relative; }
+        .slider-fill { height: 100%; background: #00e5ff; }
+        .toggle-box { width: 40px; height: 20px; border: 1px solid #00e5ff; position: relative; }
+        .toggle-on { position: absolute; right: 2px; top: 2px; width: 14px; height: 14px; background: #00e5ff; }
+        .toggle-off { position: absolute; left: 2px; top: 2px; width: 14px; height: 14px; background: #333; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    `;
+
+    return h(
+        "div",
+        { className: "settings-overlay" },
+        h("style", null, styles),
+        h(
+            "div",
+            { className: "settings-header" },
+            h("h1", { className: "settings-title" }, "SYSTEM CONFIGURATION"),
+            h("button", { className: "close-settings", onClick: onClose }, "SAVE & EXIT")
+        ),
+        h(
+            "div",
+            { className: "settings-grid" },
+            settings.map(s => 
+                h("div", { key: s.id, className: "setting-item" },
+                    h("div", { className: "setting-label" }, `${s.cat} // ${s.label}`),
+                    s.type === "toggle" 
+                        ? h("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" } },
+                            h("span", { className: "setting-val" }, s.val ? "ONLINE" : "OFFLINE"),
+                            h("div", { className: "toggle-box" }, s.val ? h("div", { className: "toggle-on" }) : h("div", { className: "toggle-off" }))
+                          )
+                        : h("div", { style: { marginTop: "5px" } },
+                            h("div", { className: "slider-bar" },
+                                h("div", { className: "slider-fill", style: { width: Math.random() * 100 + "%" } })
+                            )
+                          )
+                )
+            )
+        )
+    );
+};
+
 // 💰 PAYWALL
 const Paywall = ({ onUnlock }) => {
     const [mode, setMode] = useState("vip");
@@ -747,10 +843,12 @@ const HomePage = ({ onStart, onViewCredits }) => {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start; /* FIX: Moved from center to start to reduce spacing */
+            padding-top: 80px; /* FIX: Specific spacing for license bar */
             font-family: 'Rajdhani', sans-serif;
             color: #fff;
-            padding: 20px;
+            padding-left: 20px;
+            padding-right: 20px;
         }
 
         /* ENERGY & MAGIC OVERLAY */
@@ -809,7 +907,7 @@ const HomePage = ({ onStart, onViewCredits }) => {
             width: 100%;
             max-width: 500px; /* Limit on desktop */
             position: relative;
-            margin: 0 auto 15px auto;
+            margin: 0 auto 10px auto; /* Reduced bottom margin */
             display: flex;
             justify-content: center;
         }
@@ -829,6 +927,31 @@ const HomePage = ({ onStart, onViewCredits }) => {
             color: #a0a0a0;
             letter-spacing: 2px;
             margin-bottom: 5px;
+        }
+        
+        /* FIX: SMOKING GLOW EFFECT */
+        .sub-title-smoke {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(1rem, 2.5vw, 1.4rem);
+            color: rgba(255,255,255,0.9);
+            letter-spacing: 3px;
+            margin-bottom: 5px;
+            font-weight: 700; /* Bold */
+            position: relative;
+            animation: smokeGlow 4s infinite alternate;
+        }
+        
+        @keyframes smokeGlow {
+            0% { 
+                text-shadow: 0 0 10px rgba(255,255,255,0.5), 0 -5px 15px rgba(200,200,200,0.3);
+                filter: blur(0.5px);
+                transform: scale(1);
+            }
+            100% { 
+                text-shadow: 0 0 20px rgba(255,255,255,0.8), 0 -15px 30px rgba(255,255,255,0.5);
+                filter: blur(1.5px);
+                transform: scale(1.02);
+            }
         }
 
         /* RED ELECTRIC TITLE */
@@ -855,38 +978,30 @@ const HomePage = ({ onStart, onViewCredits }) => {
             100% { text-shadow: 0 0 5px #ff0000; opacity: 1; }
         }
 
-        /* --- GENRE TAGS (SCROLLABLE NO-BREAK) --- */
+        /* --- GENRE TAGS (FIXED NO SCROLL) --- */
         .tags-row {
             display: flex;
-            flex-wrap: nowrap; /* Prevent breaking */
-            overflow-x: auto; /* Allow horizontal scroll */
-            gap: 12px;
+            flex-wrap: nowrap; /* Keep on one line */
+            overflow: hidden; /* No scroll */
+            gap: 5px; /* Tighter gap */
             width: 100%;
-            justify-content: flex-start; /* Start allows scrolling from beginning */
+            justify-content: center;
             margin-bottom: 30px;
-            padding: 0 10px 10px 10px; /* Padding for scrollbar breathing room */
-            scrollbar-width: none;
-            -ms-overflow-style: none;
         }
         
-        .tags-row::-webkit-scrollbar { display: none; }
-        
-        @media (min-width: 600px) {
-           .tags-row { justify-content: center; } /* Center on big screens where they fit */
-        }
-
         .tag-pill {
-            padding: 6px 18px;
+            padding: 4px 10px; /* Smaller padding */
             border-radius: 50px;
-            font-size: 0.75rem; /* Smaller text */
+            font-size: clamp(0.6rem, 2vw, 0.75rem); /* Dynamic scale down */
             font-weight: 600;
             letter-spacing: 0.5px;
             background: rgba(0,0,0,0.6);
             border: 1px solid;
             backdrop-filter: blur(4px);
             text-transform: capitalize;
-            white-space: nowrap; /* Never break text inside */
-            flex-shrink: 0; /* Never shrink the pill itself */
+            white-space: nowrap; 
+            flex-shrink: 1; /* Allow shrinking */
+            min-width: 0; /* Allow shrinking below min-content */
         }
         
         /* Specific Colors */
@@ -1033,13 +1148,9 @@ const HomePage = ({ onStart, onViewCredits }) => {
             transform: translateY(-2px);
         }
         .rec-icon {
-            font-size: 0.7rem;
+            font-size: 0.8rem;
             margin-left: 8px;
-            opacity: 0.7;
-            border: 1px solid currentColor;
-            border-radius: 50%;
-            width: 14px; height: 14px;
-            display: flex; align-items: center; justify-content: center;
+            opacity: 0.9;
         }
     `;
 
@@ -1100,7 +1211,7 @@ const HomePage = ({ onStart, onViewCredits }) => {
             ),
 
             // TITLES
-            h("div", { className: "top-title" }, "BENEATH THE LIGHT"),
+            h("div", { className: "sub-title-smoke" }, "BENEATH THE LIGHT"),
             h("div", { className: "main-title-electric" }, "OF A DYING SKY"),
 
             // TAGS (SCROLLABLE ROW)
@@ -1154,13 +1265,13 @@ const HomePage = ({ onStart, onViewCredits }) => {
                         "div",
                         { className: "rec-btn", onClick: () => onViewCredits(getCredit('MINASHA')) },
                         "MINASHA",
-                        h("span", { className: "rec-icon" })
+                        h("i", { className: "fas fa-heart rec-icon" })
                     ),
                     h(
                         "div",
                         { className: "rec-btn", onClick: () => onViewCredits(getCredit('AROSHA')) },
                         "AROSHA",
-                        h("span", { className: "rec-icon" })
+                        h("i", { className: "fas fa-fire rec-icon" })
                     )
                 )
             )
@@ -1169,7 +1280,7 @@ const HomePage = ({ onStart, onViewCredits }) => {
 
 };
 // --- MANGA LIST (NEON GOD UPGRADE) ---
-const MangaPage = ({ onRead, onBack }) => {
+const MangaPage = ({ onRead, onBack, onOpenSettings }) => {
     const [likes, setLikes] = React.useState({});
 
     const toggleLike = (e, id) => {
@@ -1257,7 +1368,7 @@ const MangaPage = ({ onRead, onBack }) => {
             // SETTINGS ICON (RIGHT)
             h(
                 "button",
-                { className: "icon-btn settings-btn", onClick: () => alert("Settings Menu Coming Soon") },
+                { className: "icon-btn settings-btn", onClick: onOpenSettings },
                 h("i", { className: "fas fa-cog" })
             )
         ),
@@ -1433,6 +1544,7 @@ const App = () => {
     const [view, setView] = useState("intro");
     const [activePerson, setActivePerson] = useState(null);
     const [showPaywall, setShowPaywall] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
     const [activeChapter, setActiveChapter] = useState(1);
 
     useEffect(() => {
@@ -1473,7 +1585,8 @@ const App = () => {
 
         view === "manga" && h(MangaPage, {
             onRead: (id) => { setActiveChapter(id); setView("reader"); },
-            onBack: () => setView("home") // <--- THIS MAKES THE HOME BUTTON WORK
+            onBack: () => setView("home"),
+            onOpenSettings: () => setShowSettings(true)
         }),
 
         view === "reader" && h(ReaderPage, {
@@ -1486,7 +1599,8 @@ const App = () => {
             onClose: () => setActivePerson(null)
         }),
 
-        showPaywall && h(Paywall, { onUnlock: unlockVIP })
+        showPaywall && h(Paywall, { onUnlock: unlockVIP }),
+        showSettings && h(SettingsModal, { onClose: () => setShowSettings(false) })
     );
 };
 

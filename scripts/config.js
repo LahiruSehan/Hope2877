@@ -34,7 +34,7 @@ window.APP_CONFIG = {
             role: "Character Inspiration",
             theme: "sakura",
             emoji: "🌸",
-            desc: "Inspired the creation and personality of Viyona, shaping key emotional and stylistic elements of the story."
+            desc: "Inspired the creation and personality of Viyona — becoming the heart behind her emotions, elegance, and charm — and contributed romantic moment ideas that shaped some of the story’s most beautiful emotional and stylistic scenes. 🌙💞✨"
         },
 
         {
@@ -42,7 +42,7 @@ window.APP_CONFIG = {
             role: "The First Beta Reader (aka GAMERLAZA)",
             theme: "fire",
             emoji: "🔥",
-            desc: "Early reviewer of HOPE 2877. Provided feedback, new ideas, and perspective to strengthen the storyline."
+            desc: "Early reviewer and first-ever reader of HOPE 2877 (BOOK) & the first to review every manga page as it’s created, providing fresh perspectives, inspirational suggestions and deep story-strengthening feedback throughout the entire creative process. 🌌✨"
         }
     ],
 
