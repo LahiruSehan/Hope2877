@@ -611,68 +611,104 @@ const ThemeModal = ({ person, onClose }) => {
     );
 };
 
-// ⚙️ COMPLEX SETTINGS MODAL
+// ⚙️ ELEGANT COMPACT SETTINGS MODAL
 const SettingsModal = ({ onClose }) => {
-    // Generate dummy settings
-    const [settings] = useState(() => {
-        const categories = ["SYSTEM", "AUDIO", "VISUAL", "NETWORK", "AI CORE"];
-        const opts = [];
-        for (let i = 0; i < 60; i++) {
-            opts.push({
-                id: i,
-                label: `OPT_${Math.floor(Math.random() * 9000) + 1000}`,
-                val: Math.random() > 0.5,
-                type: Math.random() > 0.7 ? "slider" : "toggle",
-                cat: categories[Math.floor(Math.random() * categories.length)]
-            });
-        }
-        return opts;
-    });
+    // Defined realistic settings
+    const [settings] = useState([
+        { id: 1, label: "MASTER VOLUME", val: 0.8, type: "slider", cat: "AUDIO" },
+        { id: 2, label: "MUSIC", val: 0.6, type: "slider", cat: "AUDIO" },
+        { id: 3, label: "SFX", val: 0.9, type: "slider", cat: "AUDIO" },
+        { id: 4, label: "HIGH CONTRAST", val: false, type: "toggle", cat: "VISUAL" },
+        { id: 5, label: "PARTICLES", val: true, type: "toggle", cat: "VISUAL" },
+        { id: 6, label: "ANIMATIONS", val: true, type: "toggle", cat: "VISUAL" },
+        { id: 7, label: "NOTIFICATIONS", val: true, type: "toggle", cat: "SYSTEM" },
+        { id: 8, label: "AUTO-SCROLL", val: false, type: "toggle", cat: "SYSTEM" },
+        { id: 9, label: "LANGUAGE", val: "EN", type: "text", cat: "SYSTEM" },
+        { id: 10, label: "DATA SAVER", val: false, type: "toggle", cat: "NETWORK" },
+    ]);
 
     const styles = `
         .settings-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0, 5, 10, 0.95);
+            background: rgba(0, 0, 0, 0.7); /* Dark semi-transparent BG */
             z-index: 10000;
-            display: flex; flex-direction: column;
-            padding: 40px;
-            font-family: 'Rajdhani', sans-serif;
-            color: #00e5ff;
-            backdrop-filter: blur(10px);
+            display: flex; justify-content: center; align-items: center;
+            backdrop-filter: blur(5px);
             animation: fadeIn 0.3s ease-out;
         }
+        
+        .settings-dialog {
+            width: 90%; max-width: 400px;
+            background: rgba(10, 15, 20, 0.95);
+            border: 1px solid #00e5ff;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.2);
+            font-family: 'Rajdhani', sans-serif;
+            color: #fff;
+            position: relative;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
         .settings-header {
             display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 2px solid #00e5ff;
-            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 229, 255, 0.3);
+            padding-bottom: 15px;
             margin-bottom: 20px;
         }
-        .settings-title { font-family: 'Orbitron'; font-size: 2rem; letter-spacing: 5px; }
-        .close-settings { background: transparent; border: 1px solid #00e5ff; color: #00e5ff; padding: 10px 30px; cursor: pointer; font-weight: bold; }
-        .close-settings:hover { background: rgba(0, 229, 255, 0.2); }
+
+        .settings-title { 
+            font-family: 'Orbitron'; 
+            font-size: 1.2rem; 
+            letter-spacing: 2px; 
+            color: #00e5ff; 
+            margin: 0;
+        }
+
+        .close-icon-btn {
+            background: transparent; border: none; color: #fff; 
+            font-size: 1.2rem; cursor: pointer; transition: 0.2s;
+        }
+        .close-icon-btn:hover { color: #ff3333; transform: scale(1.1); }
         
-        .settings-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 15px;
-            overflow-y: auto;
-            padding-right: 10px;
+        .settings-list {
+            display: flex; flex-direction: column; gap: 12px;
+            max-height: 60vh; overflow-y: auto; padding-right: 5px;
         }
-        .setting-item {
-            background: rgba(0, 229, 255, 0.05);
-            border: 1px solid rgba(0, 229, 255, 0.1);
-            padding: 10px;
-            display: flex; flex-direction: column; gap: 5px;
+
+        .setting-row {
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.9rem;
+            padding: 5px 0;
         }
-        .setting-label { font-size: 0.8rem; opacity: 0.7; }
-        .setting-val { font-weight: bold; font-size: 1.1rem; }
-        .slider-bar { height: 4px; background: #333; width: 100%; position: relative; }
-        .slider-fill { height: 100%; background: #00e5ff; }
-        .toggle-box { width: 40px; height: 20px; border: 1px solid #00e5ff; position: relative; }
-        .toggle-on { position: absolute; right: 2px; top: 2px; width: 14px; height: 14px; background: #00e5ff; }
-        .toggle-off { position: absolute; left: 2px; top: 2px; width: 14px; height: 14px; background: #333; }
+
+        .setting-label { color: #aaa; letter-spacing: 0.5px; }
+
+        .toggle-switch {
+            width: 40px; height: 20px; background: #333; 
+            border-radius: 20px; position: relative; cursor: pointer;
+            transition: 0.3s;
+        }
+        .toggle-switch.on { background: #00e5ff; }
+        .toggle-switch::after {
+            content: ''; position: absolute; top: 2px; left: 2px;
+            width: 16px; height: 16px; background: #fff; border-radius: 50%;
+            transition: 0.3s;
+        }
+        .toggle-switch.on::after { left: 22px; }
+
+        .slider-control {
+            width: 100px; height: 4px; background: #333; border-radius: 2px; position: relative;
+        }
+        .slider-active { height: 100%; background: #00e5ff; border-radius: 2px; }
+        .slider-thumb {
+            width: 12px; height: 12px; background: #fff; border-radius: 50%;
+            position: absolute; top: 50%; transform: translate(50%, -50%); right: 0;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     `;
 
     return h(
@@ -681,26 +717,29 @@ const SettingsModal = ({ onClose }) => {
         h("style", null, styles),
         h(
             "div",
-            { className: "settings-header" },
-            h("h1", { className: "settings-title" }, "SYSTEM CONFIGURATION"),
-            h("button", { className: "close-settings", onClick: onClose }, "SAVE & EXIT")
-        ),
-        h(
-            "div",
-            { className: "settings-grid" },
-            settings.map(s => 
-                h("div", { key: s.id, className: "setting-item" },
-                    h("div", { className: "setting-label" }, `${s.cat} // ${s.label}`),
-                    s.type === "toggle" 
-                        ? h("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" } },
-                            h("span", { className: "setting-val" }, s.val ? "ONLINE" : "OFFLINE"),
-                            h("div", { className: "toggle-box" }, s.val ? h("div", { className: "toggle-on" }) : h("div", { className: "toggle-off" }))
-                          )
-                        : h("div", { style: { marginTop: "5px" } },
-                            h("div", { className: "slider-bar" },
-                                h("div", { className: "slider-fill", style: { width: Math.random() * 100 + "%" } })
-                            )
-                          )
+            { className: "settings-dialog" },
+            h(
+                "div",
+                { className: "settings-header" },
+                h("h2", { className: "settings-title" }, "SETTINGS"),
+                h("button", { className: "close-icon-btn", onClick: onClose }, h("i", { className: "fas fa-times" }))
+            ),
+            h(
+                "div",
+                { className: "settings-list" },
+                settings.map(s => 
+                    h("div", { key: s.id, className: "setting-row" },
+                        h("span", { className: "setting-label" }, s.label),
+                        s.type === "toggle" 
+                            ? h("div", { className: `toggle-switch ${s.val ? 'on' : ''}` })
+                            : s.type === "slider"
+                                ? h("div", { className: "slider-control" },
+                                    h("div", { className: "slider-active", style: { width: s.val * 100 + "%" } },
+                                        h("div", { className: "slider-thumb" })
+                                    )
+                                  )
+                                : h("span", { style: { color: "#fff", fontWeight: "bold" } }, s.val)
+                    )
                 )
             )
         )
@@ -843,8 +882,8 @@ const HomePage = ({ onStart, onViewCredits }) => {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start; /* FIX: Moved from center to start to reduce spacing */
-            padding-top: 80px; /* FIX: Specific spacing for license bar */
+            justify-content: flex-start; 
+            padding-top: 80px; 
             font-family: 'Rajdhani', sans-serif;
             color: #fff;
             padding-left: 20px;
@@ -907,7 +946,7 @@ const HomePage = ({ onStart, onViewCredits }) => {
             width: 100%;
             max-width: 500px; /* Limit on desktop */
             position: relative;
-            margin: 0 auto 10px auto; /* Reduced bottom margin */
+            margin: 40px auto 10px auto; /* WAY MORE SPACE (top margin increased) */
             display: flex;
             justify-content: center;
         }
@@ -929,29 +968,15 @@ const HomePage = ({ onStart, onViewCredits }) => {
             margin-bottom: 5px;
         }
         
-        /* FIX: SMOKING GLOW EFFECT */
-        .sub-title-smoke {
+        /* FIX: REMOVED SMOKE EFFECT, CLEAN BOLD TEXT */
+        .sub-title-clean {
             font-family: 'Cinzel', serif;
             font-size: clamp(1rem, 2.5vw, 1.4rem);
-            color: rgba(255,255,255,0.9);
+            color: #fff;
             letter-spacing: 3px;
             margin-bottom: 5px;
             font-weight: 700; /* Bold */
-            position: relative;
-            animation: smokeGlow 4s infinite alternate;
-        }
-        
-        @keyframes smokeGlow {
-            0% { 
-                text-shadow: 0 0 10px rgba(255,255,255,0.5), 0 -5px 15px rgba(200,200,200,0.3);
-                filter: blur(0.5px);
-                transform: scale(1);
-            }
-            100% { 
-                text-shadow: 0 0 20px rgba(255,255,255,0.8), 0 -15px 30px rgba(255,255,255,0.5);
-                filter: blur(1.5px);
-                transform: scale(1.02);
-            }
+            text-shadow: 0 2px 5px rgba(0,0,0,0.5);
         }
 
         /* RED ELECTRIC TITLE */
@@ -978,7 +1003,7 @@ const HomePage = ({ onStart, onViewCredits }) => {
             100% { text-shadow: 0 0 5px #ff0000; opacity: 1; }
         }
 
-        /* --- GENRE TAGS (FIXED NO SCROLL) --- */
+        /* --- GENRE TAGS (WAVE ANIMATION) --- */
         .tags-row {
             display: flex;
             flex-wrap: nowrap; /* Keep on one line */
@@ -1002,6 +1027,12 @@ const HomePage = ({ onStart, onViewCredits }) => {
             white-space: nowrap; 
             flex-shrink: 1; /* Allow shrinking */
             min-width: 0; /* Allow shrinking below min-content */
+            animation: wave 2.5s ease-in-out infinite;
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
         }
         
         /* Specific Colors */
@@ -1051,13 +1082,13 @@ const HomePage = ({ onStart, onViewCredits }) => {
             .circuit-line { display: block; }
         }
 
-        /* --- START BUTTON --- */
+        /* --- START BUTTON (SMALLER) --- */
         .btn-wrapper-outer {
             position: relative;
-            padding: 4px;
+            padding: 3px; /* Reduced */
             border-radius: 8px;
             background: linear-gradient(90deg, transparent, rgba(255, 60, 0, 0.5), transparent);
-            box-shadow: 0 0 20px rgba(255, 60, 0, 0.2);
+            box-shadow: 0 0 15px rgba(255, 60, 0, 0.2);
             margin-bottom: 50px;
             transition: transform 0.3s;
         }
@@ -1065,9 +1096,9 @@ const HomePage = ({ onStart, onViewCredits }) => {
 
         .btn-frame {
             position: relative;
-            padding: 6px;
+            padding: 4px; /* Reduced */
             border: 2px solid #ff5555;
-            border-radius: 12px;
+            border-radius: 8px; /* Slightly tighter radius */
             background: rgba(40, 0, 0, 0.6);
             box-shadow: 
                 0 0 10px rgba(255, 0, 0, 0.4),
@@ -1081,11 +1112,11 @@ const HomePage = ({ onStart, onViewCredits }) => {
             background: linear-gradient(180deg, #aa0000 0%, #440000 100%);
             color: #fff;
             font-family: 'Cinzel', serif;
-            font-size: 1.2rem;
+            font-size: 0.9rem; /* Smaller font */
             font-weight: 700;
-            padding: 10px 40px;
+            padding: 8px 30px; /* Smaller padding */
             border: 1px solid rgba(255, 150, 150, 0.4);
-            border-radius: 6px;
+            border-radius: 4px;
             text-transform: uppercase;
             letter-spacing: 2px;
             cursor: pointer;
@@ -1210,19 +1241,19 @@ const HomePage = ({ onStart, onViewCredits }) => {
                 })
             ),
 
-            // TITLES
-            h("div", { className: "sub-title-smoke" }, "BENEATH THE LIGHT"),
+            // TITLES (Clean, Bold BENEATH THE LIGHT)
+            h("div", { className: "sub-title-clean" }, "BENEATH THE LIGHT"),
             h("div", { className: "main-title-electric" }, "OF A DYING SKY"),
 
-            // TAGS (SCROLLABLE ROW)
+            // TAGS (WAVE ANIMATION)
             h(
                 "div",
                 { className: "tags-row" },
-                h("span", { className: "tag-pill tag-scifi" }, "Sci-Fi"),
-                h("span", { className: "tag-pill tag-romance" }, "Romance"),
-                h("span", { className: "tag-pill tag-action" }, "Action"),
-                h("span", { className: "tag-pill tag-mystery" }, "Mystery"),
-                h("span", { className: "tag-pill tag-horror" }, "Horror")
+                h("span", { className: "tag-pill tag-scifi", style: { animationDelay: '0s' } }, "Sci-Fi"),
+                h("span", { className: "tag-pill tag-romance", style: { animationDelay: '0.2s' } }, "Romance"),
+                h("span", { className: "tag-pill tag-action", style: { animationDelay: '0.4s' } }, "Action"),
+                h("span", { className: "tag-pill tag-mystery", style: { animationDelay: '0.6s' } }, "Mystery"),
+                h("span", { className: "tag-pill tag-horror", style: { animationDelay: '0.8s' } }, "Horror")
             ),
 
             // DESCRIPTION (BOLD)
@@ -1238,7 +1269,7 @@ const HomePage = ({ onStart, onViewCredits }) => {
                 h("div", { className: "circuit-line right" })
             ),
 
-            // START BUTTON
+            // START BUTTON (SMALLER)
             h(
                 "div",
                 { className: "btn-wrapper-outer" },
@@ -1289,7 +1320,7 @@ const MangaPage = ({ onRead, onBack, onOpenSettings }) => {
     };
 
     const STATUS_COLORS = {
-        "FINISHED": { color: "#00ff9d", glow: "0 0 10px #00ff9d" },
+        "RELEASED": { color: "#00ff9d", glow: "0 0 10px #00ff9d" },
         "ONGOING": { color: "#00e5ff", glow: "0 0 10px #00e5ff" },
         "COMING SOON": { color: "#ff3333", glow: "0 0 10px #ff3333" }
     };
@@ -1378,7 +1409,7 @@ const MangaPage = ({ onRead, onBack, onOpenSettings }) => {
             "div",
             { className: "list-viewport" },
             window.APP_CONFIG.chapters.map((ch, index) => {
-                let statusText = "FINISHED";
+                let statusText = "RELEASED";
                 if (ch.id === 5) statusText = "ONGOING";
                 else if (ch.id >= 6) statusText = "COMING SOON";
                 const theme = STATUS_COLORS[statusText];

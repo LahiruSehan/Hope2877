@@ -94,7 +94,7 @@ window.APP_CONFIG = {
                 {
             id: 5,
             title: "CRUEL",
-            date: "Comming Soon",
+            date: "Losses",
             locked: false,
             pages: Array.from({ length: 0 }, (_, i) => `imageschapter5/${i + 1}.png`)
         },
