@@ -729,7 +729,7 @@ const Paywall = ({ onUnlock }) => {
         )
     );
 };
-/// --- HOME PAGE (APOCALYPTIC GOD MODE - FIXED) ---
+// --- HOME PAGE (LANDSCAPE & COMPACT GOD MODE) ---
 const HomePage = ({ onStart, onViewCredits }) => {
     
     const styles = `
@@ -745,210 +745,233 @@ const HomePage = ({ onStart, onViewCredits }) => {
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            justify-content: space-between; /* Keeps top and bottom apart */
             align-items: center;
+            /* CENTER CONTENT VERTICALLY WITH SPACE DISTRIBUTION */
+            justify-content: center; 
+            gap: 2vh; 
             background-color: #000;
             color: #fff;
             font-family: 'Rajdhani', sans-serif;
+            padding: 20px;
         }
 
-        /* INFERNO BACKGROUND */
+        /* INFERNO BACKGROUND (No Particles) */
         .bg-inferno {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, #050000 0%, #1a0000 60%, #4a0000 100%);
+            background: linear-gradient(to bottom, #000000 10%, #1a0000 60%, #4a0000 100%);
             z-index: 0;
         }
 
         .bg-smoke {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, transparent 0%, #000 150%); 
-            /* Fallback fog */
-            opacity: 0.3;
+            background: radial-gradient(circle, transparent 0%, #000 150%);
+            opacity: 0.4;
             z-index: 0;
-            mix-blend-mode: screen;
+            animation: pulseSmoke 10s infinite alternate;
         }
 
-        .ember-particles {
-            position: absolute;
-            width: 100%; height: 100%;
-            background-image: radial-gradient(rgba(255, 100, 50, 0.8) 1px, transparent 1px);
-            background-size: 50px 50px;
-            opacity: 0.6;
-            animation: embersRise 8s linear infinite;
-            z-index: 0;
-        }
-
-        /* SECTION 1: TOP */
-        .section-hero {
-            flex: 0 0 auto; /* Don't stretch */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 4vh;
-            z-index: 10;
-            width: 100%;
-        }
-
+        /* --- SECTION 1: COVER ART (LANDSCAPE) --- */
         .cover-frame {
-            height: 22vh; /* Slightly smaller to save space */
-            aspect-ratio: 2/3;
-            margin-bottom: 1.5vh;
-            border-radius: 8px;
-            box-shadow: 0 0 30px rgba(255, 50, 50, 0.4);
-            animation: floatHero 6s ease-in-out infinite;
-            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+            width: 90%; 
+            max-width: 500px;
+            /* LANDSCAPE RATIO FIX */
+            aspect-ratio: 16/9; 
+            border-radius: 12px;
+            box-shadow: 0 0 40px rgba(255, 0, 0, 0.3);
+            border: 1px solid rgba(255,255,255,0.15);
+            overflow: hidden;
+            animation: floatHero 8s ease-in-out infinite;
+            z-index: 10;
         }
 
-        .cover-img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+        .cover-img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+        }
+
+        /* --- SECTION 2: TITLES --- */
+        .title-group {
+            text-align: center;
+            z-index: 10;
+            margin-top: -10px; /* Pull closer to image */
+        }
 
         .main-title {
             font-family: 'Cinzel', serif;
-            font-size: clamp(1.5rem, 4vh, 3rem);
-            line-height: 1;
-            letter-spacing: 2px;
+            font-size: clamp(1rem, 2.5vh, 1.5rem);
+            line-height: 1.2;
+            letter-spacing: 3px;
             text-transform: uppercase;
-            color: #e0e0e0;
+            color: #fff;
+            /* SMOKE EFFECT */
+            animation: smokeText 5s ease-in-out infinite alternate;
         }
 
         .sub-title {
             font-family: 'Cinzel', serif;
-            font-size: clamp(1.2rem, 3vh, 2.5rem);
-            color: #ff3333;
+            font-size: clamp(1.5rem, 4vh, 3rem);
             text-transform: uppercase;
-            letter-spacing: 4px;
+            letter-spacing: 2px;
             font-weight: 700;
-            text-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
-            animation: glowText 3s infinite alternate;
+            margin-top: 5px;
+            /* RED SHIFT EFFECT */
+            animation: redShift 6s infinite;
         }
 
-        /* SECTION 2: META (Compressed) */
-        .section-meta {
-            flex: 1;
-            width: 90%;
+        /* --- SECTION 3: META & BUTTON --- */
+        .meta-container {
+            z-index: 10;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            z-index: 10;
-            padding: 0;
+            width: 100%;
         }
 
         .genres-row {
             display: flex;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
             flex-wrap: wrap;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
         .genre-chip {
             font-size: 0.6rem;
-            color: #ffaaaa;
+            color: #ffcccc;
             border: 1px solid rgba(255, 50, 50, 0.3);
-            padding: 2px 8px;
-            border-radius: 4px;
-            background: rgba(50, 0, 0, 0.4);
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: rgba(50, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
         }
 
         .desc-text {
-            font-size: clamp(0.7rem, 1.6vh, 0.85rem);
-            color: #ccc;
+            font-size: clamp(0.75rem, 1.8vh, 0.9rem);
+            color: #ddd;
             line-height: 1.4;
             text-align: center;
-            font-weight: 300;
-            max-width: 600px;
-            text-shadow: 0 1px 2px #000;
-        }
-
-        /* SECTION 3: BOTTOM (Action + Credits) */
-        .section-dock {
-            flex: 0 0 auto;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-bottom: 4vh; /* Lifted up from bottom */
-            z-index: 10;
+            font-weight: 400;
+            max-width: 650px;
+            text-shadow: 0 1px 4px #000;
+            margin-bottom: 20px;
+            padding: 0 10px;
         }
 
         .btn-start-reading {
-            background: transparent;
+            background: rgba(255, 0, 0, 0.1);
             color: #fff;
             font-family: 'Cinzel', serif;
-            font-size: 1.1rem;
-            padding: 12px 40px;
-            border: 1px solid rgba(255,255,255,0.3);
-            letter-spacing: 5px;
+            font-size: 1.2rem;
+            padding: 14px 50px;
+            border: 1px solid rgba(255, 50, 50, 0.6);
+            letter-spacing: 4px;
             cursor: pointer;
-            margin-bottom: 5px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            box-shadow: 0 0 25px rgba(255, 0, 0, 0.2);
             animation: pulseBtn 3s infinite;
             backdrop-filter: blur(5px);
-        }
-        .btn-start-reading:hover { background: #ff3333; border-color: #ff3333; }
-
-        .subtitle-small {
-            font-size: 0.6rem;
-            letter-spacing: 3px;
-            color: #666;
-            margin-bottom: 15px; /* Reduced space significantly */
+            transition: 0.3s;
             text-transform: uppercase;
+            margin-bottom: 25px; /* Space before credits */
+        }
+        .btn-start-reading:hover { 
+            background: #ff0000; 
+            box-shadow: 0 0 40px rgba(255, 0, 0, 0.6);
+            transform: scale(1.05);
         }
 
-        /* CREDIT BUTTONS */
-        .credits-dock {
-            width: 95%;
-            max-width: 500px;
+        /* --- SECTION 4: SPECIAL RECOGNITION (REDESIGNED) --- */
+        .recognition-panel {
+            z-index: 10;
+            width: 100%;
+            max-width: 550px;
+            background: linear-gradient(180deg, rgba(20,0,0,0.6) 0%, rgba(50,0,0,0.3) 100%);
+            border-top: 2px solid #ff3333;
+            border-bottom: 1px solid rgba(255, 50, 50, 0.3);
+            padding: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            backdrop-filter: blur(8px);
+            /* Sci-Fi Corners using clip-path */
+            clip-path: polygon(
+                0 0, 
+                100% 0, 
+                100% 85%, 
+                95% 100%, 
+                5% 100%, 
+                0 85%
+            );
         }
 
-        .dock-title {
-            font-size: 0.55rem;
-            color: #ff3333;
-            letter-spacing: 2px;
+        .rec-label {
+            font-size: 0.6rem;
+            color: #ff5555;
+            letter-spacing: 4px;
             text-transform: uppercase;
-            margin-bottom: 8px;
-            opacity: 0.8;
+            margin-bottom: 12px;
+            font-weight: 700;
+            text-shadow: 0 0 8px rgba(255, 0, 0, 0.5);
         }
 
-        .dock-items {
+        .rec-grid {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             gap: 10px;
         }
 
-        /* NEW BUTTON STYLE FOR NAMES */
-        .dock-btn {
-            font-size: 0.7rem;
-            color: #ddd;
+        /* BUTTON STYLE FOR NAMES */
+        .rec-btn {
+            font-size: 0.75rem;
+            color: #fff;
             background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 6px 16px;
-            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 18px;
+            border-radius: 4px;
             cursor: pointer;
             text-transform: uppercase;
-            font-weight: 500;
+            font-weight: 600;
             transition: all 0.2s ease;
-            backdrop-filter: blur(4px);
+            position: relative;
+            overflow: hidden;
         }
 
-        .dock-btn:hover {
-            background: rgba(255, 50, 50, 0.2);
+        .rec-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 3px; height: 100%;
+            background: #ff3333;
+            opacity: 0.5;
+        }
+
+        .rec-btn:hover {
+            background: rgba(255, 50, 50, 0.3);
             border-color: #ff3333;
-            color: #fff;
-            box-shadow: 0 0 10px rgba(255, 50, 50, 0.4);
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
             transform: translateY(-2px);
         }
 
-        @keyframes embersRise { 0% { transform: translateY(0); opacity: 0; } 50% { opacity: 0.8; } 100% { transform: translateY(-100vh); opacity: 0; } }
-        @keyframes floatHero { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-        @keyframes glowText { from { text-shadow: 0 0 10px #500; } to { text-shadow: 0 0 25px #f00; } }
-        @keyframes pulseBtn { 0% { box-shadow: 0 0 0 rgba(255,0,0,0); } 70% { box-shadow: 0 0 20px rgba(255,0,0,0.4); } 100% { box-shadow: 0 0 0 rgba(255,0,0,0); } }
+        /* ANIMATIONS */
+        @keyframes floatHero { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        
+        @keyframes smokeText { 
+            0% { text-shadow: 0 0 5px rgba(255,255,255,0.3); filter: blur(0.3px); } 
+            100% { text-shadow: 0 -5px 15px rgba(255,255,255,0.8); filter: blur(0px); } 
+        }
+
+        @keyframes redShift {
+            0% { color: #ff0000; text-shadow: 0 0 10px #500000; }
+            33% { color: #ff4d4d; text-shadow: 0 0 20px #ff0000; }
+            66% { color: #8b0000; text-shadow: 0 0 10px #300000; }
+            100% { color: #ff0000; text-shadow: 0 0 10px #500000; }
+        }
+
+        @keyframes pulseBtn { 0% { box-shadow: 0 0 10px rgba(255,0,0,0.2); } 50% { box-shadow: 0 0 30px rgba(255,0,0,0.5); } 100% { box-shadow: 0 0 10px rgba(255,0,0,0.2); } }
+        @keyframes pulseSmoke { 0% { opacity: 0.3; } 100% { opacity: 0.5; } }
     `;
 
     return h(
@@ -956,60 +979,74 @@ const HomePage = ({ onStart, onViewCredits }) => {
         { className: "apocalypse-wrapper" },
         h("style", null, styles),
         
-        // BACKGROUNDS
+        // BACKGROUNDS (NO PARTICLES, JUST ATMOSPHERE)
         h("div", { className: "bg-inferno" }),
         h("div", { className: "bg-smoke" }),
-        h("div", { className: "ember-particles" }),
 
-        // TOP
+        // 1. COVER ART (Landscape)
         h(
             "div",
-            { className: "section-hero" },
-            h(
-                "div",
-                { className: "cover-frame" },
-                h("img", { src: window.APP_CONFIG.assets.cover, className: "cover-img", alt: "Cover" })
-            ),
-            h("h1", { className: "main-title" }, t.title_start),
-            h("h2", { className: "sub-title" }, t.title_end)
+            { className: "cover-frame" },
+            h("img", { 
+                // Using the specific file name you asked for
+                src: "./cover.png", 
+                // Fallback to config if local file fails (safety)
+                onError: (e) => { e.target.src = window.APP_CONFIG.assets.cover; },
+                className: "cover-img", 
+                alt: "Cover" 
+            })
         ),
 
-        // MIDDLE
+        // 2. TITLES (Compact)
         h(
             "div",
-            { className: "section-meta" },
+            { className: "title-group" },
+            h("h2", { className: "main-title" }, t.title_start), // Beneath the light
+            h("h1", { className: "sub-title" }, t.title_end)   // Of a dying sky
+        ),
+
+        // 3. META + ACTION
+        h(
+            "div",
+            { className: "meta-container" },
+            
+            // Genres
             h(
                 "div",
                 { className: "genres-row" },
-                ["Sci-Fi", "Romance", "Action", "Mystery", "Horror"].map(g => h("span", { key: g, className: "genre-chip" }, g))
+                ["Sci-Fi", "Romance", "Action", "Mystery", "Horror"].map(g => 
+                    h("span", { key: g, className: "genre-chip" }, g)
+                )
             ),
+
+            // Description
             h(
                 "p",
                 { className: "desc-text" },
                 "As humanity faces its final hours, a hidden conspiracy awakens — forcing Jake and Viyona to choose between the world they know and the truth that could rewrite everything."
-            )
-        ),
+            ),
 
-        // BOTTOM
-        h(
-            "div",
-            { className: "section-dock" },
-            h("button", { className: "btn-start-reading", onClick: onStart }, t.start),
-            h("div", { className: "subtitle-small" }, t.subtitle),
+            // Start Button
+            h(
+                "button",
+                { className: "btn-start-reading", onClick: onStart },
+                t.start
+            ),
 
+            // 4. SPECIAL RECOGNITION (Now a visible panel)
             h(
                 "div",
-                { className: "credits-dock" },
-                h("div", { className: "dock-title" }, "// " + t.special + " //"),
+                { className: "recognition-panel" },
+                h("div", { className: "rec-label" }, "// " + t.special + " //"),
                 h(
                     "div",
-                    { className: "dock-items" },
+                    { className: "rec-grid" },
                     window.APP_CONFIG.credits.map((c, i) =>
                         h(
                             "div",
                             {
                                 key: i,
-                                className: "dock-btn", // Changed to button class
+                                className: "rec-btn",
                                 onClick: () => onViewCredits(c)
                             },
                             c.name

@@ -60,14 +60,14 @@ window.APP_CONFIG = {
     chapters: [
         {
             id: 1,
-            title: "A world Filled with Rage",
+            title: "The Rage",
             date: "A Shattered Dawn",
             locked: false,
             pages: Array.from({ length: 24 }, (_, i) => `imageschapter1/${i + 1}.png`)
         },
         {
             id: 2,
-            title: "A Whole New World",
+            title: "Broken New World",
             date: "Beauty is a lie.",
             locked: false,
             pages: [...Array(39)].flatMap((_, i) =>
@@ -77,7 +77,7 @@ window.APP_CONFIG = {
 
         {
             id: 3,
-            title: "Regrets",
+            title: "Belives",
             date: "Broken Promisses",
             locked: false,
             pages: Array.from({ length: 15 }, (_, i) => `imageschapter3/${i + 1}.png`)
@@ -85,15 +85,15 @@ window.APP_CONFIG = {
 
                 {
             id: 4,
-            title: "CRUEL",
-            date: "Comming Soon",
+            title: "Regrets",
+            date: "A False Hope ",
             locked: false,
-            pages: Array.from({ length: 0 }, (_, i) => `imageschapter4/${i + 1}.png`)
+            pages: Array.from({ length: 19 }, (_, i) => `imageschapter4/${i + 1}.png`)
         },
 
                 {
             id: 5,
-            title: "Comming Soon",
+            title: "CRUEL",
             date: "Comming Soon",
             locked: false,
             pages: Array.from({ length: 0 }, (_, i) => `imageschapter5/${i + 1}.png`)
@@ -101,8 +101,8 @@ window.APP_CONFIG = {
 
                 {
             id: 6,
-            title: "Comming Soon",
-            date: "Comming Soon",
+            title: "HOPE",
+            date: "Begining of the End",
             locked: false,
             pages: Array.from({ length: 0 }, (_, i) => `imageschapter6/${i + 1}.png`)
         },
