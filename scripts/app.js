@@ -882,8 +882,8 @@ const HomePage = ({ onStart, onViewCredits }) => {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start; 
-            padding-top: 80px; 
+            justify-content: flex-start; /* Aligned to top */
+            padding-top: 30px; /* Reduced space significantly */
             font-family: 'Rajdhani', sans-serif;
             color: #fff;
             padding-left: 20px;
@@ -946,7 +946,7 @@ const HomePage = ({ onStart, onViewCredits }) => {
             width: 100%;
             max-width: 500px; /* Limit on desktop */
             position: relative;
-            margin: 40px auto 10px auto; /* WAY MORE SPACE (top margin increased) */
+            margin: 10px auto 10px auto; /* Drastically reduced margins */
             display: flex;
             justify-content: center;
         }
@@ -1003,7 +1003,7 @@ const HomePage = ({ onStart, onViewCredits }) => {
             100% { text-shadow: 0 0 5px #ff0000; opacity: 1; }
         }
 
-        /* --- GENRE TAGS (WAVE ANIMATION) --- */
+        /* --- GENRE TAGS (WAVE ANIMATION WITH PADDING FIX) --- */
         .tags-row {
             display: flex;
             flex-wrap: nowrap; /* Keep on one line */
@@ -1012,6 +1012,7 @@ const HomePage = ({ onStart, onViewCredits }) => {
             width: 100%;
             justify-content: center;
             margin-bottom: 30px;
+            padding: 15px 0; /* ADDED: Prevents wave animation from being cutoff */
         }
         
         .tag-pill {
@@ -1032,7 +1033,7 @@ const HomePage = ({ onStart, onViewCredits }) => {
 
         @keyframes wave {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+            50% { transform: translateY(-8px); } /* Slightly higher wave */
         }
         
         /* Specific Colors */
@@ -1311,14 +1312,8 @@ const HomePage = ({ onStart, onViewCredits }) => {
 
 };
 // --- MANGA LIST (NEON GOD UPGRADE) ---
-const MangaPage = ({ onRead, onBack, onOpenSettings }) => {
-    const [likes, setLikes] = React.useState({});
-
-    const toggleLike = (e, id) => {
-        e.stopPropagation();
-        setLikes(prev => ({ ...prev, [id]: !prev[id] }));
-    };
-
+const MangaPage = ({ onRead, onBack, onOpenSettings, likes, onToggleLike, savedLocation }) => {
+    
     const STATUS_COLORS = {
         "RELEASED": { color: "#00ff9d", glow: "0 0 10px #00ff9d" },
         "ONGOING": { color: "#00e5ff", glow: "0 0 10px #00e5ff" },
@@ -1368,6 +1363,8 @@ const MangaPage = ({ onRead, onBack, onOpenSettings }) => {
         .ch-info-group { display: flex; flex-direction: column; gap: 4px; }
         .ch-title { font-size: 1.1rem; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 1px; }
         .ch-date { font-size: 0.75rem; color: #888; font-family: monospace; }
+        
+        .continue-text { font-size: 0.7rem; color: #FFD700; font-weight: bold; letter-spacing: 1px; margin-top: 3px; display: flex; align-items: center; gap: 5px; animation: pulse 2s infinite; }
 
         .status-pill { font-size: 0.65rem; font-weight: 700; padding: 4px 10px; border: 1px solid currentColor; border-radius: 4px; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); margin-left: 10px; }
         .lock-icon { font-size: 1.2rem; color: #ff3333; text-shadow: 0 0 10px rgba(255, 50, 50, 0.6); margin-left: 15px; }
@@ -1375,6 +1372,7 @@ const MangaPage = ({ onRead, onBack, onOpenSettings }) => {
         @keyframes flicker { 0%, 18%, 22%, 25%, 53%, 57%, 100% { text-shadow: 0 0 4px #fff, 0 0 10px #fff, 0 0 20px #00e5ff; opacity: 1; } 20%, 24%, 55% { text-shadow: none; opacity: 0.2; } }
         @keyframes moveStars { from { background-position: 0 0; } to { background-position: -1000px 500px; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
     `;
 
     return h(
@@ -1409,10 +1407,12 @@ const MangaPage = ({ onRead, onBack, onOpenSettings }) => {
             "div",
             { className: "list-viewport" },
             window.APP_CONFIG.chapters.map((ch, index) => {
-                let statusText = "RELEASED";
+                let statusText = "RELEASED"; // Changed from FINISHED
                 if (ch.id === 5) statusText = "ONGOING";
                 else if (ch.id >= 6) statusText = "COMING SOON";
                 const theme = STATUS_COLORS[statusText];
+                
+                const hasSave = savedLocation && savedLocation.chapterId === ch.id;
 
                 return h(
                     "div",
@@ -1420,13 +1420,23 @@ const MangaPage = ({ onRead, onBack, onOpenSettings }) => {
                         key: ch.id,
                         className: "god-card " + (ch.locked ? "locked" : ""),
                         style: { animationDelay: `${index * 0.1}s` },
-                        onClick: () => !ch.locked && onRead(ch.id)
+                        onClick: () => !ch.locked && onRead(ch.id, hasSave ? savedLocation.pageIndex : 0)
                     },
                     h(
                         "div",
                         { className: "card-left" },
-                        h("i", { className: "fas fa-heart like-btn " + (likes[ch.id] ? "liked" : ""), onClick: (e) => toggleLike(e, ch.id) }),
-                        h("div", { className: "ch-info-group" }, h("div", { className: "ch-title" }, `CH.${ch.id} : ${ch.title}`), h("div", { className: "ch-date" }, ch.locked ? "ENCRYPTED" : ch.date))
+                        h("i", { 
+                            className: "fas fa-heart like-btn " + (likes[ch.id] ? "liked" : ""), 
+                            onClick: (e) => { e.stopPropagation(); onToggleLike(ch.id); } 
+                        }),
+                        h("div", { className: "ch-info-group" }, 
+                            h("div", { className: "ch-title" }, `CH.${ch.id} : ${ch.title}`), 
+                            h("div", { className: "ch-date" }, ch.locked ? "ENCRYPTED" : ch.date),
+                            hasSave && h("div", { className: "continue-text" }, 
+                                h("i", { className: "fas fa-bookmark" }), 
+                                `CONTINUE FROM PAGE ${savedLocation.pageIndex + 1}`
+                            )
+                        )
                     ),
                     h(
                         "div",
@@ -1446,14 +1456,61 @@ const MangaPage = ({ onRead, onBack, onOpenSettings }) => {
     );
 };
 
-// --- READER ---
-const ReaderPage = ({ chapterId, onBack }) => {
-    const chapter = window.APP_CONFIG.chapters.find(
-        (c) => c.id === chapterId
+// --- COMMENTS MODAL ---
+const CommentsModal = ({ onClose }) => {
+    return h("div", { className: "comments-modal-overlay", onClick: onClose },
+        h("div", { className: "comments-modal", onClick: e => e.stopPropagation() },
+            h("div", { className: "comments-header" },
+                h("span", null, "COMMENTS (0)"),
+                h("button", { className: "close-com", onClick: onClose }, "×")
+            ),
+            h("div", { className: "comments-body" },
+                h("i", { className: "fas fa-comment-slash", style: { fontSize: "2rem", marginBottom: "10px", color: "#333" } }),
+                "No comments yet. Be the first!"
+            )
+        ),
+        h("style", null, `
+            .comments-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s; }
+            .comments-modal { width: 90%; max-width: 400px; height: 300px; background: #111; border: 1px solid #333; display: flex; flex-direction: column; border-radius: 8px; box-shadow: 0 0 20px rgba(0,255,200,0.1); }
+            .comments-header { padding: 15px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; font-family: 'Orbitron'; color: #00e5ff; }
+            .close-com { background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
+            .comments-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #666; font-family: 'Rajdhani'; }
+        `)
     );
+};
 
+// --- READER ---
+const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, likes, onToggleLike }) => {
+    const chapter = window.APP_CONFIG.chapters.find((c) => c.id === chapterId);
+    const [currentPage, setCurrentPage] = useState(initialPage || 0);
+    const [showComments, setShowComments] = useState(false);
+    const [isMuted, setIsMuted] = useState(false);
+    
+    const audioRef = useRef(null);
+    const imageRefs = useRef([]);
+
+    // Scroll to initial page
     useEffect(() => {
-        window.scrollTo(0, 0);
+        if (initialPage > 0 && imageRefs.current[initialPage]) {
+            setTimeout(() => {
+                imageRefs.current[initialPage].scrollIntoView({ behavior: 'smooth' });
+            }, 500);
+        }
+    }, [initialPage]);
+
+    // Track Scroll Position
+    useEffect(() => {
+        const handleScroll = () => {
+            imageRefs.current.forEach((img, idx) => {
+                if (!img) return;
+                const rect = img.getBoundingClientRect();
+                if (rect.top < window.innerHeight / 2 && rect.bottom > window.innerHeight / 2) {
+                    setCurrentPage(idx);
+                }
+            });
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
     // 🎵 MUSIC ENGINE SYSTEM
@@ -1462,6 +1519,7 @@ const ReaderPage = ({ chapterId, onBack }) => {
         let currentAudio = null;
 
         const fade = (audio, target, duration) => {
+            if (!audio) return;
             let start = audio.volume;
             let diff = target - start;
             let startTime = performance.now();
@@ -1469,36 +1527,20 @@ const ReaderPage = ({ chapterId, onBack }) => {
             function step(now) {
                 let p = Math.min((now - startTime) / duration, 1);
                 let newVolume = start + diff * p;
-
-                // 🔥 FIX: Clamp volume between 0 and 1
                 newVolume = Math.max(0, Math.min(1, newVolume));
-
-                audio.volume = newVolume;
-
+                if (!audio.paused) audio.volume = newVolume;
                 if (p < 1) requestAnimationFrame(step);
             }
-
             requestAnimationFrame(step);
         };
 
         const chapterRules = window.MUSIC_CONFIG.chapters[chapterId] || [];
 
         const checkActivePage = () => {
-            const imgs = document.querySelectorAll(".reader-img");
-            let activePage = null;
-
-            imgs.forEach((img, index) => {
-                const rect = img.getBoundingClientRect();
-                if (rect.top < window.innerHeight * 0.5 &&
-                    rect.bottom > window.innerHeight * 0.5) {
-                    activePage = index + 1;
-                }
-            });
-
-            if (!activePage) return;
-
+            // Using tracked currentPage instead of querying DOM constantly
+            // But logic requires re-running when page changes
             const rule = chapterRules.find(r =>
-                activePage >= r.pages[0] && activePage <= r.pages[1]
+                currentPage + 1 >= r.pages[0] && currentPage + 1 <= r.pages[1]
             );
 
             if (!rule) return;
@@ -1512,61 +1554,116 @@ const ReaderPage = ({ chapterId, onBack }) => {
             const audio = new Audio(rule.track);
             audio.volume = 0;
             audio.loop = true;
-            audio.play();
+            audio.muted = isMuted; // Sync mute state
+            audio.play().catch(e => console.log("Autoplay blocked", e));
 
             fade(audio, 1, window.MUSIC_CONFIG.fadeDuration);
 
             currentAudio = audio;
+            audioRef.current = audio;
             activeTrack = rule.track;
         };
 
-        window.addEventListener("scroll", checkActivePage);
-        setTimeout(checkActivePage, 800);
+        checkActivePage(); // Check immediately on render/page change
 
         return () => {
-            window.removeEventListener("scroll", checkActivePage);
             if (currentAudio) currentAudio.pause();
         };
-    }, [chapterId]);
+    }, [chapterId, currentPage]); // Re-run when page changes
 
+    // Handle Mute Toggle Effect
+    useEffect(() => {
+        if (audioRef.current) {
+            audioRef.current.muted = isMuted;
+        }
+    }, [isMuted]);
 
+    const isLiked = likes[chapterId];
 
     return h(
         "div",
         { className: "reader-container fade-in" },
+        
+        // CUSTOM TOOLBAR STYLE
+        h("style", null, `
+            .reader-toolbar {
+                position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+                background: rgba(10, 10, 15, 0.9);
+                border: 1px solid #00e5ff;
+                box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+                border-radius: 50px;
+                padding: 10px 25px;
+                display: flex; gap: 20px;
+                z-index: 1000;
+                backdrop-filter: blur(5px);
+            }
+            .reader-icon {
+                color: #00e5ff; font-size: 1.2rem; cursor: pointer; transition: 0.3s;
+                display: flex; align-items: center; justify-content: center;
+                width: 40px; height: 40px; border-radius: 50%;
+                background: rgba(0, 229, 255, 0.1);
+            }
+            .reader-icon:hover { background: rgba(0, 229, 255, 0.3); transform: scale(1.1); box-shadow: 0 0 10px #00e5ff; }
+            .reader-icon.liked { color: #ff0055; text-shadow: 0 0 10px #ff0055; background: rgba(255, 0, 85, 0.1); }
+            
+            .save-btn {
+                background: linear-gradient(90deg, #00e5ff, #0099ff);
+                color: #000; font-weight: bold; border: none;
+                padding: 0 20px; border-radius: 20px;
+                font-family: 'Rajdhani'; font-size: 0.9rem;
+                cursor: pointer; display: flex; align-items: center; gap: 8px;
+            }
+            .save-btn:active { transform: scale(0.95); }
+        `),
+
         h(
             "div",
             { className: "reader-toolbar" },
             h("i", {
                 className: "fas fa-arrow-left reader-icon",
+                title: "Back",
                 onClick: onBack
             }),
             h("i", {
-                className: "fas fa-home reader-icon",
-                onClick: onBack
+                className: `fas ${isMuted ? 'fa-volume-mute' : 'fa-volume-up'} reader-icon`,
+                title: "Mute Music",
+                onClick: () => setIsMuted(!isMuted)
             }),
             h(
-                "div",
-                { style: { display: "flex" } },
-                h("i", {
-                    className: "fas fa-heart reader-icon",
-                    onClick: () => alert("Liked!")
-                }),
-                h("i", {
-                    className: "fas fa-comment reader-icon",
-                    onClick: () =>
-                        alert("Comments coming soon")
-                })
-            )
+                "button", 
+                { 
+                    className: "save-btn",
+                    onClick: () => {
+                        onSaveLocation(chapterId, currentPage);
+                        alert(`Location Saved: Page ${currentPage + 1}`);
+                    }
+                },
+                h("i", { className: "fas fa-bookmark" }),
+                `SAVE P.${currentPage + 1}`
+            ),
+            h("i", {
+                className: `fas fa-heart reader-icon ${isLiked ? 'liked' : ''}`,
+                title: "Like",
+                onClick: () => onToggleLike(chapterId)
+            }),
+            h("i", {
+                className: "fas fa-comment reader-icon",
+                title: "Comments",
+                onClick: () => setShowComments(true)
+            })
         ),
+        
         chapter.pages.map((img, i) =>
             h("img", {
                 key: i,
+                ref: el => imageRefs.current[i] = el,
                 src: img,
                 className: "reader-img",
                 loading: "lazy"
             })
-        )
+        ),
+
+        showComments && h(CommentsModal, { onClose: () => setShowComments(false) })
     );
 };
 
@@ -1577,10 +1674,21 @@ const App = () => {
     const [showPaywall, setShowPaywall] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
     const [activeChapter, setActiveChapter] = useState(1);
+    
+    // Global State
+    const [likes, setLikes] = useState({});
+    const [savedLocation, setSavedLocation] = useState(null); // { chapterId: 1, pageIndex: 5 }
 
     useEffect(() => {
         if (window.requestNotificationPermission) window.requestNotificationPermission();
         if (window.APP_CONFIG && !window.APP_CONFIG) console.error("Config not found");
+        
+        // Load saved state if exists (mocking localstorage for demo)
+        const savedLoc = localStorage.getItem("savedLocation");
+        if (savedLoc) setSavedLocation(JSON.parse(savedLoc));
+        
+        const savedLikes = localStorage.getItem("userLikes");
+        if (savedLikes) setLikes(JSON.parse(savedLikes));
     }, []);
 
     const handleStart = () => {
@@ -1595,6 +1703,26 @@ const App = () => {
             setShowPaywall(false);
             setView("manga");
         } else alert("ACCESS DENIED");
+    };
+
+    const toggleLike = (chapterId) => {
+        const newLikes = { ...likes, [chapterId]: !likes[chapterId] };
+        setLikes(newLikes);
+        localStorage.setItem("userLikes", JSON.stringify(newLikes));
+    };
+
+    const handleSaveLocation = (chapterId, pageIndex) => {
+        const loc = { chapterId, pageIndex };
+        setSavedLocation(loc);
+        localStorage.setItem("savedLocation", JSON.stringify(loc));
+    };
+
+    // Specific logic to open reader at specific page
+    const openReader = (chapterId, pageIndex = 0) => {
+        setActiveChapter(chapterId);
+        // We pass the page index as a prop to ReaderPage via the view state or just render it
+        // Since ReaderPage is rendered conditionally based on 'view', we can just set state
+        setView("reader"); 
     };
 
     return h(
@@ -1615,14 +1743,21 @@ const App = () => {
         }),
 
         view === "manga" && h(MangaPage, {
-            onRead: (id) => { setActiveChapter(id); setView("reader"); },
+            onRead: openReader,
             onBack: () => setView("home"),
-            onOpenSettings: () => setShowSettings(true)
+            onOpenSettings: () => setShowSettings(true),
+            likes: likes,
+            onToggleLike: toggleLike,
+            savedLocation: savedLocation
         }),
 
         view === "reader" && h(ReaderPage, {
             chapterId: activeChapter,
-            onBack: () => setView("manga")
+            initialPage: savedLocation && savedLocation.chapterId === activeChapter ? savedLocation.pageIndex : 0,
+            onBack: () => setView("manga"),
+            onSaveLocation: handleSaveLocation,
+            likes: likes,
+            onToggleLike: toggleLike
         }),
 
         activePerson && h(ThemeModal, {
