@@ -729,365 +729,354 @@ const Paywall = ({ onUnlock }) => {
         )
     );
 };
-
-// --- HOME PAGE (GOD LEVEL UPGRADE) ---
+// --- HOME PAGE (APOCALYPTIC GOD MODE) ---
 const HomePage = ({ onStart, onViewCredits }) => {
-    // 1. Define the Cinematic Styles (CSS-in-JS approach for portability)
+    
+    // --- CSS-IN-JS STYLES ---
     const styles = `
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap');
 
-        /* RESET & BASICS */
-        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
-        
-        .cinematic-wrapper {
+        /* RESET */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        /* 1. MAIN LAYOUT - NO SCROLLING */
+        .apocalypse-wrapper {
             position: relative;
             height: 100vh;
             width: 100vw;
-            overflow: hidden;
+            overflow: hidden; /* FORCE FIT */
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            background-color: #050505;
+            background-color: #000;
             color: #fff;
-            font-family: 'Montserrat', sans-serif;
-            z-index: 1;
+            font-family: 'Rajdhani', sans-serif;
         }
 
-        /* DYNAMIC BACKGROUND */
-        .cinematic-bg {
+        /* 2. BACKGROUND: RISING INFERNO */
+        .bg-inferno {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 50%, #1a0b0b 0%, #000000 80%);
+            background: linear-gradient(to bottom, #050000 0%, #1a0000 60%, #4a0000 100%);
             z-index: -2;
         }
-        
-        /* Moving Fog/Nebula Effect */
-        .cinematic-bg::before {
-            content: '';
+
+        .bg-smoke {
             position: absolute;
-            top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(255, 50, 50, 0.05) 0%, transparent 60%),
-                        radial-gradient(circle, rgba(50, 100, 255, 0.03) 0%, transparent 50%);
-            animation: rotateBg 60s linear infinite;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: url('https://raw.githubusercontent.com/yomotsu/react-cool-dimensions/master/assets/smoke.png'); 
+            /* Note: If image doesn't load, gradient still works. This represents fog. */
+            opacity: 0.3;
+            animation: smokeMove 30s linear infinite;
+            z-index: -1;
+            mix-blend-mode: screen;
+        }
+
+        .ember-particles {
+            position: absolute;
+            width: 100%; height: 100%;
+            background-image: radial-gradient(white 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.1;
+            animation: embersRise 10s linear infinite;
             z-index: -1;
         }
 
-        /* Scanline Overlay */
-        .scanlines {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
-            background-size: 100% 4px;
-            pointer-events: none;
-            z-index: 0;
-            opacity: 0.6;
-        }
-
-        /* LAYOUT SECTIONS */
-        .section-top {
-            flex: 4; /* Takes up most space */
+        /* 3. TOP SECTION (Cover + Title) */
+        .section-hero {
+            flex: 4;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             width: 100%;
+            text-align: center;
+            animation: fadeInDown 1.5s ease-out;
             padding-top: 2vh;
-            z-index: 10;
         }
 
-        .section-mid {
+        .cover-frame {
+            position: relative;
+            height: 25vh; /* Responsive height based on screen */
+            aspect-ratio: 2/3;
+            margin-bottom: 2vh;
+            border-radius: 8px;
+            box-shadow: 0 0 40px rgba(255, 50, 50, 0.4);
+            animation: floatHero 6s ease-in-out infinite;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .cover-img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .main-title {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(1.2rem, 3.5vh, 3rem); /* Smart scaling */
+            line-height: 1.1;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #e0e0e0;
+            margin-bottom: 5px;
+        }
+
+        .sub-title {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(1rem, 2.5vh, 2.5rem);
+            color: #ff3333;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            font-weight: 700;
+            text-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
+            animation: glowText 3s infinite alternate;
+        }
+
+        /* 4. MIDDLE SECTION (Meta) */
+        .section-meta {
             flex: 2;
+            width: 85%;
+            text-align: center;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            z-index: 10;
+            justify-content: flex-start;
+            animation: fadeIn 2s ease-out 0.5s backwards;
         }
 
-        .section-bottom {
-            flex: 2;
+        .genres-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 1.5vh;
+        }
+
+        .genre-chip {
+            font-size: 0.65rem;
+            color: #ff8888;
+            border: 1px solid rgba(255, 50, 50, 0.3);
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: rgba(50, 0, 0, 0.3);
+        }
+
+        .desc-text {
+            font-size: clamp(0.7rem, 1.8vh, 0.9rem);
+            color: #ccc;
+            line-height: 1.5;
+            font-weight: 300;
+            text-shadow: 0 1px 2px #000;
+        }
+
+        /* 5. BOTTOM SECTION (Action + Credits Dock) */
+        .section-dock {
+            flex: 3;
+            width: 100%;
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
             align-items: center;
-            padding-bottom: 3vh;
-            width: 100%;
-            z-index: 10;
+            padding-bottom: 2vh;
+            background: linear-gradient(to top, rgba(0,0,0,1) 0%, transparent 100%);
         }
 
-        /* ELEMENTS */
-        .cover-art-container {
-            position: relative;
-            width: 28vh;
-            max-width: 200px;
-            aspect-ratio: 2/3;
-            margin-bottom: 2vh;
-            animation: float 6s ease-in-out infinite;
-        }
-
-        .cover-art-gif {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 8px;
-            box-shadow: 0 0 30px rgba(255, 50, 50, 0.3);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .hero-title {
-            font-family: 'Cinzel', serif;
-            font-size: clamp(2rem, 5vh, 4rem);
-            text-align: center;
-            line-height: 1.1;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            text-shadow: 0 4px 10px rgba(0,0,0,0.8);
-            margin: 0;
-        }
-
-        .title-red {
-            color: #ff3333;
-            text-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
-        }
-
-        .genre-bar {
-            font-size: 0.7rem;
-            color: rgba(255,255,255,0.6);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 1vh;
-            text-align: center;
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .summary-text {
-            color: rgba(255,255,255,0.8);
-            font-size: clamp(0.75rem, 1.8vh, 1rem);
-            line-height: 1.6;
-            text-align: center;
-            max-width: 600px;
-            width: 90%;
-            font-weight: 300;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-        }
-
-        /* BUTTONS */
-        .start-btn-epic {
-            position: relative;
-            padding: 15px 50px;
+        .btn-start-reading {
             background: transparent;
-            border: 1px solid rgba(255,255,255,0.2);
             color: #fff;
             font-family: 'Cinzel', serif;
-            font-size: 1.2rem;
-            letter-spacing: 4px;
-            text-transform: uppercase;
+            font-size: 1.1rem;
+            padding: 12px 40px;
+            border: 1px solid rgba(255,255,255,0.3);
+            letter-spacing: 5px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            margin-bottom: 1vh;
+            position: relative;
             overflow: hidden;
-            backdrop-filter: blur(5px);
-            box-shadow: 0 0 15px rgba(0,0,0,0.5);
-            margin-bottom: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            animation: pulseBtn 3s infinite;
         }
 
-        .start-btn-epic::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 50, 50, 0.4), transparent);
-            transition: 0.5s;
-        }
-
-        .start-btn-epic:hover {
+        .btn-start-reading:hover {
+            background: #ff3333;
             border-color: #ff3333;
-            box-shadow: 0 0 30px rgba(255, 50, 50, 0.4);
-            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(255, 50, 50, 0.6);
         }
 
-        .start-btn-epic:hover::before {
-            left: 100%;
-        }
-
-        .hunt-text {
-            font-size: 0.7rem;
-            color: #ff3333;
-            letter-spacing: 3px;
+        .subtitle-small {
+            font-size: 0.6rem;
+            letter-spacing: 4px;
+            color: #666;
+            margin-bottom: 3vh;
             text-transform: uppercase;
-            opacity: 0.8;
-            margin-bottom: 2vh;
         }
 
-        /* CREDITS */
-        .credits-container {
-            width: 90%;
-            background: rgba(0,0,0,0.4);
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding: 15px;
-            backdrop-filter: blur(4px);
-            border-radius: 10px 10px 0 0;
+        /* GLASS DOCK FOR CREDITS */
+        .credits-dock {
+            width: 95%;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            animation: slideUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) 1s backwards;
         }
 
-        .credits-label {
-            font-size: 0.6rem;
+        .dock-title {
+            font-size: 0.55rem;
+            color: #ff3333;
             letter-spacing: 3px;
-            color: #666;
-            margin-bottom: 8px;
             text-transform: uppercase;
+            margin-bottom: 8px;
+            opacity: 0.8;
         }
 
-        .credits-row {
+        .dock-items {
             display: flex;
-            gap: 10px;
             flex-wrap: wrap;
             justify-content: center;
+            gap: 15px;
         }
 
-        .credit-pill {
+        .dock-name {
             font-size: 0.7rem;
-            padding: 4px 12px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 20px;
             color: #aaa;
             cursor: pointer;
-            transition: all 0.2s;
+            position: relative;
+            transition: 0.3s;
+            text-transform: uppercase;
+            font-weight: 500;
         }
 
-        .credit-pill:hover {
-            background: #ff3333;
+        .dock-name:hover {
             color: #fff;
-            border-color: #ff3333;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+            transform: translateY(-2px);
         }
 
-        .more-info {
-            font-size: 0.6rem;
-            color: #444;
-            margin-top: 5px;
+        .dock-name::after {
+            content: '';
+            display: block;
+            width: 0;
+            height: 1px;
+            background: #ff3333;
+            transition: width 0.3s;
+            margin: 0 auto;
         }
+        
+        .dock-name:hover::after { width: 100%; }
 
         /* ANIMATIONS */
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        @keyframes rotateBg {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; filter: blur(10px); }
-            to { opacity: 1; filter: blur(0); }
-        }
-        .fade-in { animation: fadeIn 1.5s ease-out forwards; }
+        @keyframes smokeMove { 0% { background-position: 0 0; } 100% { background-position: 1000px 0; } }
+        @keyframes embersRise { 0% { transform: translateY(0); opacity: 0; } 50% { opacity: 0.5; } 100% { transform: translateY(-100vh); opacity: 0; } }
+        @keyframes floatHero { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        @keyframes glowText { from { text-shadow: 0 0 10px #500; } to { text-shadow: 0 0 25px #f00; } }
+        @keyframes pulseBtn { 0% { box-shadow: 0 0 0 rgba(255,0,0,0); } 70% { box-shadow: 0 0 20px rgba(255,0,0,0.4); } 100% { box-shadow: 0 0 0 rgba(255,0,0,0); } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     `;
 
     return h(
         "div",
-        { className: "cinematic-wrapper fade-in" },
-        // Inject Styles
+        { className: "apocalypse-wrapper" },
         h("style", null, styles),
         
-        // Background Layers
-        h("div", { className: "cinematic-bg" }),
-        h("div", { className: "scanlines" }),
+        // --- 1. DYNAMIC BACKGROUNDS ---
+        h("div", { className: "bg-inferno" }),
+        h("div", { className: "bg-smoke" }),
+        h("div", { className: "ember-particles" }),
 
-        // --- TOP SECTION (Cover & Title) ---
+        // --- 2. HERO SECTION ---
         h(
             "div",
-            { className: "section-top" },
+            { className: "section-hero" },
             h(
                 "div",
-                { className: "cover-art-container" },
+                { className: "cover-frame" },
                 h("img", {
                     src: window.APP_CONFIG.assets.cover,
-                    className: "cover-art-gif",
+                    className: "cover-img",
                     alt: "Cover"
                 })
             ),
-            h(
-                "h1",
-                { className: "hero-title" },
-                t.title_start,
-                h("br"),
-                h("span", { className: "title-red" }, t.title_end)
-            )
+            h("h1", { className: "main-title" }, t.title_start),
+            h("h2", { className: "sub-title" }, t.title_end)
         ),
 
-        // --- MIDDLE SECTION (Meta & Summary) ---
+        // --- 3. META SECTION ---
         h(
             "div",
-            { className: "section-mid" },
-            // Genres styled as a clean bar
+            { className: "section-meta" },
             h(
                 "div",
-                { className: "genre-bar" },
+                { className: "genres-row" },
                 ["Sci-Fi", "Romance", "Action", "Mystery", "Horror"].map(g => 
-                    h("span", { key: g }, g)
+                    h("span", { key: g, className: "genre-chip" }, g)
                 )
             ),
             h(
                 "p",
-                { className: "summary-text" },
+                { className: "desc-text" },
                 "As humanity faces its final hours, a hidden conspiracy awakens — forcing Jake and Viyona to choose between the world they know and the truth that could rewrite everything."
             )
         ),
 
-        // --- BOTTOM SECTION (Action & Credits) ---
+        // --- 4. ACTION & CREDITS DOCK ---
         h(
             "div",
-            { className: "section-bottom" },
+            { className: "section-dock" },
             
             // Start Button
             h(
                 "button",
-                {
-                    className: "start-btn-epic",
-                    onClick: onStart
-                },
+                { className: "btn-start-reading", onClick: onStart },
                 t.start
             ),
-            h("div", { className: "hunt-text" }, t.subtitle),
+            h("div", { className: "subtitle-small" }, t.subtitle),
 
-            // Credits Area
+            // The Special Recognition Hologram Dock
             h(
                 "div",
-                { className: "credits-container" },
-                h("div", { className: "credits-label" }, t.special),
+                { className: "credits-dock" },
+                h("div", { className: "dock-title" }, "// " + t.special + " //"),
                 h(
                     "div",
-                    { className: "credits-row" },
+                    { className: "dock-items" },
                     window.APP_CONFIG.credits.map((c, i) =>
                         h(
                             "div",
                             {
                                 key: i,
-                                className: "credit-pill",
+                                className: "dock-name",
                                 onClick: () => onViewCredits(c)
                             },
                             c.name
                         )
                     )
-                ),
-                h("p", { className: "more-info" }, t.more_info)
+                )
             )
         )
     );
 };
+// --- MANGA LIST (NEON GOD UPGRADE) ---
+const MangaPage = ({ onRead, onBack }) => {
+    // State for local "Like" functionality
+    const [likes, setLikes] = React.useState({});
 
-// --- MANGA LIST (GOD LEVEL UPGRADE) ---
-const MangaPage = ({ onRead }) => {
+    const toggleLike = (e, id) => {
+        e.stopPropagation(); // Prevent opening the chapter when liking
+        setLikes(prev => ({ ...prev, [id]: !prev[id] }));
+    };
 
     // --- CONFIGURATION FOR STATUSES ---
-    // You can edit the logic inside the map function below to change these.
     const STATUS_COLORS = {
         "FINISHED":    { color: "#00ff9d", glow: "0 0 10px #00ff9d" }, // Neon Green
         "ONGOING":     { color: "#00e5ff", glow: "0 0 10px #00e5ff" }, // Cyan
@@ -1131,27 +1120,72 @@ const MangaPage = ({ onRead }) => {
             opacity: 0.6;
         }
 
-        /* HEADER */
+        /* HEADER ZONE */
         .header-zone {
             flex: 0 0 auto;
-            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             padding: 20px 0;
             z-index: 10;
             background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
+            position: relative;
         }
 
+        /* HOME BUTTON */
+        .home-btn {
+            position: absolute;
+            left: 20px;
+            background: rgba(0, 229, 255, 0.1);
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            color: #00e5ff;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            transition: all 0.3s;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+
+        .home-btn:hover {
+            background: rgba(0, 229, 255, 0.3);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
+            text-shadow: 0 0 8px white;
+        }
+
+        /* NEON FLICKER TITLE */
         .holo-title {
             font-family: 'Orbitron', sans-serif;
             font-size: 2rem;
-            color: transparent;
-            -webkit-text-stroke: 1px rgba(0, 229, 255, 0.8);
-            text-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
-            letter-spacing: 4px;
+            color: #fff;
             text-transform: uppercase;
+            letter-spacing: 4px;
             margin: 0;
+            /* Neon Flicker Effect */
+            text-shadow: 
+                0 0 5px #00e5ff,
+                0 0 10px #00e5ff,
+                0 0 20px #00e5ff;
+            animation: flicker 3s infinite alternate;
         }
 
-        /* SCROLLABLE LIST CONTAINER */
+        @keyframes flicker {
+            0%, 18%, 22%, 25%, 53%, 57%, 100% {
+                text-shadow: 
+                0 0 4px #fff,
+                0 0 10px #fff,
+                0 0 20px #00e5ff,
+                0 0 35px #00e5ff,
+                0 0 40px #00e5ff;
+                opacity: 1;
+            }
+            20%, 24%, 55% {
+                text-shadow: none;
+                opacity: 0.2;
+            }
+        }
+
+        /* SCROLLABLE LIST */
         .list-viewport {
             flex: 1;
             overflow-y: auto;
@@ -1172,7 +1206,7 @@ const MangaPage = ({ onRead }) => {
             background: rgba(20, 20, 30, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
-            padding: 15px 20px;
+            padding: 15px 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -1191,13 +1225,35 @@ const MangaPage = ({ onRead }) => {
 
         .god-card.locked {
             opacity: 0.7;
-            filter: grayscale(0.8);
+            filter: grayscale(0.9);
             cursor: not-allowed;
             border-color: rgba(255, 50, 50, 0.2);
         }
 
-        /* CARD CONTENT */
+        /* LIKE BUTTON */
+        .like-btn {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.2);
+            margin-right: 15px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            padding: 5px;
+        }
+        .like-btn:hover { color: #ff69b4; transform: scale(1.2); }
+        .like-btn.liked { 
+            color: #ff0055; 
+            text-shadow: 0 0 10px #ff0055; 
+            transform: scale(1.1);
+        }
+
+        /* CARD TEXT */
         .card-left {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+        
+        .ch-info-group {
             display: flex;
             flex-direction: column;
             gap: 4px;
@@ -1238,30 +1294,6 @@ const MangaPage = ({ onRead }) => {
             margin-left: 15px;
         }
 
-        /* CONSTRUCTION FOOTER */
-        .sys-msg {
-            margin-top: 30px;
-            margin-bottom: 50px;
-            text-align: center;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding-top: 20px;
-            width: 80%;
-            max-width: 400px;
-        }
-
-        .sys-title {
-            color: #ffcc00;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.9rem;
-            letter-spacing: 2px;
-            margin-bottom: 5px;
-        }
-
-        .sys-desc {
-            color: #666;
-            font-size: 0.7rem;
-        }
-
         /* ANIMATIONS */
         @keyframes moveStars { from { background-position: 0 0, 40px 60px; } to { background-position: -1000px 500px, -960px 560px; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
@@ -1281,10 +1313,17 @@ const MangaPage = ({ onRead }) => {
         h("div", { className: "space-bg" }),
         h("div", { className: "stars-overlay" }),
 
-        // Header
+        // Header with Home Button
         h(
             "div",
             { className: "header-zone" },
+            // Home Icon
+            h(
+                "button", 
+                { className: "home-btn", onClick: onBack },
+                h("i", { className: "fas fa-home" })
+            ),
+            // Title
             h("h2", { className: "holo-title" }, t.chapters)
         ),
 
@@ -1294,34 +1333,47 @@ const MangaPage = ({ onRead }) => {
             { className: "list-viewport" },
             window.APP_CONFIG.chapters.map((ch, index) => {
                 
-                // --- LOGIC: EDIT THIS TO CHANGE STATUS ---
-                // 1. If locked, automatically "COMING SOON"
-                // 2. If ID is 1, let's say it's "FINISHED"
-                // 3. If ID is the last one, maybe "ONGOING"
-                // You can manually set string here based on ch.id
-                let statusText = "FINISHED"; 
-                if (ch.locked) statusText = "COMING SOON";
-                else if (ch.id === window.APP_CONFIG.chapters.length) statusText = "ONGOING"; 
+                // --- LOGIC: SPECIFIC STATUS ASSIGNMENT ---
+                let statusText = "FINISHED"; // Default (1-4)
                 
-                const theme = STATUS_COLORS[statusText] || STATUS_COLORS["FINISHED"];
+                if (ch.id === 5) {
+                    statusText = "ONGOING";
+                } else if (ch.id >= 6) {
+                    statusText = "COMING SOON";
+                }
+                
+                const theme = STATUS_COLORS[statusText];
 
                 return h(
                     "div",
                     {
                         key: ch.id,
                         className: "god-card " + (ch.locked ? "locked" : ""),
-                        style: { animationDelay: `${index * 0.1}s` }, // Stagger animation
+                        style: { animationDelay: `${index * 0.1}s` }, 
                         onClick: () => !ch.locked && onRead(ch.id)
                     },
-                    // Left Side: Title & Date
+                    
+                    // LEFT SIDE: Like Button + Title Info
                     h(
                         "div",
                         { className: "card-left" },
-                        h("div", { className: "ch-title" }, `CH.${ch.id} : ${ch.title}`),
-                        h("div", { className: "ch-date" }, ch.locked ? "ENCRYPTED" : ch.date)
+                        
+                        // Like Button (Heart)
+                        h("i", { 
+                            className: "fas fa-heart like-btn " + (likes[ch.id] ? "liked" : ""),
+                            onClick: (e) => toggleLike(e, ch.id)
+                        }),
+
+                        // Text Info
+                        h(
+                            "div", 
+                            { className: "ch-info-group" },
+                            h("div", { className: "ch-title" }, `CH.${ch.id} : ${ch.title}`),
+                            h("div", { className: "ch-date" }, ch.locked ? "ENCRYPTED" : ch.date)
+                        )
                     ),
 
-                    // Right Side: Status Badge or Lock
+                    // RIGHT SIDE: Status Badge or Lock
                     h(
                         "div",
                         { style: { display: "flex", alignItems: "center" } },
@@ -1350,9 +1402,9 @@ const MangaPage = ({ onRead }) => {
             // Footer / Construction
             h(
                 "div",
-                { className: "sys-msg" },
-                h("div", { className: "sys-title" }, `// SYSTEM_MESSAGE: ${t.coming_soon}`),
-                h("div", { className: "sys-desc" }, t.construction_desc)
+                { className: "sys-msg", style: { marginTop: "30px", paddingBottom: "30px", textAlign: "center", borderTop: "1px solid #333", paddingTop: "20px", width: "80%" } },
+                h("div", { style: { color: "#ffcc00", fontSize: "0.8rem" } }, `// SYSTEM_MESSAGE: ${t.coming_soon}`),
+                h("div", { style: { color: "#666", fontSize: "0.7rem" } }, t.construction_desc)
             )
         )
     );
