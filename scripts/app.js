@@ -1,6 +1,6 @@
 // NOTE: no imports – firebase is exposed on window from src/firebase.js
 
-const { useState, useEffect, useRef } = React;
+const { useState, useEffect, useRef, useMemo } = React;
 const h = React.createElement;
 
 // 🌍 CONFIG ACCESS
@@ -34,8 +34,7 @@ const ParticleBackground = () => {
                 this.speedX = (Math.random() - 0.5) * 0.05;
                 this.speedY = (Math.random() - 0.5) * 0.05;
                 const hue = 200 + Math.random() * 80;
-                this.color = `hsla(${hue}, 70%, 60%, ${Math.random() * 0.3 + 0.1
-                    })`;
+                this.color = `hsla(${hue}, 70%, 60%, ${Math.random() * 0.3 + 0.1})`;
             }
             update() {
                 this.x += this.speedX;
@@ -334,7 +333,6 @@ const ThemeModal = ({ person, onClose }) => {
     if (!person) return null;
 
     // --- 1. THEME CONFIGURATION ---
-    // Define the "Soul" of each theme here
     const THEMES = {
         fire: {
             color: "#ff5500",
@@ -359,7 +357,7 @@ const ThemeModal = ({ person, onClose }) => {
         blood: {
             color: "#cc0000",
             bg: "radial-gradient(circle at center, #200000 0%, #000000 100%)",
-            font: "'Nosifer', cursive", // Creepy font
+            font: "'Nosifer', cursive",
             particle: "🩸",
             particleAnim: "dripBlood",
             titleClass: "title-blood",
@@ -368,7 +366,6 @@ const ThemeModal = ({ person, onClose }) => {
         }
     };
 
-    // Fallback if theme doesn't exist
     const currentTheme = THEMES[person.theme] || THEMES.fire;
 
     // --- 2. PARTICLE SYSTEM ---
@@ -383,21 +380,19 @@ const ThemeModal = ({ person, onClose }) => {
 
             // Randomize physics
             const startLeft = Math.random() * 100;
-            const size = Math.random() * 1.5 + 0.5; // Scale multiplier
-            const duration = Math.random() * 3 + 2; // 2s to 5s
+            const size = Math.random() * 1.5 + 0.5;
+            const duration = Math.random() * 3 + 2;
 
             el.style.left = startLeft + "%";
             el.style.fontSize = size + "rem";
             el.style.animation = `${currentTheme.particleAnim} ${duration}s linear forwards`;
 
-            // Blur for depth
             if (Math.random() > 0.5) el.style.filter = "blur(2px)";
 
             layer.appendChild(el);
             setTimeout(() => el.remove(), duration * 1000);
         };
 
-        // Intensity of particles
         const interval = setInterval(createParticle, 150);
         return () => clearInterval(interval);
     }, [person, currentTheme]);
@@ -406,7 +401,6 @@ const ThemeModal = ({ person, onClose }) => {
     const styles = `
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Cinzel:wght@700&family=Nosifer&family=Montserrat:wght@300;400&display=swap');
 
-        /* MODAL CONTAINER */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
@@ -420,7 +414,6 @@ const ThemeModal = ({ person, onClose }) => {
             animation: modalFadeIn 0.5s ease-out forwards;
         }
 
-        /* THE CARD */
         .god-card-container {
             position: relative;
             width: 90%;
@@ -435,7 +428,6 @@ const ThemeModal = ({ person, onClose }) => {
             animation: cardPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 0.2s;
         }
 
-        /* TEXT STYLES */
         .role-text {
             font-family: 'Montserrat', sans-serif;
             font-size: 0.9rem;
@@ -459,7 +451,6 @@ const ThemeModal = ({ person, onClose }) => {
             z-index: 10;
         }
 
-        /* CLOSE BUTTON */
         .close-btn-epic {
             background: transparent;
             color: #fff;
@@ -481,8 +472,6 @@ const ThemeModal = ({ person, onClose }) => {
             letter-spacing: 4px;
             box-shadow: 0 0 15px currentColor;
         }
-
-        /* --- THEME SPECIFIC ANIMATIONS & TEXT --- */
 
         /* FIRE THEME */
         .title-fire {
@@ -548,7 +537,6 @@ const ThemeModal = ({ person, onClose }) => {
             100% { transform: skew(0deg); }
         }
 
-        /* UTILS */
         .magic-particle {
             position: absolute;
             pointer-events: none;
@@ -563,8 +551,6 @@ const ThemeModal = ({ person, onClose }) => {
         "div",
         { className: "modal-overlay" },
         h("style", null, styles),
-
-        // --- BACKGROUND LAYER ---
         h("div", {
             id: "particle-layer",
             style: {
@@ -576,28 +562,18 @@ const ThemeModal = ({ person, onClose }) => {
                 zIndex: -1
             }
         }),
-
-        // --- CONTENT CARD ---
         h(
             "div",
             {
                 className: "god-card-container",
                 style: {
                     border: currentTheme.border,
-                    boxShadow: `0 0 30px ${currentTheme.color}40` // Hex alpha 40%
+                    boxShadow: `0 0 30px ${currentTheme.color}40`
                 }
             },
-
-            // Name with specific animation class
             h("h1", { className: currentTheme.titleClass }, person.name),
-
-            // Role
             h("div", { className: "role-text" }, person.role),
-
-            // Description
             h("p", { className: "desc-text" }, person.desc),
-
-            // Action
             h(
                 "button",
                 {
@@ -613,7 +589,6 @@ const ThemeModal = ({ person, onClose }) => {
 
 // ⚙️ ELEGANT COMPACT SETTINGS MODAL
 const SettingsModal = ({ onClose }) => {
-    // Defined realistic settings
     const [settings] = useState([
         { id: 1, label: "MASTER VOLUME", val: 0.8, type: "slider", cat: "AUDIO" },
         { id: 2, label: "MUSIC", val: 0.6, type: "slider", cat: "AUDIO" },
@@ -630,7 +605,7 @@ const SettingsModal = ({ onClose }) => {
     const styles = `
         .settings-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.7); /* Dark semi-transparent BG */
+            background: rgba(0, 0, 0, 0.7);
             z-index: 10000;
             display: flex; justify-content: center; align-items: center;
             backdrop-filter: blur(5px);
@@ -864,33 +839,32 @@ const Paywall = ({ onUnlock }) => {
         )
     );
 };
+
 // --- HOME PAGE (PIXEL PERFECT REPLICA) ---
 const HomePage = ({ onStart, onViewCredits }) => {
 
     const styles = `
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Rajdhani:wght@300;400;500;600;700&display=swap');
 
-        /* RESET & CONTAINER */
         * { box-sizing: border-box; }
         
         .home-container {
             position: relative;
             width: 100vw;
             height: 100vh;
-            background-color: #000000; /* Deep black background */
+            background-color: #000000;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start; /* Aligned to top */
-            padding-top: 30px; /* Reduced space significantly */
+            justify-content: flex-start;
+            padding-top: 30px;
             font-family: 'Rajdhani', sans-serif;
             color: #fff;
             padding-left: 20px;
             padding-right: 20px;
         }
 
-        /* ENERGY & MAGIC OVERLAY */
         .energy-overlay {
             position: absolute;
             top: 0; left: 0;
@@ -900,7 +874,6 @@ const HomePage = ({ onStart, onViewCredits }) => {
             z-index: 1;
         }
 
-        /* ENHANCED EMBERS */
         .enhanced-ember {
             width: 5px; height: 5px;
             background: #ff5533;
@@ -925,7 +898,6 @@ const HomePage = ({ onStart, onViewCredits }) => {
             100% { transform: translateY(-80vh) scale(0); opacity: 0; }
         }
 
-        /* --- TYPOGRAPHY & CONTENT --- */
         .content-layer {
             z-index: 10;
             width: 100%;
@@ -934,28 +906,25 @@ const HomePage = ({ onStart, onViewCredits }) => {
             flex-direction: column;
             align-items: center;
             text-align: center;
-            /* Scrollable if height is too small on weird devices */
             overflow-y: auto;
             max-height: 100vh;
             scrollbar-width: none;
         }
         .content-layer::-webkit-scrollbar { display: none; }
 
-        /* HERO IMAGE (New Implementation) */
         .hero-img-container {
             width: 100%;
-            max-width: 500px; /* Limit on desktop */
+            max-width: 500px;
             position: relative;
-            margin: 10px auto 10px auto; /* Drastically reduced margins */
+            margin: 10px auto 10px auto;
             display: flex;
             justify-content: center;
         }
 
         .hero-image {
-            width: 100%; /* Fits width to screen on mobiles */
+            width: 100%;
             height: auto;
             object-fit: cover;
-            /* Light fade to bottom */
             mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%);
             -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%);
         }
@@ -968,21 +937,19 @@ const HomePage = ({ onStart, onViewCredits }) => {
             margin-bottom: 5px;
         }
         
-        /* FIX: REMOVED SMOKE EFFECT, CLEAN BOLD TEXT */
         .sub-title-clean {
             font-family: 'Cinzel', serif;
             font-size: clamp(1rem, 2.5vw, 1.4rem);
             color: #fff;
             letter-spacing: 3px;
             margin-bottom: 5px;
-            font-weight: 700; /* Bold */
+            font-weight: 700;
             text-shadow: 0 2px 5px rgba(0,0,0,0.5);
         }
 
-        /* RED ELECTRIC TITLE */
         .main-title-electric {
             font-family: 'Cinzel', serif;
-            font-size: 1.8rem; /* Very smaller */
+            font-size: 1.8rem;
             font-weight: 700;
             text-transform: uppercase;
             color: #ff0000;
@@ -1003,22 +970,21 @@ const HomePage = ({ onStart, onViewCredits }) => {
             100% { text-shadow: 0 0 5px #ff0000; opacity: 1; }
         }
 
-        /* --- GENRE TAGS (WAVE ANIMATION WITH PADDING FIX) --- */
         .tags-row {
             display: flex;
-            flex-wrap: nowrap; /* Keep on one line */
-            overflow: hidden; /* No scroll */
-            gap: 5px; /* Tighter gap */
+            flex-wrap: nowrap;
+            overflow: hidden;
+            gap: 5px;
             width: 100%;
             justify-content: center;
             margin-bottom: 30px;
-            padding: 15px 0; /* ADDED: Prevents wave animation from being cutoff */
+            padding: 15px 0;
         }
         
         .tag-pill {
-            padding: 4px 10px; /* Smaller padding */
+            padding: 4px 10px;
             border-radius: 50px;
-            font-size: clamp(0.6rem, 2vw, 0.75rem); /* Dynamic scale down */
+            font-size: clamp(0.6rem, 2vw, 0.75rem);
             font-weight: 600;
             letter-spacing: 0.5px;
             background: rgba(0,0,0,0.6);
@@ -1026,24 +992,22 @@ const HomePage = ({ onStart, onViewCredits }) => {
             backdrop-filter: blur(4px);
             text-transform: capitalize;
             white-space: nowrap; 
-            flex-shrink: 1; /* Allow shrinking */
-            min-width: 0; /* Allow shrinking below min-content */
+            flex-shrink: 1;
+            min-width: 0;
             animation: wave 2.5s ease-in-out infinite;
         }
 
         @keyframes wave {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); } /* Slightly higher wave */
+            50% { transform: translateY(-8px); }
         }
         
-        /* Specific Colors */
         .tag-scifi { border-color: #2de2e6; color: #2de2e6; box-shadow: 0 0 8px rgba(45, 226, 230, 0.3); }
         .tag-romance { border-color: #ff99cc; color: #ff99cc; box-shadow: 0 0 8px rgba(255, 153, 204, 0.3); }
         .tag-action { border-color: #ff9933; color: #ff9933; box-shadow: 0 0 8px rgba(255, 153, 51, 0.3); }
         .tag-mystery { border-color: #9933ff; color: #9933ff; box-shadow: 0 0 8px rgba(153, 51, 255, 0.3); }
         .tag-horror { border-color: #ff0000; color: #ff0000; box-shadow: 0 0 8px rgba(255, 0, 0, 0.4); }
 
-        /* --- DESCRIPTION --- */
         .desc-container {
             position: relative;
             width: 100%;
@@ -1060,10 +1024,9 @@ const HomePage = ({ onStart, onViewCredits }) => {
             color: #ccc;
             text-align: center;
             padding: 0 10px;
-            font-weight: 700; /* BOLD SUMMARY */
+            font-weight: 700;
         }
 
-        /* Circuit Lines (Mobile Hidden) */
         .circuit-line {
             height: 1px;
             background: #552222;
@@ -1083,10 +1046,9 @@ const HomePage = ({ onStart, onViewCredits }) => {
             .circuit-line { display: block; }
         }
 
-        /* --- START BUTTON (SMALLER) --- */
         .btn-wrapper-outer {
             position: relative;
-            padding: 3px; /* Reduced */
+            padding: 3px;
             border-radius: 8px;
             background: linear-gradient(90deg, transparent, rgba(255, 60, 0, 0.5), transparent);
             box-shadow: 0 0 15px rgba(255, 60, 0, 0.2);
@@ -1097,9 +1059,9 @@ const HomePage = ({ onStart, onViewCredits }) => {
 
         .btn-frame {
             position: relative;
-            padding: 4px; /* Reduced */
+            padding: 4px;
             border: 2px solid #ff5555;
-            border-radius: 8px; /* Slightly tighter radius */
+            border-radius: 8px;
             background: rgba(40, 0, 0, 0.6);
             box-shadow: 
                 0 0 10px rgba(255, 0, 0, 0.4),
@@ -1113,9 +1075,9 @@ const HomePage = ({ onStart, onViewCredits }) => {
             background: linear-gradient(180deg, #aa0000 0%, #440000 100%);
             color: #fff;
             font-family: 'Cinzel', serif;
-            font-size: 0.9rem; /* Smaller font */
+            font-size: 0.9rem;
             font-weight: 700;
-            padding: 8px 30px; /* Smaller padding */
+            padding: 8px 30px;
             border: 1px solid rgba(255, 150, 150, 0.4);
             border-radius: 4px;
             text-transform: uppercase;
@@ -1136,7 +1098,6 @@ const HomePage = ({ onStart, onViewCredits }) => {
         }
         @keyframes btnShine { 0% { left: -100%; } 20% { left: 100%; } 100% { left: 100%; } }
 
-        /* --- FOOTER RECOGNITION --- */
         .rec-section {
             display: flex;
             flex-direction: column;
@@ -1200,7 +1161,6 @@ const HomePage = ({ onStart, onViewCredits }) => {
         setEmbers(e);
     }, []);
 
-    // Helper to find credit object safely
     const getCredit = (name) => {
         return window.APP_CONFIG.credits.find(c => c.name.toUpperCase().includes(name)) || window.APP_CONFIG.credits[0];
     };
@@ -1210,10 +1170,8 @@ const HomePage = ({ onStart, onViewCredits }) => {
         { className: "home-container fade-in" },
         h("style", null, styles),
 
-        /* MAGIC ENERGY OVERLAY (Kept subtle) */
         h("div", { className: "energy-overlay" }),
 
-        /* FLOATING EMBERS */
         embers.map((emb, i) =>
             h("div", {
                 key: i,
@@ -1226,12 +1184,10 @@ const HomePage = ({ onStart, onViewCredits }) => {
             })
         ),
 
-        /* --- MAIN CONTENT --- */
         h(
             "div",
             { className: "content-layer" },
 
-            // COVER IMAGE (MOVED HERE, ABOVE TITLE)
             h(
                 "div",
                 { className: "hero-img-container" },
@@ -1242,11 +1198,9 @@ const HomePage = ({ onStart, onViewCredits }) => {
                 })
             ),
 
-            // TITLES (Clean, Bold BENEATH THE LIGHT)
             h("div", { className: "sub-title-clean" }, "BENEATH THE LIGHT"),
             h("div", { className: "main-title-electric" }, "OF A DYING SKY"),
 
-            // TAGS (WAVE ANIMATION)
             h(
                 "div",
                 { className: "tags-row" },
@@ -1257,7 +1211,6 @@ const HomePage = ({ onStart, onViewCredits }) => {
                 h("span", { className: "tag-pill tag-horror", style: { animationDelay: '0.8s' } }, "Horror")
             ),
 
-            // DESCRIPTION (BOLD)
             h(
                 "div",
                 { className: "desc-container" },
@@ -1270,7 +1223,6 @@ const HomePage = ({ onStart, onViewCredits }) => {
                 h("div", { className: "circuit-line right" })
             ),
 
-            // START BUTTON (SMALLER)
             h(
                 "div",
                 { className: "btn-wrapper-outer" },
@@ -1285,7 +1237,6 @@ const HomePage = ({ onStart, onViewCredits }) => {
                 )
             ),
 
-            // FOOTER
             h(
                 "div",
                 { className: "rec-section" },
@@ -1309,12 +1260,13 @@ const HomePage = ({ onStart, onViewCredits }) => {
             )
         )
     );
-
 };
+
 // --- MANGA LIST (NEON GOD UPGRADE) ---
-const MangaPage = ({ onRead, onBack, onOpenSettings, likes, onToggleLike, savedLocation }) => {
+const MangaPage = ({ onRead, onBack, onOpenSettings, likes, onToggleLike, savedLocation, finishedChapters }) => {
     
     const STATUS_COLORS = {
+        "FINISHED": { color: "#9933ff", glow: "0 0 10px #9933ff" },
         "RELEASED": { color: "#00ff9d", glow: "0 0 10px #00ff9d" },
         "ONGOING": { color: "#00e5ff", glow: "0 0 10px #00e5ff" },
         "COMING SOON": { color: "#ff3333", glow: "0 0 10px #ff3333" }
@@ -1326,10 +1278,8 @@ const MangaPage = ({ onRead, onBack, onOpenSettings, likes, onToggleLike, savedL
         .space-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, #11001c 0%, #000000 100%); z-index: -2; }
         .stars-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px); background-size: 550px 550px; opacity: 0.6; z-index: -1; animation: moveStars 100s linear infinite; }
         
-        /* HEADER */
         .header-zone { flex: 0 0 auto; display: flex; justify-content: center; align-items: center; padding: 20px 0; z-index: 10; background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent); position: relative; width: 100%; }
         
-        /* BUTTONS */
         .icon-btn {
             position: absolute;
             background: rgba(0, 229, 255, 0.1);
@@ -1382,19 +1332,15 @@ const MangaPage = ({ onRead, onBack, onOpenSettings, likes, onToggleLike, savedL
         h("div", { className: "space-bg" }),
         h("div", { className: "stars-overlay" }),
 
-        // HEADER
         h(
             "div",
             { className: "header-zone" },
-            // HOME ICON (LEFT)
             h(
                 "button",
                 { className: "icon-btn home-btn", onClick: onBack },
                 h("i", { className: "fas fa-home" })
             ),
-            // TITLE
             h("h2", { className: "holo-title" }, t.chapters),
-            // SETTINGS ICON (RIGHT)
             h(
                 "button",
                 { className: "icon-btn settings-btn", onClick: onOpenSettings },
@@ -1402,14 +1348,21 @@ const MangaPage = ({ onRead, onBack, onOpenSettings, likes, onToggleLike, savedL
             )
         ),
 
-        // LIST
         h(
             "div",
             { className: "list-viewport" },
             window.APP_CONFIG.chapters.map((ch, index) => {
-                let statusText = "RELEASED"; // Changed from FINISHED
-                if (ch.id === 5) statusText = "ONGOING";
-                else if (ch.id >= 6) statusText = "COMING SOON";
+                let statusText = "RELEASED";
+                
+                // Check if finished first
+                if (finishedChapters[ch.id]) {
+                    statusText = "FINISHED";
+                } else if (ch.id === 5) {
+                    statusText = "ONGOING";
+                } else if (ch.id >= 6) {
+                    statusText = "COMING SOON";
+                }
+
                 const theme = STATUS_COLORS[statusText];
                 
                 const hasSave = savedLocation && savedLocation.chapterId === ch.id;
@@ -1480,13 +1433,16 @@ const CommentsModal = ({ onClose }) => {
 };
 
 // --- READER ---
-const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, likes, onToggleLike }) => {
+const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSave, likes, onToggleLike, hasSave, onFinishChapter }) => {
     const chapter = window.APP_CONFIG.chapters.find((c) => c.id === chapterId);
     const [currentPage, setCurrentPage] = useState(initialPage || 0);
     const [showComments, setShowComments] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
+    const [notification, setNotification] = useState(null); // { msg: string, type: 'success' | 'alert' }
     
+    // 🎵 MUSIC REFS (PERSIST ACROSS RENDERS)
     const audioRef = useRef(null);
+    const currentTrackRef = useRef(null);
     const imageRefs = useRef([]);
 
     // Scroll to initial page
@@ -1498,78 +1454,89 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, likes, onT
         }
     }, [initialPage]);
 
-    // Track Scroll Position
+    // Track Scroll Position & Finish Logic
     useEffect(() => {
         const handleScroll = () => {
             imageRefs.current.forEach((img, idx) => {
                 if (!img) return;
                 const rect = img.getBoundingClientRect();
+                // If image is centrally visible
                 if (rect.top < window.innerHeight / 2 && rect.bottom > window.innerHeight / 2) {
-                    setCurrentPage(idx);
+                    if (currentPage !== idx) {
+                        setCurrentPage(idx);
+                    }
+                    
+                    // Check if last page is reached to mark as finished
+                    if (idx === imageRefs.current.length - 1) {
+                        // Small debounce to ensure they actually looked at it
+                        setTimeout(() => onFinishChapter(chapterId), 2000);
+                    }
                 }
             });
         };
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    }, [currentPage, chapterId, onFinishChapter]);
 
-    // 🎵 MUSIC ENGINE SYSTEM
+    // 🎵 MUSIC ENGINE SYSTEM (REFACTORED FOR SMOOTHNESS)
     useEffect(() => {
-        let activeTrack = null;
-        let currentAudio = null;
-
-        const fade = (audio, target, duration) => {
-            if (!audio) return;
-            let start = audio.volume;
-            let diff = target - start;
-            let startTime = performance.now();
-
-            function step(now) {
-                let p = Math.min((now - startTime) / duration, 1);
-                let newVolume = start + diff * p;
-                newVolume = Math.max(0, Math.min(1, newVolume));
-                if (!audio.paused) audio.volume = newVolume;
-                if (p < 1) requestAnimationFrame(step);
-            }
-            requestAnimationFrame(step);
-        };
-
+        const fadeDuration = window.MUSIC_CONFIG.fadeDuration || 2000;
         const chapterRules = window.MUSIC_CONFIG.chapters[chapterId] || [];
 
-        const checkActivePage = () => {
-            // Using tracked currentPage instead of querying DOM constantly
-            // But logic requires re-running when page changes
-            const rule = chapterRules.find(r =>
-                currentPage + 1 >= r.pages[0] && currentPage + 1 <= r.pages[1]
-            );
+        // Find the rule that applies to the current page
+        const rule = chapterRules.find(r =>
+            (currentPage + 1) >= r.pages[0] && (currentPage + 1) <= r.pages[1]
+        );
 
-            if (!rule) return;
+        const targetTrack = rule ? rule.track : null;
 
-            if (activeTrack === rule.track) return;
+        // ONLY change if the track URL is actually different
+        if (targetTrack !== currentTrackRef.current) {
+            
+            // Fade out existing
+            if (audioRef.current) {
+                const oldAudio = audioRef.current;
+                // Simple fade out logic
+                let vol = oldAudio.volume;
+                const fadeOutInterval = setInterval(() => {
+                    if (vol > 0.1) {
+                        vol -= 0.1;
+                        oldAudio.volume = vol;
+                    } else {
+                        oldAudio.pause();
+                        clearInterval(fadeOutInterval);
+                    }
+                }, fadeDuration / 10);
+            }
 
-            // Fade out previous
-            if (currentAudio) fade(currentAudio, 0, window.MUSIC_CONFIG.fadeDuration);
+            // Start new track
+            if (targetTrack) {
+                const newAudio = new Audio(targetTrack);
+                newAudio.loop = true;
+                newAudio.muted = isMuted;
+                newAudio.volume = 0;
+                newAudio.play().catch(e => console.log("Autoplay blocked", e));
+                
+                // Fade in
+                let vol = 0;
+                const fadeInInterval = setInterval(() => {
+                    if (vol < 0.9) { // Max vol
+                        vol += 0.1;
+                        newAudio.volume = vol;
+                    } else {
+                        clearInterval(fadeInInterval);
+                    }
+                }, fadeDuration / 10);
 
-            // Load new
-            const audio = new Audio(rule.track);
-            audio.volume = 0;
-            audio.loop = true;
-            audio.muted = isMuted; // Sync mute state
-            audio.play().catch(e => console.log("Autoplay blocked", e));
-
-            fade(audio, 1, window.MUSIC_CONFIG.fadeDuration);
-
-            currentAudio = audio;
-            audioRef.current = audio;
-            activeTrack = rule.track;
-        };
-
-        checkActivePage(); // Check immediately on render/page change
-
-        return () => {
-            if (currentAudio) currentAudio.pause();
-        };
-    }, [chapterId, currentPage]); // Re-run when page changes
+                audioRef.current = newAudio;
+                currentTrackRef.current = targetTrack;
+            } else {
+                audioRef.current = null;
+                currentTrackRef.current = null;
+            }
+        }
+    }, [chapterId, currentPage, isMuted]); 
+    // ^ Effect runs on page change, but logic inside checks ref to prevent restart
 
     // Handle Mute Toggle Effect
     useEffect(() => {
@@ -1577,6 +1544,22 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, likes, onT
             audioRef.current.muted = isMuted;
         }
     }, [isMuted]);
+
+    // Clean up ONLY on unmount (leaving reader)
+    useEffect(() => {
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current = null;
+                currentTrackRef.current = null;
+            }
+        };
+    }, []);
+
+    const showToast = (msg) => {
+        setNotification(msg);
+        setTimeout(() => setNotification(null), 3000);
+    };
 
     const isLiked = likes[chapterId];
 
@@ -1598,23 +1581,46 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, likes, onT
                 backdrop-filter: blur(5px);
             }
             .reader-icon {
-                color: #00e5ff; font-size: 1.2rem; cursor: pointer; transition: 0.3s;
+                color: #00e5ff; font-size: 1rem; cursor: pointer; transition: 0.1s;
                 display: flex; align-items: center; justify-content: center;
-                width: 40px; height: 40px; border-radius: 50%;
+                width: 35px; height: 35px; border-radius: 50%;
                 background: rgba(0, 229, 255, 0.1);
             }
-            .reader-icon:hover { background: rgba(0, 229, 255, 0.3); transform: scale(1.1); box-shadow: 0 0 10px #00e5ff; }
+            /* Active state for instant feedback without sticking */
+            .reader-icon:active { transform: scale(0.9); background: rgba(0, 229, 255, 0.4); }
+            .reader-icon:hover { background: rgba(0, 229, 255, 0.2); box-shadow: 0 0 10px #00e5ff; }
+            
             .reader-icon.liked { color: #ff0055; text-shadow: 0 0 10px #ff0055; background: rgba(255, 0, 85, 0.1); }
+            .reader-icon.delete-mode { color: #ff3333; border: 1px solid #ff3333; background: rgba(50,0,0,0.5); }
             
             .save-btn {
                 background: linear-gradient(90deg, #00e5ff, #0099ff);
                 color: #000; font-weight: bold; border: none;
-                padding: 0 20px; border-radius: 20px;
-                font-family: 'Rajdhani'; font-size: 0.9rem;
+                padding: 0 15px; border-radius: 20px;
+                font-family: 'Rajdhani'; font-size: 0.8rem;
                 cursor: pointer; display: flex; align-items: center; gap: 8px;
+                transition: transform 0.1s;
             }
             .save-btn:active { transform: scale(0.95); }
+            .save-btn.unsave { background: linear-gradient(90deg, #ff3333, #aa0000); color: white; }
+
+            .toast-notification {
+                position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+                background: rgba(0, 229, 255, 0.9); color: #000;
+                padding: 10px 20px; border-radius: 8px;
+                font-family: 'Orbitron'; font-size: 0.8rem;
+                box-shadow: 0 0 20px #00e5ff;
+                z-index: 2000;
+                animation: slideDown 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                display: flex; align-items: center; gap: 10px;
+            }
+            @keyframes slideDown { from { transform: translate(-50%, -100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
         `),
+
+        notification && h("div", { className: "toast-notification" }, 
+            h("i", { className: "fas fa-check-circle" }),
+            notification
+        ),
 
         h(
             "div",
@@ -1629,18 +1635,26 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, likes, onT
                 title: "Mute Music",
                 onClick: () => setIsMuted(!isMuted)
             }),
+            
+            // Save / Unsave Button
             h(
                 "button", 
                 { 
-                    className: "save-btn",
+                    className: `save-btn ${hasSave ? 'unsave' : ''}`,
                     onClick: () => {
-                        onSaveLocation(chapterId, currentPage);
-                        alert(`Location Saved: Page ${currentPage + 1}`);
+                        if (hasSave) {
+                            onClearSave();
+                            showToast("SAVE CLEARED");
+                        } else {
+                            onSaveLocation(chapterId, currentPage);
+                            showToast(`LOCATION SAVED: PAGE ${currentPage + 1}`);
+                        }
                     }
                 },
-                h("i", { className: "fas fa-bookmark" }),
-                `SAVE P.${currentPage + 1}`
+                h("i", { className: hasSave ? "fas fa-trash" : "fas fa-bookmark" }),
+                hasSave ? "DELETE SAVE" : `SAVE P.${currentPage + 1}`
             ),
+
             h("i", {
                 className: `fas fa-heart reader-icon ${isLiked ? 'liked' : ''}`,
                 title: "Like",
@@ -1678,17 +1692,21 @@ const App = () => {
     // Global State
     const [likes, setLikes] = useState({});
     const [savedLocation, setSavedLocation] = useState(null); // { chapterId: 1, pageIndex: 5 }
+    const [finishedChapters, setFinishedChapters] = useState({}); // { 1: true, 2: false }
 
     useEffect(() => {
         if (window.requestNotificationPermission) window.requestNotificationPermission();
         if (window.APP_CONFIG && !window.APP_CONFIG) console.error("Config not found");
         
-        // Load saved state if exists (mocking localstorage for demo)
+        // Load saved state
         const savedLoc = localStorage.getItem("savedLocation");
         if (savedLoc) setSavedLocation(JSON.parse(savedLoc));
         
         const savedLikes = localStorage.getItem("userLikes");
         if (savedLikes) setLikes(JSON.parse(savedLikes));
+
+        const savedFinished = localStorage.getItem("finishedChapters");
+        if (savedFinished) setFinishedChapters(JSON.parse(savedFinished));
     }, []);
 
     const handleStart = () => {
@@ -1717,11 +1735,21 @@ const App = () => {
         localStorage.setItem("savedLocation", JSON.stringify(loc));
     };
 
-    // Specific logic to open reader at specific page
+    const handleClearSave = () => {
+        setSavedLocation(null);
+        localStorage.removeItem("savedLocation");
+    };
+
+    const handleFinishChapter = (chapterId) => {
+        if (!finishedChapters[chapterId]) {
+            const newFinished = { ...finishedChapters, [chapterId]: true };
+            setFinishedChapters(newFinished);
+            localStorage.setItem("finishedChapters", JSON.stringify(newFinished));
+        }
+    };
+
     const openReader = (chapterId, pageIndex = 0) => {
         setActiveChapter(chapterId);
-        // We pass the page index as a prop to ReaderPage via the view state or just render it
-        // Since ReaderPage is rendered conditionally based on 'view', we can just set state
         setView("reader"); 
     };
 
@@ -1730,7 +1758,6 @@ const App = () => {
         { className: "app-shell " + (view === "reader" ? "reader-mode" : "") },
 
         // --- FIX: ONLY SHOW BLUE PARTICLES ON PAYWALL OR OTHER MENUS, NOT HOME/MANGA ---
-        // Home has Fire, Manga has Space, so we hide ParticleBackground for them
         view !== "reader" && view !== "intro" && view !== "home" && view !== "manga" && h(ParticleBackground),
 
         view !== "reader" && view !== "intro" && h(LicenseBar),
@@ -1748,7 +1775,8 @@ const App = () => {
             onOpenSettings: () => setShowSettings(true),
             likes: likes,
             onToggleLike: toggleLike,
-            savedLocation: savedLocation
+            savedLocation: savedLocation,
+            finishedChapters: finishedChapters
         }),
 
         view === "reader" && h(ReaderPage, {
@@ -1756,8 +1784,11 @@ const App = () => {
             initialPage: savedLocation && savedLocation.chapterId === activeChapter ? savedLocation.pageIndex : 0,
             onBack: () => setView("manga"),
             onSaveLocation: handleSaveLocation,
+            onClearSave: handleClearSave,
             likes: likes,
-            onToggleLike: toggleLike
+            onToggleLike: toggleLike,
+            hasSave: savedLocation && savedLocation.chapterId === activeChapter,
+            onFinishChapter: handleFinishChapter
         }),
 
         activePerson && h(ThemeModal, {
