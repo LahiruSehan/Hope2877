@@ -19,7 +19,7 @@ window.MUSIC_CONFIG = {
             { track: "assets/musics/emotional.mp3", pages: [12, 16] },
             { track: "assets/musics/Park.mp3", pages: [17, 31] },
             { track: "assets/musics/Park.mp3", pages: [32, 36] },
-            { track: "assets/musics/Villan.mp3", pages: [37, 39] }
+            { track: "assets/musics/Villan.mp3", pages: [36, 39] }
 
         ],
         3: [
