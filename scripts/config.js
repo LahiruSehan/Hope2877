@@ -96,13 +96,21 @@ window.APP_CONFIG = {
             title: "CRUEL",
             date: "Losses",
             locked: false,
-            pages: Array.from({ length: 10 }, (_, i) => `imageschapter5/${i + 1}.png`)
+            pages: Array.from({ length: 12 }, (_, i) => `imageschapter5/${i + 1}.png`)
         },
 
                 {
             id: 6,
             title: "HOPE",
             date: "Begining of the End",
+            locked: false,
+            pages: Array.from({ length: 0 }, (_, i) => `imageschapter6/${i + 1}.png`)
+        },
+
+                        {
+            id: 7,
+            title: "FLAME",
+            date: "When They need us the most",
             locked: false,
             pages: Array.from({ length: 0 }, (_, i) => `imageschapter6/${i + 1}.png`)
         },

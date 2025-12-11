@@ -1357,9 +1357,9 @@ const MangaPage = ({ onRead, onBack, onOpenSettings, likes, onToggleLike, savedL
                 // Check if finished first
                 if (finishedChapters[ch.id]) {
                     statusText = "FINISHED";
-                } else if (ch.id === 5) {
+                } else if (ch.id === 6) {
                     statusText = "ONGOING";
-                } else if (ch.id >= 6) {
+                } else if (ch.id >= 7) {
                     statusText = "COMING SOON";
                 }
 

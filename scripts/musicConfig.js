@@ -34,7 +34,8 @@ window.MUSIC_CONFIG = {
 
         ],
         5: [
-            { track: "assets/musics/Goodbye.mp3", pages: [1, 19] }
+            { track: "assets/musics/Goodbye.mp3", pages: [1, 9] },
+            { track: "assets/musics/FinalReleve.mp3", pages: [10, 12] }
 
 
         ]
