@@ -729,103 +729,92 @@ const Paywall = ({ onUnlock }) => {
         )
     );
 };
-// --- HOME PAGE (APOCALYPTIC GOD MODE) ---
+/// --- HOME PAGE (APOCALYPTIC GOD MODE - FIXED) ---
 const HomePage = ({ onStart, onViewCredits }) => {
     
-    // --- CSS-IN-JS STYLES ---
     const styles = `
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap');
 
         /* RESET */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        /* 1. MAIN LAYOUT - NO SCROLLING */
         .apocalypse-wrapper {
             position: relative;
             height: 100vh;
             width: 100vw;
-            overflow: hidden; /* FORCE FIT */
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: space-between; /* Keeps top and bottom apart */
             align-items: center;
             background-color: #000;
             color: #fff;
             font-family: 'Rajdhani', sans-serif;
         }
 
-        /* 2. BACKGROUND: RISING INFERNO */
+        /* INFERNO BACKGROUND */
         .bg-inferno {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(to bottom, #050000 0%, #1a0000 60%, #4a0000 100%);
-            z-index: -2;
+            z-index: 0;
         }
 
         .bg-smoke {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: url('https://raw.githubusercontent.com/yomotsu/react-cool-dimensions/master/assets/smoke.png'); 
-            /* Note: If image doesn't load, gradient still works. This represents fog. */
+            background: radial-gradient(circle, transparent 0%, #000 150%); 
+            /* Fallback fog */
             opacity: 0.3;
-            animation: smokeMove 30s linear infinite;
-            z-index: -1;
+            z-index: 0;
             mix-blend-mode: screen;
         }
 
         .ember-particles {
             position: absolute;
             width: 100%; height: 100%;
-            background-image: radial-gradient(white 1px, transparent 1px);
+            background-image: radial-gradient(rgba(255, 100, 50, 0.8) 1px, transparent 1px);
             background-size: 50px 50px;
-            opacity: 0.1;
-            animation: embersRise 10s linear infinite;
-            z-index: -1;
+            opacity: 0.6;
+            animation: embersRise 8s linear infinite;
+            z-index: 0;
         }
 
-        /* 3. TOP SECTION (Cover + Title) */
+        /* SECTION 1: TOP */
         .section-hero {
-            flex: 4;
+            flex: 0 0 auto; /* Don't stretch */
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
+            padding-top: 4vh;
+            z-index: 10;
             width: 100%;
-            text-align: center;
-            animation: fadeInDown 1.5s ease-out;
-            padding-top: 2vh;
         }
 
         .cover-frame {
-            position: relative;
-            height: 25vh; /* Responsive height based on screen */
+            height: 22vh; /* Slightly smaller to save space */
             aspect-ratio: 2/3;
-            margin-bottom: 2vh;
+            margin-bottom: 1.5vh;
             border-radius: 8px;
-            box-shadow: 0 0 40px rgba(255, 50, 50, 0.4);
+            box-shadow: 0 0 30px rgba(255, 50, 50, 0.4);
             animation: floatHero 6s ease-in-out infinite;
             border: 1px solid rgba(255,255,255,0.1);
         }
 
-        .cover-img {
-            width: 100%; height: 100%;
-            object-fit: cover;
-            border-radius: 8px;
-        }
+        .cover-img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
 
         .main-title {
             font-family: 'Cinzel', serif;
-            font-size: clamp(1.2rem, 3.5vh, 3rem); /* Smart scaling */
-            line-height: 1.1;
+            font-size: clamp(1.5rem, 4vh, 3rem);
+            line-height: 1;
             letter-spacing: 2px;
             text-transform: uppercase;
             color: #e0e0e0;
-            margin-bottom: 5px;
         }
 
         .sub-title {
             font-family: 'Cinzel', serif;
-            font-size: clamp(1rem, 2.5vh, 2.5rem);
+            font-size: clamp(1.2rem, 3vh, 2.5rem);
             color: #ff3333;
             text-transform: uppercase;
             letter-spacing: 4px;
@@ -834,54 +823,54 @@ const HomePage = ({ onStart, onViewCredits }) => {
             animation: glowText 3s infinite alternate;
         }
 
-        /* 4. MIDDLE SECTION (Meta) */
+        /* SECTION 2: META (Compressed) */
         .section-meta {
-            flex: 2;
-            width: 85%;
-            text-align: center;
+            flex: 1;
+            width: 90%;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
-            animation: fadeIn 2s ease-out 0.5s backwards;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            padding: 0;
         }
 
         .genres-row {
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
-            margin-bottom: 1.5vh;
+            margin-bottom: 10px;
         }
 
         .genre-chip {
-            font-size: 0.65rem;
-            color: #ff8888;
+            font-size: 0.6rem;
+            color: #ffaaaa;
             border: 1px solid rgba(255, 50, 50, 0.3);
             padding: 2px 8px;
             border-radius: 4px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            background: rgba(50, 0, 0, 0.3);
+            background: rgba(50, 0, 0, 0.4);
         }
 
         .desc-text {
-            font-size: clamp(0.7rem, 1.8vh, 0.9rem);
+            font-size: clamp(0.7rem, 1.6vh, 0.85rem);
             color: #ccc;
-            line-height: 1.5;
+            line-height: 1.4;
+            text-align: center;
             font-weight: 300;
+            max-width: 600px;
             text-shadow: 0 1px 2px #000;
         }
 
-        /* 5. BOTTOM SECTION (Action + Credits Dock) */
+        /* SECTION 3: BOTTOM (Action + Credits) */
         .section-dock {
-            flex: 3;
+            flex: 0 0 auto;
             width: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: flex-end;
             align-items: center;
-            padding-bottom: 2vh;
-            background: linear-gradient(to top, rgba(0,0,0,1) 0%, transparent 100%);
+            padding-bottom: 4vh; /* Lifted up from bottom */
+            z-index: 10;
         }
 
         .btn-start-reading {
@@ -893,46 +882,34 @@ const HomePage = ({ onStart, onViewCredits }) => {
             border: 1px solid rgba(255,255,255,0.3);
             letter-spacing: 5px;
             cursor: pointer;
-            margin-bottom: 1vh;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s;
+            margin-bottom: 5px;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
             animation: pulseBtn 3s infinite;
+            backdrop-filter: blur(5px);
         }
-
-        .btn-start-reading:hover {
-            background: #ff3333;
-            border-color: #ff3333;
-            box-shadow: 0 0 30px rgba(255, 50, 50, 0.6);
-        }
+        .btn-start-reading:hover { background: #ff3333; border-color: #ff3333; }
 
         .subtitle-small {
             font-size: 0.6rem;
-            letter-spacing: 4px;
+            letter-spacing: 3px;
             color: #666;
-            margin-bottom: 3vh;
+            margin-bottom: 15px; /* Reduced space significantly */
             text-transform: uppercase;
         }
 
-        /* GLASS DOCK FOR CREDITS */
+        /* CREDIT BUTTONS */
         .credits-dock {
             width: 95%;
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
-            padding: 10px;
+            max-width: 500px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            animation: slideUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) 1s backwards;
         }
 
         .dock-title {
             font-size: 0.55rem;
             color: #ff3333;
-            letter-spacing: 3px;
+            letter-spacing: 2px;
             text-transform: uppercase;
             margin-bottom: 8px;
             opacity: 0.8;
@@ -942,46 +919,36 @@ const HomePage = ({ onStart, onViewCredits }) => {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 15px;
+            gap: 10px;
         }
 
-        .dock-name {
+        /* NEW BUTTON STYLE FOR NAMES */
+        .dock-btn {
             font-size: 0.7rem;
-            color: #aaa;
+            color: #ddd;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 6px 16px;
+            border-radius: 20px;
             cursor: pointer;
-            position: relative;
-            transition: 0.3s;
             text-transform: uppercase;
             font-weight: 500;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(4px);
         }
 
-        .dock-name:hover {
+        .dock-btn:hover {
+            background: rgba(255, 50, 50, 0.2);
+            border-color: #ff3333;
             color: #fff;
-            text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 10px rgba(255, 50, 50, 0.4);
             transform: translateY(-2px);
         }
 
-        .dock-name::after {
-            content: '';
-            display: block;
-            width: 0;
-            height: 1px;
-            background: #ff3333;
-            transition: width 0.3s;
-            margin: 0 auto;
-        }
-        
-        .dock-name:hover::after { width: 100%; }
-
-        /* ANIMATIONS */
-        @keyframes smokeMove { 0% { background-position: 0 0; } 100% { background-position: 1000px 0; } }
-        @keyframes embersRise { 0% { transform: translateY(0); opacity: 0; } 50% { opacity: 0.5; } 100% { transform: translateY(-100vh); opacity: 0; } }
+        @keyframes embersRise { 0% { transform: translateY(0); opacity: 0; } 50% { opacity: 0.8; } 100% { transform: translateY(-100vh); opacity: 0; } }
         @keyframes floatHero { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
         @keyframes glowText { from { text-shadow: 0 0 10px #500; } to { text-shadow: 0 0 25px #f00; } }
         @keyframes pulseBtn { 0% { box-shadow: 0 0 0 rgba(255,0,0,0); } 70% { box-shadow: 0 0 20px rgba(255,0,0,0.4); } 100% { box-shadow: 0 0 0 rgba(255,0,0,0); } }
-        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     `;
 
     return h(
@@ -989,38 +956,32 @@ const HomePage = ({ onStart, onViewCredits }) => {
         { className: "apocalypse-wrapper" },
         h("style", null, styles),
         
-        // --- 1. DYNAMIC BACKGROUNDS ---
+        // BACKGROUNDS
         h("div", { className: "bg-inferno" }),
         h("div", { className: "bg-smoke" }),
         h("div", { className: "ember-particles" }),
 
-        // --- 2. HERO SECTION ---
+        // TOP
         h(
             "div",
             { className: "section-hero" },
             h(
                 "div",
                 { className: "cover-frame" },
-                h("img", {
-                    src: window.APP_CONFIG.assets.cover,
-                    className: "cover-img",
-                    alt: "Cover"
-                })
+                h("img", { src: window.APP_CONFIG.assets.cover, className: "cover-img", alt: "Cover" })
             ),
             h("h1", { className: "main-title" }, t.title_start),
             h("h2", { className: "sub-title" }, t.title_end)
         ),
 
-        // --- 3. META SECTION ---
+        // MIDDLE
         h(
             "div",
             { className: "section-meta" },
             h(
                 "div",
                 { className: "genres-row" },
-                ["Sci-Fi", "Romance", "Action", "Mystery", "Horror"].map(g => 
-                    h("span", { key: g, className: "genre-chip" }, g)
-                )
+                ["Sci-Fi", "Romance", "Action", "Mystery", "Horror"].map(g => h("span", { key: g, className: "genre-chip" }, g))
             ),
             h(
                 "p",
@@ -1029,20 +990,13 @@ const HomePage = ({ onStart, onViewCredits }) => {
             )
         ),
 
-        // --- 4. ACTION & CREDITS DOCK ---
+        // BOTTOM
         h(
             "div",
             { className: "section-dock" },
-            
-            // Start Button
-            h(
-                "button",
-                { className: "btn-start-reading", onClick: onStart },
-                t.start
-            ),
+            h("button", { className: "btn-start-reading", onClick: onStart }, t.start),
             h("div", { className: "subtitle-small" }, t.subtitle),
 
-            // The Special Recognition Hologram Dock
             h(
                 "div",
                 { className: "credits-dock" },
@@ -1055,7 +1009,7 @@ const HomePage = ({ onStart, onViewCredits }) => {
                             "div",
                             {
                                 key: i,
-                                className: "dock-name",
+                                className: "dock-btn", // Changed to button class
                                 onClick: () => onViewCredits(c)
                             },
                             c.name
@@ -1068,74 +1022,31 @@ const HomePage = ({ onStart, onViewCredits }) => {
 };
 // --- MANGA LIST (NEON GOD UPGRADE) ---
 const MangaPage = ({ onRead, onBack }) => {
-    // State for local "Like" functionality
     const [likes, setLikes] = React.useState({});
 
     const toggleLike = (e, id) => {
-        e.stopPropagation(); // Prevent opening the chapter when liking
+        e.stopPropagation();
         setLikes(prev => ({ ...prev, [id]: !prev[id] }));
     };
 
-    // --- CONFIGURATION FOR STATUSES ---
     const STATUS_COLORS = {
-        "FINISHED":    { color: "#00ff9d", glow: "0 0 10px #00ff9d" }, // Neon Green
-        "ONGOING":     { color: "#00e5ff", glow: "0 0 10px #00e5ff" }, // Cyan
-        "COMING SOON": { color: "#ff3333", glow: "0 0 10px #ff3333" }  // Red
+        "FINISHED":    { color: "#00ff9d", glow: "0 0 10px #00ff9d" },
+        "ONGOING":     { color: "#00e5ff", glow: "0 0 10px #00e5ff" },
+        "COMING SOON": { color: "#ff3333", glow: "0 0 10px #ff3333" }
     };
 
-    // --- STYLES ---
     const styles = `
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap');
-
-        /* LAYOUT & BG */
-        .manga-layout {
-            position: relative;
-            height: 100vh;
-            width: 100vw;
-            display: flex;
-            flex-direction: column;
-            background-color: #050505;
-            font-family: 'Rajdhani', sans-serif;
-            overflow: hidden;
-            color: white;
-        }
-
-        .space-bg {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at center, #11001c 0%, #000000 100%);
-            z-index: -2;
-        }
+        .manga-layout { position: relative; height: 100vh; width: 100vw; display: flex; flex-direction: column; background-color: #050505; font-family: 'Rajdhani', sans-serif; overflow: hidden; color: white; }
+        .space-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, #11001c 0%, #000000 100%); z-index: -2; }
+        .stars-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px); background-size: 550px 550px; opacity: 0.6; z-index: -1; animation: moveStars 100s linear infinite; }
         
-        .stars-overlay {
+        /* HEADER */
+        .header-zone { flex: 0 0 auto; display: flex; justify-content: center; align-items: center; padding: 20px 0; z-index: 10; background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent); position: relative; width: 100%; }
+        
+        /* BUTTONS */
+        .icon-btn {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image: 
-                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
-                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px);
-            background-size: 550px 550px, 350px 350px;
-            background-position: 0 0, 40px 60px;
-            animation: moveStars 100s linear infinite;
-            z-index: -1;
-            opacity: 0.6;
-        }
-
-        /* HEADER ZONE */
-        .header-zone {
-            flex: 0 0 auto;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px 0;
-            z-index: 10;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
-            position: relative;
-        }
-
-        /* HOME BUTTON */
-        .home-btn {
-            position: absolute;
-            left: 20px;
             background: rgba(0, 229, 255, 0.1);
             border: 1px solid rgba(0, 229, 255, 0.3);
             color: #00e5ff;
@@ -1146,202 +1057,71 @@ const MangaPage = ({ onRead, onBack }) => {
             transition: all 0.3s;
             clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
         }
+        .icon-btn:hover { background: rgba(0, 229, 255, 0.3); box-shadow: 0 0 15px rgba(0, 229, 255, 0.5); text-shadow: 0 0 8px white; }
+        
+        .home-btn { left: 20px; }
+        .settings-btn { right: 20px; }
 
-        .home-btn:hover {
-            background: rgba(0, 229, 255, 0.3);
-            box-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
-            text-shadow: 0 0 8px white;
-        }
+        .holo-title { font-family: 'Orbitron', sans-serif; font-size: 2rem; color: #fff; text-transform: uppercase; letter-spacing: 4px; margin: 0; text-shadow: 0 0 5px #00e5ff; animation: flicker 3s infinite alternate; }
 
-        /* NEON FLICKER TITLE */
-        .holo-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 2rem;
-            color: #fff;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            margin: 0;
-            /* Neon Flicker Effect */
-            text-shadow: 
-                0 0 5px #00e5ff,
-                0 0 10px #00e5ff,
-                0 0 20px #00e5ff;
-            animation: flicker 3s infinite alternate;
-        }
+        .list-viewport { flex: 1; overflow-y: auto; padding: 10px 20px; display: flex; flex-direction: column; align-items: center; gap: 15px; mask-image: linear-gradient(to bottom, transparent, black 5%, black 95%, transparent); -webkit-mask-image: linear-gradient(to bottom, transparent, black 5%, black 95%, transparent); }
 
-        @keyframes flicker {
-            0%, 18%, 22%, 25%, 53%, 57%, 100% {
-                text-shadow: 
-                0 0 4px #fff,
-                0 0 10px #fff,
-                0 0 20px #00e5ff,
-                0 0 35px #00e5ff,
-                0 0 40px #00e5ff;
-                opacity: 1;
-            }
-            20%, 24%, 55% {
-                text-shadow: none;
-                opacity: 0.2;
-            }
-        }
+        .god-card { position: relative; width: 100%; max-width: 600px; background: rgba(20, 20, 30, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 15px 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.4s; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); animation: slideUp 0.6s ease-out backwards; }
+        .god-card:hover { transform: scale(1.02) translateX(5px); background: rgba(30, 30, 50, 0.8); border-color: rgba(0, 229, 255, 0.5); box-shadow: 0 0 20px rgba(0, 229, 255, 0.2); }
+        .god-card.locked { opacity: 0.7; filter: grayscale(0.9); cursor: not-allowed; border-color: rgba(255, 50, 50, 0.2); }
 
-        /* SCROLLABLE LIST */
-        .list-viewport {
-            flex: 1;
-            overflow-y: auto;
-            padding: 10px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            mask-image: linear-gradient(to bottom, transparent, black 5%, black 95%, transparent);
-            -webkit-mask-image: linear-gradient(to bottom, transparent, black 5%, black 95%, transparent);
-        }
-
-        /* CHAPTER CARD */
-        .god-card {
-            position: relative;
-            width: 100%;
-            max-width: 600px;
-            background: rgba(20, 20, 30, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 15px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-            animation: slideUp 0.6s ease-out backwards;
-        }
-
-        .god-card:hover {
-            transform: scale(1.02) translateX(5px);
-            background: rgba(30, 30, 50, 0.8);
-            border-color: rgba(0, 229, 255, 0.5);
-            box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
-        }
-
-        .god-card.locked {
-            opacity: 0.7;
-            filter: grayscale(0.9);
-            cursor: not-allowed;
-            border-color: rgba(255, 50, 50, 0.2);
-        }
-
-        /* LIKE BUTTON */
-        .like-btn {
-            font-size: 1.2rem;
-            color: rgba(255,255,255,0.2);
-            margin-right: 15px;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer;
-            padding: 5px;
-        }
+        .like-btn { font-size: 1.2rem; color: rgba(255,255,255,0.2); margin-right: 15px; transition: all 0.3s; cursor: pointer; padding: 5px; }
         .like-btn:hover { color: #ff69b4; transform: scale(1.2); }
-        .like-btn.liked { 
-            color: #ff0055; 
-            text-shadow: 0 0 10px #ff0055; 
-            transform: scale(1.1);
-        }
+        .like-btn.liked { color: #ff0055; text-shadow: 0 0 10px #ff0055; transform: scale(1.1); }
 
-        /* CARD TEXT */
-        .card-left {
-            display: flex;
-            align-items: center;
-            flex: 1;
-        }
-        
-        .ch-info-group {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
+        .card-left { display: flex; align-items: center; flex: 1; }
+        .ch-info-group { display: flex; flex-direction: column; gap: 4px; }
+        .ch-title { font-size: 1.1rem; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 1px; }
+        .ch-date { font-size: 0.75rem; color: #888; font-family: monospace; }
 
-        .ch-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #fff;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+        .status-pill { font-size: 0.65rem; font-weight: 700; padding: 4px 10px; border: 1px solid currentColor; border-radius: 4px; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); margin-left: 10px; }
+        .lock-icon { font-size: 1.2rem; color: #ff3333; text-shadow: 0 0 10px rgba(255, 50, 50, 0.6); margin-left: 15px; }
 
-        .ch-date {
-            font-size: 0.75rem;
-            color: #888;
-            font-family: monospace;
-        }
-
-        /* STATUS PILL */
-        .status-pill {
-            font-size: 0.65rem;
-            font-weight: 700;
-            padding: 4px 10px;
-            border: 1px solid currentColor;
-            border-radius: 4px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            white-space: nowrap;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-            margin-left: 10px;
-        }
-
-        .lock-icon {
-            font-size: 1.2rem;
-            color: #ff3333;
-            text-shadow: 0 0 10px rgba(255, 50, 50, 0.6);
-            margin-left: 15px;
-        }
-
-        /* ANIMATIONS */
-        @keyframes moveStars { from { background-position: 0 0, 40px 60px; } to { background-position: -1000px 500px, -960px 560px; } }
+        @keyframes flicker { 0%, 18%, 22%, 25%, 53%, 57%, 100% { text-shadow: 0 0 4px #fff, 0 0 10px #fff, 0 0 20px #00e5ff; opacity: 1; } 20%, 24%, 55% { text-shadow: none; opacity: 0.2; } }
+        @keyframes moveStars { from { background-position: 0 0; } to { background-position: -1000px 500px; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* SCROLLBAR */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
-        ::-webkit-scrollbar-thumb { background: #00e5ff; border-radius: 2px; }
     `;
 
     return h(
         "div",
         { className: "manga-layout fade-in" },
         h("style", null, styles),
-        
-        // Backgrounds
         h("div", { className: "space-bg" }),
         h("div", { className: "stars-overlay" }),
 
-        // Header with Home Button
+        // HEADER
         h(
             "div",
             { className: "header-zone" },
-            // Home Icon
+            // HOME ICON (LEFT)
             h(
                 "button", 
-                { className: "home-btn", onClick: onBack },
+                { className: "icon-btn home-btn", onClick: onBack },
                 h("i", { className: "fas fa-home" })
             ),
-            // Title
-            h("h2", { className: "holo-title" }, t.chapters)
+            // TITLE
+            h("h2", { className: "holo-title" }, t.chapters),
+            // SETTINGS ICON (RIGHT)
+            h(
+                "button", 
+                { className: "icon-btn settings-btn", onClick: () => alert("Settings Menu Coming Soon") },
+                h("i", { className: "fas fa-cog" })
+            )
         ),
 
-        // Scrollable List
+        // LIST
         h(
             "div",
             { className: "list-viewport" },
             window.APP_CONFIG.chapters.map((ch, index) => {
-                
-                // --- LOGIC: SPECIFIC STATUS ASSIGNMENT ---
-                let statusText = "FINISHED"; // Default (1-4)
-                
-                if (ch.id === 5) {
-                    statusText = "ONGOING";
-                } else if (ch.id >= 6) {
-                    statusText = "COMING SOON";
-                }
-                
+                let statusText = "FINISHED";
+                if (ch.id === 5) statusText = "ONGOING";
+                else if (ch.id >= 6) statusText = "COMING SOON";
                 const theme = STATUS_COLORS[statusText];
 
                 return h(
@@ -1352,57 +1132,21 @@ const MangaPage = ({ onRead, onBack }) => {
                         style: { animationDelay: `${index * 0.1}s` }, 
                         onClick: () => !ch.locked && onRead(ch.id)
                     },
-                    
-                    // LEFT SIDE: Like Button + Title Info
                     h(
                         "div",
                         { className: "card-left" },
-                        
-                        // Like Button (Heart)
-                        h("i", { 
-                            className: "fas fa-heart like-btn " + (likes[ch.id] ? "liked" : ""),
-                            onClick: (e) => toggleLike(e, ch.id)
-                        }),
-
-                        // Text Info
-                        h(
-                            "div", 
-                            { className: "ch-info-group" },
-                            h("div", { className: "ch-title" }, `CH.${ch.id} : ${ch.title}`),
-                            h("div", { className: "ch-date" }, ch.locked ? "ENCRYPTED" : ch.date)
-                        )
+                        h("i", { className: "fas fa-heart like-btn " + (likes[ch.id] ? "liked" : ""), onClick: (e) => toggleLike(e, ch.id) }),
+                        h("div", { className: "ch-info-group" }, h("div", { className: "ch-title" }, `CH.${ch.id} : ${ch.title}`), h("div", { className: "ch-date" }, ch.locked ? "ENCRYPTED" : ch.date))
                     ),
-
-                    // RIGHT SIDE: Status Badge or Lock
                     h(
                         "div",
                         { style: { display: "flex", alignItems: "center" } },
-                        
-                        // THE STATUS PILL
-                        h(
-                            "div",
-                            {
-                                className: "status-pill",
-                                style: {
-                                    color: theme.color,
-                                    borderColor: theme.color,
-                                    boxShadow: `0 0 5px ${theme.color}, inset 0 0 5px ${theme.color}20`,
-                                    textShadow: theme.glow
-                                }
-                            },
-                            statusText
-                        ),
-
-                        // Lock Icon (Only if locked)
+                        h("div", { className: "status-pill", style: { color: theme.color, borderColor: theme.color, boxShadow: `0 0 5px ${theme.color}, inset 0 0 5px ${theme.color}20`, textShadow: theme.glow } }, statusText),
                         ch.locked && h("i", { className: "fas fa-lock lock-icon" })
                     )
                 );
             }),
-
-            // Footer / Construction
-            h(
-                "div",
-                { className: "sys-msg", style: { marginTop: "30px", paddingBottom: "30px", textAlign: "center", borderTop: "1px solid #333", paddingTop: "20px", width: "80%" } },
+            h("div", { className: "sys-msg", style: { marginTop: "30px", paddingBottom: "30px", textAlign: "center", borderTop: "1px solid #333", paddingTop: "20px", width: "80%" } },
                 h("div", { style: { color: "#ffcc00", fontSize: "0.8rem" } }, `// SYSTEM_MESSAGE: ${t.coming_soon}`),
                 h("div", { style: { color: "#666", fontSize: "0.7rem" } }, t.construction_desc)
             )
@@ -1534,38 +1278,16 @@ const ReaderPage = ({ chapterId, onBack }) => {
     );
 };
 
-// --- MAIN APP ---
+// --- MAIN APP (UPDATED) ---
 const App = () => {
     const [view, setView] = useState("intro");
     const [activePerson, setActivePerson] = useState(null);
     const [showPaywall, setShowPaywall] = useState(false);
     const [activeChapter, setActiveChapter] = useState(1);
 
-    // 🔔 Notifications
     useEffect(() => {
-        if (window.requestNotificationPermission) {
-            window.requestNotificationPermission().then(
-                (token) => {
-                    console.log("User Token:", token);
-                }
-            );
-        }
-
-        if (window.onFirebaseForegroundMessage) {
-            window.onFirebaseForegroundMessage((payload) => {
-                alert(
-                    "🔥 New Update: " +
-                    payload.notification.title
-                );
-            });
-        }
-    }, []);
-
-    // Config check
-    useEffect(() => {
-        if (!window.APP_CONFIG) {
-            console.error("Config not found");
-        }
+        if (window.requestNotificationPermission) window.requestNotificationPermission();
+        if (window.APP_CONFIG && !window.APP_CONFIG) console.error("Config not found");
     }, []);
 
     const handleStart = () => {
@@ -1584,47 +1306,37 @@ const App = () => {
 
     return h(
         "div",
-        {
-            className:
-                "app-shell " +
-                (view === "reader" ? "reader-mode" : "")
-        },
-        view !== "reader" &&
-        view !== "intro" &&
-        h(ParticleBackground),
-        view !== "reader" &&
-        view !== "intro" &&
-        h(LicenseBar),
-        view === "intro" &&
-        h(CinematicIntro, {
-            onComplete: () => setView("home")
-        }),
-        view === "home" &&
-        h(HomePage, {
+        { className: "app-shell " + (view === "reader" ? "reader-mode" : "") },
+        
+        // --- FIX: ONLY SHOW BLUE PARTICLES ON PAYWALL OR OTHER MENUS, NOT HOME/MANGA ---
+        // Home has Fire, Manga has Space, so we hide ParticleBackground for them
+        view !== "reader" && view !== "intro" && view !== "home" && view !== "manga" && h(ParticleBackground),
+        
+        view !== "reader" && view !== "intro" && h(LicenseBar),
+        
+        view === "intro" && h(CinematicIntro, { onComplete: () => setView("home") }),
+        
+        view === "home" && h(HomePage, {
             onStart: handleStart,
             onViewCredits: setActivePerson
         }),
-        view === "manga" &&
-        h(MangaPage, {
-            onRead: (id) => {
-                setActiveChapter(id);
-                setView("reader");
-            }
+        
+        view === "manga" && h(MangaPage, {
+            onRead: (id) => { setActiveChapter(id); setView("reader"); },
+            onBack: () => setView("home") // <--- THIS MAKES THE HOME BUTTON WORK
         }),
-        view === "reader" &&
-        h(ReaderPage, {
+        
+        view === "reader" && h(ReaderPage, {
             chapterId: activeChapter,
             onBack: () => setView("manga")
         }),
-        activePerson &&
-        h(ThemeModal, {
+        
+        activePerson && h(ThemeModal, {
             person: activePerson,
             onClose: () => setActivePerson(null)
         }),
-        showPaywall &&
-        h(Paywall, {
-            onUnlock: unlockVIP
-        })
+        
+        showPaywall && h(Paywall, { onUnlock: unlockVIP })
     );
 };
 
