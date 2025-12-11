@@ -80,7 +80,7 @@ window.APP_CONFIG = {
             title: "Regrets",
             date: "Broken Promisses",
             locked: false,
-            pages: Array.from({ length: 13 }, (_, i) => `imageschapter3/${i + 1}.png`)
+            pages: Array.from({ length: 15 }, (_, i) => `imageschapter3/${i + 1}.png`)
         },
 
                 {
@@ -88,7 +88,7 @@ window.APP_CONFIG = {
             title: "CRUEL",
             date: "Comming Soon",
             locked: false,
-            pages: Array.from({ length: 13 }, (_, i) => `imageschapter3/${i + 1}.png`)
+            pages: Array.from({ length: 0 }, (_, i) => `imageschapter4/${i + 1}.png`)
         },
 
                 {
@@ -96,7 +96,7 @@ window.APP_CONFIG = {
             title: "Comming Soon",
             date: "Comming Soon",
             locked: false,
-            pages: Array.from({ length: 13 }, (_, i) => `imageschapter3/${i + 1}.png`)
+            pages: Array.from({ length: 0 }, (_, i) => `imageschapter5/${i + 1}.png`)
         },
 
                 {
@@ -104,7 +104,7 @@ window.APP_CONFIG = {
             title: "Comming Soon",
             date: "Comming Soon",
             locked: false,
-            pages: Array.from({ length: 13 }, (_, i) => `imageschapter3/${i + 1}.png`)
+            pages: Array.from({ length: 0 }, (_, i) => `imageschapter6/${i + 1}.png`)
         },
       
     ]

@@ -329,101 +329,283 @@ const LicenseBar = () => {
     );
 };
 
-// 🌸 THEMED MODAL
+// 🌸 THEMED MODAL (GOD LEVEL)
 const ThemeModal = ({ person, onClose }) => {
     if (!person) return null;
 
+    // --- 1. THEME CONFIGURATION ---
+    // Define the "Soul" of each theme here
+    const THEMES = {
+        fire: {
+            color: "#ff5500",
+            bg: "radial-gradient(circle at center, #2a0a0a 0%, #000000 100%)",
+            font: "'Orbitron', sans-serif",
+            particle: "🔥",
+            particleAnim: "riseFire",
+            titleClass: "title-fire",
+            border: "1px solid rgba(255, 85, 0, 0.5)",
+            sound: "Burning Spirit"
+        },
+        sakura: {
+            color: "#ffb7c5",
+            bg: "radial-gradient(circle at center, #1a050a 0%, #000000 100%)",
+            font: "'Cinzel', serif",
+            particle: "🌸",
+            particleAnim: "fallSakura",
+            titleClass: "title-sakura",
+            border: "1px solid rgba(255, 183, 197, 0.4)",
+            sound: "Gentle Breeze"
+        },
+        blood: {
+            color: "#cc0000",
+            bg: "radial-gradient(circle at center, #200000 0%, #000000 100%)",
+            font: "'Nosifer', cursive", // Creepy font
+            particle: "🩸",
+            particleAnim: "dripBlood",
+            titleClass: "title-blood",
+            border: "1px solid rgba(204, 0, 0, 0.6)",
+            sound: "Heartbeat"
+        }
+    };
+
+    // Fallback if theme doesn't exist
+    const currentTheme = THEMES[person.theme] || THEMES.fire;
+
+    // --- 2. PARTICLE SYSTEM ---
     useEffect(() => {
-        const createParticles = () => {
+        const layer = document.getElementById("particle-layer");
+        if (!layer) return;
+
+        const createParticle = () => {
             const el = document.createElement("div");
-            el.innerText = person.emoji;
-            el.className = "modal-particle";
-            el.style.left = Math.random() * 100 + "vw";
-            if (person.theme === "fire")
-                el.style.animation = `riseFire ${2 + Math.random()
-                    }s ease-in forwards`;
-            else if (person.theme === "sakura")
-                el.style.animation = `fallSakura ${4 + Math.random()
-                    }s linear forwards`;
-            else
-                el.style.animation = `dripBlood ${3 + Math.random()
-                    }s ease-in forwards`;
-            const container = document.getElementById("theme-layer");
-            if (container) container.appendChild(el);
-            setTimeout(() => el.remove(), 4000);
+            el.innerText = currentTheme.particle;
+            el.className = "magic-particle";
+            
+            // Randomize physics
+            const startLeft = Math.random() * 100;
+            const size = Math.random() * 1.5 + 0.5; // Scale multiplier
+            const duration = Math.random() * 3 + 2; // 2s to 5s
+
+            el.style.left = startLeft + "%";
+            el.style.fontSize = size + "rem";
+            el.style.animation = `${currentTheme.particleAnim} ${duration}s linear forwards`;
+            
+            // Blur for depth
+            if (Math.random() > 0.5) el.style.filter = "blur(2px)";
+
+            layer.appendChild(el);
+            setTimeout(() => el.remove(), duration * 1000);
         };
-        const interval = setInterval(createParticles, 200);
+
+        // Intensity of particles
+        const interval = setInterval(createParticle, 150);
         return () => clearInterval(interval);
-    }, [person]);
+    }, [person, currentTheme]);
+
+    // --- 3. STYLES ---
+    const styles = `
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Cinzel:wght@700&family=Nosifer&family=Montserrat:wght@300;400&display=swap');
+
+        /* MODAL CONTAINER */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            animation: modalFadeIn 0.5s ease-out forwards;
+        }
+
+        /* THE CARD */
+        .god-card-container {
+            position: relative;
+            width: 90%;
+            max-width: 450px;
+            padding: 40px;
+            background: rgba(10, 10, 10, 0.9);
+            border-radius: 12px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            text-align: center;
+            overflow: hidden;
+            transform: scale(0.9);
+            animation: cardPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 0.2s;
+        }
+
+        /* TEXT STYLES */
+        .role-text {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            display: inline-block;
+            padding-bottom: 5px;
+        }
+
+        .desc-text {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.95rem;
+            color: #ccc;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 4px black;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* CLOSE BUTTON */
+        .close-btn-epic {
+            background: transparent;
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: bold;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            padding: 12px 35px;
+            border: 1px solid rgba(255,255,255,0.3);
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .close-btn-epic:hover {
+            background: rgba(255,255,255,0.1);
+            letter-spacing: 4px;
+            box-shadow: 0 0 15px currentColor;
+        }
+
+        /* --- THEME SPECIFIC ANIMATIONS & TEXT --- */
+
+        /* FIRE THEME */
+        .title-fire {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            color: #fff;
+            margin: 0 0 10px 0;
+            text-transform: uppercase;
+            text-shadow: 
+                0 0 10px #ff5500,
+                0 -10px 20px #ff0000,
+                0 -20px 40px #ffaa00;
+            animation: burnText 2s infinite alternate;
+        }
+        @keyframes riseFire {
+            0% { transform: translateY(110vh) scale(1); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translateY(-10vh) scale(0); opacity: 0; }
+        }
+        @keyframes burnText {
+            0% { transform: scale(1); text-shadow: 0 0 10px #ff5500, 0 -10px 20px #ff0000; }
+            100% { transform: scale(1.02); text-shadow: 0 0 20px #ff5500, 0 -15px 30px #ff0000; }
+        }
+
+        /* SAKURA THEME */
+        .title-sakura {
+            font-family: 'Cinzel', serif;
+            font-size: 2.8rem;
+            color: #fff;
+            margin: 0 0 10px 0;
+            text-shadow: 0 0 10px #ffb7c5, 0 0 20px #ff69b4;
+            animation: breathePink 3s infinite ease-in-out;
+        }
+        @keyframes fallSakura {
+            0% { transform: translateY(-10vh) rotate(0deg) translateX(0); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translateY(110vh) rotate(360deg) translateX(50px); opacity: 0; }
+        }
+        @keyframes breathePink {
+            0%, 100% { text-shadow: 0 0 10px #ffb7c5; }
+            50% { text-shadow: 0 0 25px #ffb7c5, 0 0 40px #ff69b4; }
+        }
+
+        /* BLOOD THEME */
+        .title-blood {
+            font-family: 'Nosifer', cursive;
+            font-size: 2.5rem;
+            color: #ff0000;
+            margin: 0 0 10px 0;
+            text-shadow: 2px 2px 0px #000;
+            animation: glitchHorror 3s infinite;
+        }
+        @keyframes dripBlood {
+            0% { top: -10%; opacity: 1; }
+            100% { top: 120%; opacity: 0; }
+        }
+        @keyframes glitchHorror {
+            0% { transform: skew(0deg); }
+            90% { transform: skew(0deg); opacity: 1; }
+            92% { transform: skew(-10deg); opacity: 0.8; }
+            94% { transform: skew(10deg); opacity: 1; }
+            96% { transform: skew(-5deg); opacity: 0.9; }
+            100% { transform: skew(0deg); }
+        }
+
+        /* UTILS */
+        .magic-particle {
+            position: absolute;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes cardPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    `;
 
     return h(
         "div",
-        { className: "theme-modal theme-" + person.theme },
+        { className: "modal-overlay" },
+        h("style", null, styles),
+
+        // --- BACKGROUND LAYER ---
         h("div", {
-            id: "theme-layer",
+            id: "particle-layer",
             style: {
                 position: "absolute",
-                width: "100%",
-                height: "100%",
-                overflow: "hidden"
+                top: 0, left: 0,
+                width: "100%", height: "100%",
+                background: currentTheme.bg,
+                overflow: "hidden",
+                zIndex: -1
             }
         }),
+
+        // --- CONTENT CARD ---
         h(
             "div",
-            { className: "theme-content" },
-            h(
-                "h1",
-                {
-                    style: {
-                        color:
-                            person.theme === "sakura"
-                                ? "#FFB7C5"
-                                : person.theme === "fire"
-                                    ? "#FF4500"
-                                    : "#800000",
-                        fontFamily: "Orbitron",
-                        marginBottom: "5px"
-                    }
-                },
-                person.name
-            ),
-            h(
-                "h3",
-                {
-                    style: {
-                        color: "#fff",
-                        fontSize: "0.9rem",
-                        marginBottom: "15px"
-                    }
-                },
-                person.role
-            ),
-            h(
-                "p",
-                {
-                    style: {
-                        color: "#ccc",
-                        fontSize: "0.85rem",
-                        lineHeight: "1.4"
-                    }
-                },
-                person.desc
-            ),
+            {
+                className: "god-card-container",
+                style: {
+                    border: currentTheme.border,
+                    boxShadow: `0 0 30px ${currentTheme.color}40` // Hex alpha 40%
+                }
+            },
+            
+            // Name with specific animation class
+            h("h1", { className: currentTheme.titleClass }, person.name),
+            
+            // Role
+            h("div", { className: "role-text" }, person.role),
+            
+            // Description
+            h("p", { className: "desc-text" }, person.desc),
+
+            // Action
             h(
                 "button",
                 {
+                    className: "close-btn-epic",
                     onClick: onClose,
-                    style: {
-                        marginTop: "25px",
-                        padding: "8px 25px",
-                        background: "rgba(255,255,255,0.1)",
-                        border: "1px solid #777",
-                        color: "#fff",
-                        cursor: "pointer",
-                        borderRadius: "20px"
-                    }
+                    style: { color: currentTheme.color, borderColor: currentTheme.color }
                 },
-                "CLOSE"
+                "CLOSE CONNECTION"
             )
         )
     );
@@ -548,21 +730,280 @@ const Paywall = ({ onUnlock }) => {
     );
 };
 
-// --- HOME PAGE ---
-const HomePage = ({ onStart, onViewCredits }) =>
-    h(
+// --- HOME PAGE (GOD LEVEL UPGRADE) ---
+const HomePage = ({ onStart, onViewCredits }) => {
+    // 1. Define the Cinematic Styles (CSS-in-JS approach for portability)
+    const styles = `
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&display=swap');
+
+        /* RESET & BASICS */
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
+        
+        .cinematic-wrapper {
+            position: relative;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #050505;
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            z-index: 1;
+        }
+
+        /* DYNAMIC BACKGROUND */
+        .cinematic-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, #1a0b0b 0%, #000000 80%);
+            z-index: -2;
+        }
+        
+        /* Moving Fog/Nebula Effect */
+        .cinematic-bg::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255, 50, 50, 0.05) 0%, transparent 60%),
+                        radial-gradient(circle, rgba(50, 100, 255, 0.03) 0%, transparent 50%);
+            animation: rotateBg 60s linear infinite;
+            z-index: -1;
+        }
+
+        /* Scanline Overlay */
+        .scanlines {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.6;
+        }
+
+        /* LAYOUT SECTIONS */
+        .section-top {
+            flex: 4; /* Takes up most space */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding-top: 2vh;
+            z-index: 10;
+        }
+
+        .section-mid {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            z-index: 10;
+        }
+
+        .section-bottom {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding-bottom: 3vh;
+            width: 100%;
+            z-index: 10;
+        }
+
+        /* ELEMENTS */
+        .cover-art-container {
+            position: relative;
+            width: 28vh;
+            max-width: 200px;
+            aspect-ratio: 2/3;
+            margin-bottom: 2vh;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .cover-art-gif {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(255, 50, 50, 0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .hero-title {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(2rem, 5vh, 4rem);
+            text-align: center;
+            line-height: 1.1;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.8);
+            margin: 0;
+        }
+
+        .title-red {
+            color: #ff3333;
+            text-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+        }
+
+        .genre-bar {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1vh;
+            text-align: center;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .summary-text {
+            color: rgba(255,255,255,0.8);
+            font-size: clamp(0.75rem, 1.8vh, 1rem);
+            line-height: 1.6;
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+            font-weight: 300;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        /* BUTTONS */
+        .start-btn-epic {
+            position: relative;
+            padding: 15px 50px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+        }
+
+        .start-btn-epic::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 50, 50, 0.4), transparent);
+            transition: 0.5s;
+        }
+
+        .start-btn-epic:hover {
+            border-color: #ff3333;
+            box-shadow: 0 0 30px rgba(255, 50, 50, 0.4);
+            transform: scale(1.05);
+        }
+
+        .start-btn-epic:hover::before {
+            left: 100%;
+        }
+
+        .hunt-text {
+            font-size: 0.7rem;
+            color: #ff3333;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            opacity: 0.8;
+            margin-bottom: 2vh;
+        }
+
+        /* CREDITS */
+        .credits-container {
+            width: 90%;
+            background: rgba(0,0,0,0.4);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding: 15px;
+            backdrop-filter: blur(4px);
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .credits-label {
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            color: #666;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .credits-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .credit-pill {
+            font-size: 0.7rem;
+            padding: 4px 12px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            color: #aaa;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .credit-pill:hover {
+            background: #ff3333;
+            color: #fff;
+            border-color: #ff3333;
+        }
+
+        .more-info {
+            font-size: 0.6rem;
+            color: #444;
+            margin-top: 5px;
+        }
+
+        /* ANIMATIONS */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes rotateBg {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; filter: blur(10px); }
+            to { opacity: 1; filter: blur(0); }
+        }
+        .fade-in { animation: fadeIn 1.5s ease-out forwards; }
+    `;
+
+    return h(
         "div",
-        {
-            className: "home-layout fade-in",
-            style: {
-                height: "100vh",
-                display: "flex",
-                flexDirection: "column"
-            }
-        },
+        { className: "cinematic-wrapper fade-in" },
+        // Inject Styles
+        h("style", null, styles),
+        
+        // Background Layers
+        h("div", { className: "cinematic-bg" }),
+        h("div", { className: "scanlines" }),
+
+        // --- TOP SECTION (Cover & Title) ---
         h(
             "div",
-            { className: "home-top-section" },
+            { className: "section-top" },
             h(
                 "div",
                 { className: "cover-art-container" },
@@ -577,218 +1018,345 @@ const HomePage = ({ onStart, onViewCredits }) =>
                 { className: "hero-title" },
                 t.title_start,
                 h("br"),
-                h(
-                    "span",
-                    { className: "title-red" },
-                    t.title_end
-                )
+                h("span", { className: "title-red" }, t.title_end)
             )
         ),
 
+        // --- MIDDLE SECTION (Meta & Summary) ---
         h(
             "div",
-            { className: "novel-meta", style: { textAlign: "center", marginTop: "10px" } },
-
-            // GENRES
+            { className: "section-mid" },
+            // Genres styled as a clean bar
             h(
                 "div",
-                {
-                    style: {
-                        color: "#aaa",
-                        fontSize: "0.75rem",
-                        letterSpacing: "1.5px",
-                        marginBottom: "6px"
-                    }
-                },
-                "Sci-Fi   Romance   Action   Mystery   Horror   Adventure"
+                { className: "genre-bar" },
+                ["Sci-Fi", "Romance", "Action", "Mystery", "Horror"].map(g => 
+                    h("span", { key: g }, g)
+                )
             ),
-
-            // SUMMARY
             h(
                 "p",
-                {
-                    style: {
-                        color: "#ccc",
-                        fontSize: "0.8rem",
-                        width: "85%",
-                        margin: "0 auto",
-                        lineHeight: "1.4",
-                        marginTop: "4px"
-                    }
-                },
+                { className: "summary-text" },
                 "As humanity faces its final hours, a hidden conspiracy awakens — forcing Jake and Viyona to choose between the world they know and the truth that could rewrite everything."
             )
         ),
 
-
-
-
-
-
-
-
-
-
+        // --- BOTTOM SECTION (Action & Credits) ---
         h(
             "div",
-            { className: "home-center-action" },
+            { className: "section-bottom" },
+            
+            // Start Button
             h(
-                "div",
+                "button",
                 {
-                    className: "start-btn-soft",
+                    className: "start-btn-epic",
                     onClick: onStart
                 },
                 t.start
             ),
-            h("div", { className: "hunt-text" }, t.subtitle)
-        ),
-        h(
-            "div",
-            { className: "credits-section" },
-            h(
-                "div",
-                {
-                    className: "section-header",
-                    style: {
-                        fontSize: "0.7rem",
-                        color: "#666",
-                        letterSpacing: "2px"
-                    }
-                },
-                t.special
-            ),
-            h(
-                "div",
-                { className: "credits-row" },
-                window.APP_CONFIG.credits.map((c, i) =>
-                    h(
-                        "div",
-                        {
-                            key: i,
-                            className: "soft-credit-btn",
-                            onClick: () => onViewCredits(c)
-                        },
-                        c.name
-                    )
-                )
-            ),
-            h(
-                "p",
-                { className: "credit-subtext" },
-                t.more_info
-            )
-        )
-    );
+            h("div", { className: "hunt-text" }, t.subtitle),
 
-// --- MANGA LIST ---
-const MangaPage = ({ onRead }) =>
-    h(
-        "div",
-        { className: "manga-list fade-in" },
-        h(
-            "h2",
-            {
-                style: {
-                    color: "var(--accent-cyan)",
-                    fontFamily: "Orbitron",
-                    marginBottom: "20px",
-                    textAlign: "center",
-                    marginTop: "10px"
-                }
-            },
-            t.chapters
-        ),
-        window.APP_CONFIG.chapters.map((ch) =>
+            // Credits Area
             h(
                 "div",
-                {
-                    key: ch.id,
-                    className:
-                        "ch-card " +
-                        (ch.locked ? "locked" : ""),
-                    onClick: () =>
-                        !ch.locked && onRead(ch.id)
-                },
+                { className: "credits-container" },
+                h("div", { className: "credits-label" }, t.special),
                 h(
                     "div",
-                    { className: "ch-info" },
-                    h(
-                        "h3",
-                        {
-                            style: {
-                                color: "#fff",
-                                fontSize: "1rem"
-                            }
-                        },
-                        ch.id + ". " + ch.title
-                    ),
-                    h(
-                        "div",
-                        {
-                            style: {
-                                color: "#666",
-                                fontSize: "0.7rem"
-                            }
-                        },
-                        ch.locked ? t.locked : ch.date
+                    { className: "credits-row" },
+                    window.APP_CONFIG.credits.map((c, i) =>
+                        h(
+                            "div",
+                            {
+                                key: i,
+                                className: "credit-pill",
+                                onClick: () => onViewCredits(c)
+                            },
+                            c.name
+                        )
                     )
                 ),
-                h(
-                    "div",
-                    { className: "ch-stats" },
-                    !ch.locked
-                        ? [
-                            h(
-                                "div",
-                                {
-                                    key: "live",
-                                    className: "stat-pill"
-                                },
-                                h("span", {
-                                    className: "live-dot"
-                                }),
-                                " 0"
-                            ),
-                            h(
-                                "div",
-                                {
-                                    key: "comments",
-                                    className: "stat-pill"
-                                },
-                                h("i", {
-                                    className:
-                                        "fas fa-comment"
-                                }),
-                                " 0"
-                            )
-                        ]
-                        : h("i", {
-                            className: "fas fa-lock",
-                            style: { color: "#555" }
-                        })
-                )
-            )
-        ),
-        h(
-            "div",
-            { className: "construction-section" },
-            h(
-                "h3",
-                { style: { fontSize: "1rem" } },
-                t.coming_soon
-            ),
-            h(
-                "p",
-                {
-                    style: {
-                        fontSize: "0.8rem",
-                        marginTop: "5px"
-                    }
-                },
-                t.construction_desc
+                h("p", { className: "more-info" }, t.more_info)
             )
         )
     );
+};
+
+// --- MANGA LIST (GOD LEVEL UPGRADE) ---
+const MangaPage = ({ onRead }) => {
+
+    // --- CONFIGURATION FOR STATUSES ---
+    // You can edit the logic inside the map function below to change these.
+    const STATUS_COLORS = {
+        "FINISHED":    { color: "#00ff9d", glow: "0 0 10px #00ff9d" }, // Neon Green
+        "ONGOING":     { color: "#00e5ff", glow: "0 0 10px #00e5ff" }, // Cyan
+        "COMING SOON": { color: "#ff3333", glow: "0 0 10px #ff3333" }  // Red
+    };
+
+    // --- STYLES ---
+    const styles = `
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap');
+
+        /* LAYOUT & BG */
+        .manga-layout {
+            position: relative;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            background-color: #050505;
+            font-family: 'Rajdhani', sans-serif;
+            overflow: hidden;
+            color: white;
+        }
+
+        .space-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #11001c 0%, #000000 100%);
+            z-index: -2;
+        }
+        
+        .stars-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
+                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px);
+            background-size: 550px 550px, 350px 350px;
+            background-position: 0 0, 40px 60px;
+            animation: moveStars 100s linear infinite;
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        /* HEADER */
+        .header-zone {
+            flex: 0 0 auto;
+            text-align: center;
+            padding: 20px 0;
+            z-index: 10;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
+        }
+
+        .holo-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            color: transparent;
+            -webkit-text-stroke: 1px rgba(0, 229, 255, 0.8);
+            text-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        /* SCROLLABLE LIST CONTAINER */
+        .list-viewport {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            mask-image: linear-gradient(to bottom, transparent, black 5%, black 95%, transparent);
+            -webkit-mask-image: linear-gradient(to bottom, transparent, black 5%, black 95%, transparent);
+        }
+
+        /* CHAPTER CARD */
+        .god-card {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            background: rgba(20, 20, 30, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            animation: slideUp 0.6s ease-out backwards;
+        }
+
+        .god-card:hover {
+            transform: scale(1.02) translateX(5px);
+            background: rgba(30, 30, 50, 0.8);
+            border-color: rgba(0, 229, 255, 0.5);
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+        }
+
+        .god-card.locked {
+            opacity: 0.7;
+            filter: grayscale(0.8);
+            cursor: not-allowed;
+            border-color: rgba(255, 50, 50, 0.2);
+        }
+
+        /* CARD CONTENT */
+        .card-left {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .ch-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .ch-date {
+            font-size: 0.75rem;
+            color: #888;
+            font-family: monospace;
+        }
+
+        /* STATUS PILL */
+        .status-pill {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border: 1px solid currentColor;
+            border-radius: 4px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            white-space: nowrap;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            margin-left: 10px;
+        }
+
+        .lock-icon {
+            font-size: 1.2rem;
+            color: #ff3333;
+            text-shadow: 0 0 10px rgba(255, 50, 50, 0.6);
+            margin-left: 15px;
+        }
+
+        /* CONSTRUCTION FOOTER */
+        .sys-msg {
+            margin-top: 30px;
+            margin-bottom: 50px;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 20px;
+            width: 80%;
+            max-width: 400px;
+        }
+
+        .sys-title {
+            color: #ffcc00;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+
+        .sys-desc {
+            color: #666;
+            font-size: 0.7rem;
+        }
+
+        /* ANIMATIONS */
+        @keyframes moveStars { from { background-position: 0 0, 40px 60px; } to { background-position: -1000px 500px, -960px 560px; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+        ::-webkit-scrollbar-thumb { background: #00e5ff; border-radius: 2px; }
+    `;
+
+    return h(
+        "div",
+        { className: "manga-layout fade-in" },
+        h("style", null, styles),
+        
+        // Backgrounds
+        h("div", { className: "space-bg" }),
+        h("div", { className: "stars-overlay" }),
+
+        // Header
+        h(
+            "div",
+            { className: "header-zone" },
+            h("h2", { className: "holo-title" }, t.chapters)
+        ),
+
+        // Scrollable List
+        h(
+            "div",
+            { className: "list-viewport" },
+            window.APP_CONFIG.chapters.map((ch, index) => {
+                
+                // --- LOGIC: EDIT THIS TO CHANGE STATUS ---
+                // 1. If locked, automatically "COMING SOON"
+                // 2. If ID is 1, let's say it's "FINISHED"
+                // 3. If ID is the last one, maybe "ONGOING"
+                // You can manually set string here based on ch.id
+                let statusText = "FINISHED"; 
+                if (ch.locked) statusText = "COMING SOON";
+                else if (ch.id === window.APP_CONFIG.chapters.length) statusText = "ONGOING"; 
+                
+                const theme = STATUS_COLORS[statusText] || STATUS_COLORS["FINISHED"];
+
+                return h(
+                    "div",
+                    {
+                        key: ch.id,
+                        className: "god-card " + (ch.locked ? "locked" : ""),
+                        style: { animationDelay: `${index * 0.1}s` }, // Stagger animation
+                        onClick: () => !ch.locked && onRead(ch.id)
+                    },
+                    // Left Side: Title & Date
+                    h(
+                        "div",
+                        { className: "card-left" },
+                        h("div", { className: "ch-title" }, `CH.${ch.id} : ${ch.title}`),
+                        h("div", { className: "ch-date" }, ch.locked ? "ENCRYPTED" : ch.date)
+                    ),
+
+                    // Right Side: Status Badge or Lock
+                    h(
+                        "div",
+                        { style: { display: "flex", alignItems: "center" } },
+                        
+                        // THE STATUS PILL
+                        h(
+                            "div",
+                            {
+                                className: "status-pill",
+                                style: {
+                                    color: theme.color,
+                                    borderColor: theme.color,
+                                    boxShadow: `0 0 5px ${theme.color}, inset 0 0 5px ${theme.color}20`,
+                                    textShadow: theme.glow
+                                }
+                            },
+                            statusText
+                        ),
+
+                        // Lock Icon (Only if locked)
+                        ch.locked && h("i", { className: "fas fa-lock lock-icon" })
+                    )
+                );
+            }),
+
+            // Footer / Construction
+            h(
+                "div",
+                { className: "sys-msg" },
+                h("div", { className: "sys-title" }, `// SYSTEM_MESSAGE: ${t.coming_soon}`),
+                h("div", { className: "sys-desc" }, t.construction_desc)
+            )
+        )
+    );
+};
 
 // --- READER ---
 const ReaderPage = ({ chapterId, onBack }) => {
