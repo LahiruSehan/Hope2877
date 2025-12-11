@@ -26,6 +26,12 @@ window.MUSIC_CONFIG = {
             { track: "assets/musics/Life.mp3", pages: [1, 9] },
             { track: "assets/musics/SadTruth.mp3", pages: [10, 14] }
 
+        ],
+
+        4: [
+            { track: "assets/musics/Odyssey.mp3", pages: [1, 19] }
+
+
         ]
     }
 };

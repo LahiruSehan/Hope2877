@@ -77,11 +77,35 @@ window.APP_CONFIG = {
 
         {
             id: 3,
-            title: "Broken Promisses",
-            date: "The Last Day",
+            title: "Regrets",
+            date: "Broken Promisses",
             locked: false,
             pages: Array.from({ length: 13 }, (_, i) => `imageschapter3/${i + 1}.png`)
         },
-        { id: 4, title: "CRUEL", locked: true, pages: [] }
+
+                {
+            id: 4,
+            title: "CRUEL",
+            date: "Comming Soon",
+            locked: false,
+            pages: Array.from({ length: 13 }, (_, i) => `imageschapter3/${i + 1}.png`)
+        },
+
+                {
+            id: 5,
+            title: "Comming Soon",
+            date: "Comming Soon",
+            locked: false,
+            pages: Array.from({ length: 13 }, (_, i) => `imageschapter3/${i + 1}.png`)
+        },
+
+                {
+            id: 6,
+            title: "Comming Soon",
+            date: "Comming Soon",
+            locked: false,
+            pages: Array.from({ length: 13 }, (_, i) => `imageschapter3/${i + 1}.png`)
+        },
+      
     ]
 };
