@@ -1062,7 +1062,7 @@ const HomePage = ({ onStart, onViewCredits }) => {
         h("div", {
             className: "cover-bg",
             style: {
-                backgroundImage: "url('/assets/cover.jpg')", // <-- replace with your cover path
+                backgroundImage: "url('/images/cover.png')", // <-- replace with your cover path
             }
         }),
 
