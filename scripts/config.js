@@ -104,7 +104,7 @@ window.APP_CONFIG = {
             title: "Gods",
             date: "Begining of the End",
             locked: false,
-            pages: Array.from({ length: 10 }, (_, i) => `imageschapter6/${i + 1}.png`)
+            pages: Array.from({ length: 20 }, (_, i) => `imageschapter6/${i + 1}.png`)
         },
 
                         {
