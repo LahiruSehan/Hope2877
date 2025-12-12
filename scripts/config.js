@@ -101,18 +101,18 @@ window.APP_CONFIG = {
 
                 {
             id: 6,
-            title: "HOPE",
+            title: "Gods",
             date: "Begining of the End",
             locked: false,
-            pages: Array.from({ length: 0 }, (_, i) => `imageschapter6/${i + 1}.png`)
+            pages: Array.from({ length: 10 }, (_, i) => `imageschapter6/${i + 1}.png`)
         },
 
                         {
             id: 7,
-            title: "FLAME",
-            date: "When They need us the most",
+            title: "HOPE",
+            date: "A False Voyage",
             locked: false,
-            pages: Array.from({ length: 0 }, (_, i) => `imageschapter6/${i + 1}.png`)
+            pages: Array.from({ length: 0 }, (_, i) => `imageschapter7/${i + 1}.png`)
         },
       
     ]
