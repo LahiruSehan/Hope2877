@@ -83,7 +83,7 @@ window.APP_CONFIG = {
             pages: Array.from({ length: 15 }, (_, i) => `imageschapter3/${i + 1}.png`)
         },
 
-                {
+        {
             id: 4,
             title: "Regrets",
             date: "A False Hope ",
@@ -91,7 +91,7 @@ window.APP_CONFIG = {
             pages: Array.from({ length: 19 }, (_, i) => `imageschapter4/${i + 1}.png`)
         },
 
-                {
+        {
             id: 5,
             title: "CRUEL",
             date: "Losses",
@@ -99,13 +99,20 @@ window.APP_CONFIG = {
             pages: Array.from({ length: 12 }, (_, i) => `imageschapter5/${i + 1}.png`)
         },
 
-                {
+        {
             id: 6,
             title: "Gods",
             date: "Begining of the End",
             locked: false,
-            pages: Array.from({ length: 10 }, (_, i) => `imageschapter6/${i + 1}.png`)
+            pages: Array.from({ length: 10 }, (_, i) => {
+                const num = i + 1;
+                return [
+                    `imageschapter6/${num}.png`,
+                    `imageschapter6/${num}.jpg`,
+                ];
+            })
         },
+
 
                         {
             id: 7,
@@ -114,6 +121,6 @@ window.APP_CONFIG = {
             locked: false,
             pages: Array.from({ length: 0 }, (_, i) => `imageschapter7/${i + 1}.png`)
         },
-      
+
     ]
 };
