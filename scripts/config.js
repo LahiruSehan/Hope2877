@@ -109,10 +109,34 @@ window.APP_CONFIG = {
 
                         {
             id: 7,
-            title: "HOPE",
-            date: "A False Voyage",
+            title: "Begining",
+            date: "Who Wronged Who?",
             locked: false,
-            pages: Array.from({ length: 0 }, (_, i) => `imageschapter7/${i + 1}.png`)
+            pages: Array.from({ length: 10 }, (_, i) => `imageschapter7/${i + 1}.png`)
+        },
+
+                                {
+            id: 8,
+            title: "Hope",
+            date: "Uncertain Journey",
+            locked: false,
+            pages: Array.from({ length: 10 }, (_, i) => `imageschapter8/${i + 1}.png`)
+        },
+
+                                {
+            id: 9,
+            title: "Untitled",
+            date: "-",
+            locked: false,
+            pages: Array.from({ length: 10 }, (_, i) => `imageschapter9/${i + 1}.png`)
+        },
+
+                                {
+            id: 10,
+            title: "Untitled",
+            date: "-",
+            locked: false,
+            pages: Array.from({ length: 10 }, (_, i) => `imageschapter10/${i + 1}.png`)
         },
       
     ]

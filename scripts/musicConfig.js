@@ -41,7 +41,13 @@ window.MUSIC_CONFIG = {
         ],
 
         6: [
-            { track: "assets/musics/Gods.mp3", pages: [1, 15] }
+            { track: "assets/musics/Gods.mp3", pages: [1, 20] }
+
+
+        ],
+
+                7: [
+            { track: "assets/musics/Echoes.mp3", pages: [1, 10] }
 
 
         ]
