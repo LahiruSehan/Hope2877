@@ -50,6 +50,20 @@ window.MUSIC_CONFIG = {
             { track: "assets/musics/Echoes.mp3", pages: [1, 10] }
 
 
+        ],
+              
+
+                8: [
+            { track: "assets/musics/decend.mp3", pages: [1, 25] }
+
+
+        ],
+               
+
+                9: [
+            { track: "assets/musics/love2.mp3", pages: [1, 11] }
+
+
         ]
     }
 };

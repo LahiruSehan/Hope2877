@@ -120,15 +120,15 @@ window.APP_CONFIG = {
             title: "Hope",
             date: "Uncertain Journey",
             locked: false,
-            pages: Array.from({ length: 10 }, (_, i) => `imageschapter8/${i + 1}.png`)
+            pages: Array.from({ length: 25 }, (_, i) => `imageschapter8/${i + 1}.png`)
         },
 
                                 {
             id: 9,
-            title: "Untitled",
-            date: "-",
+            title: "You & Me",
+            date: "I am here for you",
             locked: false,
-            pages: Array.from({ length: 10 }, (_, i) => `imageschapter9/${i + 1}.png`)
+            pages: Array.from({ length: 11 }, (_, i) => `imageschapter9/${i + 1}.png`)
         },
 
                                 {
@@ -138,6 +138,31 @@ window.APP_CONFIG = {
             locked: false,
             pages: Array.from({ length: 10 }, (_, i) => `imageschapter10/${i + 1}.png`)
         },
+        
+                                {
+            id: 11,
+            title: "Untitled",
+            date: "-",
+            locked: false,
+            pages: Array.from({ length: 10 }, (_, i) => `imageschapter11/${i + 1}.png`)
+        },
+        
+                                {
+            id: 12,
+            title: "Untitled",
+            date: "-",
+            locked: false,
+            pages: Array.from({ length: 10 }, (_, i) => `imageschapter12/${i + 1}.png`)
+        },
+        
+                                {
+            id: 13,
+            title: "Untitled",
+            date: "-",
+            locked: false,
+            pages: Array.from({ length: 10 }, (_, i) => `imageschapter13/${i + 1}.png`)
+        },
+        
       
     ]
 };
