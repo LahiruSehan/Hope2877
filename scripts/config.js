@@ -133,34 +133,42 @@ window.APP_CONFIG = {
 
                                 {
             id: 10,
-            title: "Untitled",
-            date: "-",
+            title: "Something ODD",
+            date: "Yes! Definetely",
             locked: false,
-            pages: Array.from({ length: 10 }, (_, i) => `imageschapter10/${i + 1}.png`)
+            pages: Array.from({ length: 7 }, (_, i) => `imageschapter10/${i + 1}.png`)
         },
         
                                 {
             id: 11,
-            title: "Untitled",
-            date: "-",
+            title: "Lyra",
+            date: "Trip down the memory lane",
             locked: false,
-            pages: Array.from({ length: 10 }, (_, i) => `imageschapter11/${i + 1}.png`)
+            pages: Array.from({ length: 11 }, (_, i) => `imageschapter11/${i + 1}.png`)
         },
         
                                 {
             id: 12,
-            title: "Untitled",
-            date: "-",
+            title: "Whats new?",
+            date: "Almost Nothing",
             locked: false,
-            pages: Array.from({ length: 10 }, (_, i) => `imageschapter12/${i + 1}.png`)
+            pages: Array.from({ length: 8 }, (_, i) => `imageschapter12/${i + 1}.png`)
         },
         
                                 {
             id: 13,
-            title: "Untitled",
-            date: "-",
+            title: "Begning of EDEN",
+            date: "Life is Beautiful",
             locked: false,
             pages: Array.from({ length: 10 }, (_, i) => `imageschapter13/${i + 1}.png`)
+        },
+
+                                        {
+            id: 14,
+            title: "End of Eden",
+            date: "Life is a Disaster",
+            locked: false,
+            pages: Array.from({ length: 18 }, (_, i) => `imageschapter13/${i + 1}.png`)
         },
         
       
