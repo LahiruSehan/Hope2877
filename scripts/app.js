@@ -147,7 +147,7 @@ const CinematicIntro = ({ onComplete }) => {
         frame();
     }, []);
 
-    // ⚡ LIGHTNING SYSTEM
+    // ⚡ LIGHTNING SYSTEM (UPDATED: REACTIVE & COLORED)
     useEffect(() => {
         const canvas = document.getElementById("lightning-canvas");
         if (!canvas) return;
@@ -160,6 +160,14 @@ const CinematicIntro = ({ onComplete }) => {
         };
         resize();
         window.addEventListener("resize", resize);
+
+        // Color Palette: Red, White, Blue
+        const getBoltColor = () => {
+            const r = Math.random();
+            if (r < 0.33) return { r: 255, g: 50, b: 50 }; // Red
+            if (r < 0.66) return { r: 255, g: 255, b: 255 }; // White
+            return { r: 50, g: 150, b: 255 }; // Blue
+        };
 
         const genBolt = (x, y, targetX, targetY, segments = 20) => {
             let points = [{ x, y }];
@@ -179,11 +187,12 @@ const CinematicIntro = ({ onComplete }) => {
             return points;
         };
 
-        const drawBolt = (pts, thickness = 3, alpha = 1) => {
-            ctx.strokeStyle = `rgba(200,220,255,${alpha})`;
+        const drawBolt = (pts, color, thickness = 3, alpha = 1) => {
+            const { r, g, b } = color;
+            ctx.strokeStyle = `rgba(${r},${g},${b},${alpha})`;
             ctx.lineWidth = thickness;
             ctx.shadowBlur = 25;
-            ctx.shadowColor = "rgba(180,200,255,1)";
+            ctx.shadowColor = `rgba(${r},${g},${b},1)`;
 
             ctx.beginPath();
             ctx.moveTo(pts[0].x, pts[0].y);
@@ -197,37 +206,51 @@ const CinematicIntro = ({ onComplete }) => {
             ctx.stroke();
         };
 
-        const drawBranch = (p) => {
+        const drawBranch = (p, color) => {
             let len = 50 + Math.random() * 120;
             let angle = (Math.random() - 0.5) * 1.2;
             let endX = p.x + Math.cos(angle) * len;
             let endY = p.y + Math.sin(angle) * len;
             let branchPts = genBolt(p.x, p.y, endX, endY, 6);
-            drawBolt(branchPts, 1.6, 0.6);
+            drawBolt(branchPts, color, 1.6, 0.6);
         };
 
-        const triggerLightning = () => {
+        const triggerLightning = (e) => {
+            // Optional coordinates from click/touch
+            let targetX, targetY;
+            
+            if (e) {
+                // Interactive trigger
+                targetX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : window.innerWidth / 2);
+                targetY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : window.innerHeight / 2);
+            } else {
+                // Auto trigger (center-ish)
+                targetX = canvas.width * 0.5;
+                targetY = canvas.height * 0.45;
+            }
+
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            let startX = canvas.width * 0.5 + (Math.random() - 0.5) * 150;
+            // Determine Start X: If interactive, start near the top relative to click
+            let startX = e ? targetX + (Math.random() - 0.5) * 200 : canvas.width * 0.5 + (Math.random() - 0.5) * 150;
             let startY = 0;
-            let endX = canvas.width * 0.5;
-            let endY = canvas.height * 0.45;
 
-            let mainBolt = genBolt(startX, startY, endX, endY, 25);
+            let mainBolt = genBolt(startX, startY, targetX, targetY, 25);
+            
+            const color = getBoltColor();
 
-            drawBolt(mainBolt, 3, 1);
+            drawBolt(mainBolt, color, 3, 1);
 
             for (let i = 3; i < mainBolt.length - 3; i += 4) {
                 if (Math.random() > 0.55) continue;
-                drawBranch(mainBolt[i]);
+                drawBranch(mainBolt[i], color);
             }
 
             setTimeout(
                 () => ctx.clearRect(0, 0, canvas.width, canvas.height),
                 80
             );
-            setTimeout(() => drawBolt(mainBolt, 2.5, 0.8), 120);
+            setTimeout(() => drawBolt(mainBolt, color, 2.5, 0.8), 120);
             setTimeout(
                 () => ctx.clearRect(0, 0, canvas.width, canvas.height),
                 200
@@ -244,11 +267,17 @@ const CinematicIntro = ({ onComplete }) => {
             }, 300);
         };
 
-        const timer = setTimeout(triggerLightning, 6500);
+        const timer = setTimeout(() => triggerLightning(), 6500);
+
+        // Interaction Triggers
+        window.addEventListener('mousedown', triggerLightning);
+        window.addEventListener('touchstart', triggerLightning);
 
         return () => {
             clearTimeout(timer);
             window.removeEventListener("resize", resize);
+            window.removeEventListener('mousedown', triggerLightning);
+            window.removeEventListener('touchstart', triggerLightning);
         };
     }, []);
 
@@ -293,549 +322,6 @@ const CinematicIntro = ({ onComplete }) => {
                     )
                 )
             )
-        )
-    );
-};
-
-// 🚨 LICENSE BAR
-const LicenseBar = () => {
-    const warnings = window.APP_CONFIG.legal.warnings;
-    const [index, setIndex] = useState(0);
-    const [fade, setFade] = useState(false);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setFade(true);
-            setTimeout(() => {
-                setIndex((prev) => (prev + 1) % warnings.length);
-                setFade(false);
-            }, 500);
-        }, 3500);
-        return () => clearInterval(interval);
-    }, [warnings]);
-
-    return h(
-        "div",
-        { className: "license-bar" },
-        h(
-            "div",
-            {
-                className:
-                    "license-text " + (fade ? "fade-out" : "")
-            },
-            warnings[index]
-        )
-    );
-};
-
-// 🌸 THEMED MODAL (GOD LEVEL)
-const ThemeModal = ({ person, onClose }) => {
-    if (!person) return null;
-
-    // --- 1. THEME CONFIGURATION ---
-    const THEMES = {
-        fire: {
-            color: "#ff5500",
-            bg: "radial-gradient(circle at center, #2a0a0a 0%, #000000 100%)",
-            font: "'Orbitron', sans-serif",
-            particle: "🔥",
-            particleAnim: "riseFire",
-            titleClass: "title-fire",
-            border: "1px solid rgba(255, 85, 0, 0.5)",
-            sound: "Burning Spirit"
-        },
-        sakura: {
-            color: "#ffb7c5",
-            bg: "radial-gradient(circle at center, #1a050a 0%, #000000 100%)",
-            font: "'Cinzel', serif",
-            particle: "🌸",
-            particleAnim: "fallSakura",
-            titleClass: "title-sakura",
-            border: "1px solid rgba(255, 183, 197, 0.4)",
-            sound: "Gentle Breeze"
-        },
-        blood: {
-            color: "#cc0000",
-            bg: "radial-gradient(circle at center, #200000 0%, #000000 100%)",
-            font: "'Nosifer', cursive",
-            particle: "🩸",
-            particleAnim: "dripBlood",
-            titleClass: "title-blood",
-            border: "1px solid rgba(204, 0, 0, 0.6)",
-            sound: "Heartbeat"
-        }
-    };
-
-    const currentTheme = THEMES[person.theme] || THEMES.fire;
-
-    // --- 2. PARTICLE SYSTEM ---
-    useEffect(() => {
-        const layer = document.getElementById("particle-layer");
-        if (!layer) return;
-
-        const createParticle = () => {
-            const el = document.createElement("div");
-            el.innerText = currentTheme.particle;
-            el.className = "magic-particle";
-
-            // Randomize physics
-            const startLeft = Math.random() * 100;
-            const size = Math.random() * 1.5 + 0.5;
-            const duration = Math.random() * 3 + 2;
-
-            el.style.left = startLeft + "%";
-            el.style.fontSize = size + "rem";
-            el.style.animation = `${currentTheme.particleAnim} ${duration}s linear forwards`;
-
-            if (Math.random() > 0.5) el.style.filter = "blur(2px)";
-
-            layer.appendChild(el);
-            setTimeout(() => el.remove(), duration * 1000);
-        };
-
-        const interval = setInterval(createParticle, 150);
-        return () => clearInterval(interval);
-    }, [person, currentTheme]);
-
-    // --- 3. STYLES ---
-    const styles = `
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Cinzel:wght@700&family=Nosifer&family=Montserrat:wght@300;400&display=swap');
-
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            animation: modalFadeIn 0.5s ease-out forwards;
-        }
-
-        .god-card-container {
-            position: relative;
-            width: 90%;
-            max-width: 450px;
-            padding: 40px;
-            background: rgba(10, 10, 10, 0.9);
-            border-radius: 12px;
-            box-shadow: 0 0 50px rgba(0,0,0,0.8);
-            text-align: center;
-            overflow: hidden;
-            transform: scale(0.9);
-            animation: cardPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 0.2s;
-        }
-
-        .role-text {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.9rem;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            color: rgba(255,255,255,0.8);
-            margin-bottom: 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-            display: inline-block;
-            padding-bottom: 5px;
-        }
-
-        .desc-text {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.95rem;
-            color: #ccc;
-            line-height: 1.6;
-            margin-bottom: 30px;
-            text-shadow: 0 2px 4px black;
-            position: relative;
-            z-index: 10;
-        }
-
-        .close-btn-epic {
-            background: transparent;
-            color: #fff;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: bold;
-            font-size: 0.9rem;
-            letter-spacing: 2px;
-            padding: 12px 35px;
-            border: 1px solid rgba(255,255,255,0.3);
-            cursor: pointer;
-            transition: 0.3s;
-            position: relative;
-            overflow: hidden;
-            z-index: 10;
-        }
-
-        .close-btn-epic:hover {
-            background: rgba(255,255,255,0.1);
-            letter-spacing: 4px;
-            box-shadow: 0 0 15px currentColor;
-        }
-
-        /* FIRE THEME */
-        .title-fire {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 3rem;
-            color: #fff;
-            margin: 0 0 10px 0;
-            text-transform: uppercase;
-            text-shadow: 
-                0 0 10px #ff5500,
-                0 -10px 20px #ff0000,
-                0 -20px 40px #ffaa00;
-            animation: burnText 2s infinite alternate;
-        }
-        @keyframes riseFire {
-            0% { transform: translateY(110vh) scale(1); opacity: 0; }
-            20% { opacity: 1; }
-            100% { transform: translateY(-10vh) scale(0); opacity: 0; }
-        }
-        @keyframes burnText {
-            0% { transform: scale(1); text-shadow: 0 0 10px #ff5500, 0 -10px 20px #ff0000; }
-            100% { transform: scale(1.02); text-shadow: 0 0 20px #ff5500, 0 -15px 30px #ff0000; }
-        }
-
-        /* SAKURA THEME */
-        .title-sakura {
-            font-family: 'Cinzel', serif;
-            font-size: 2.8rem;
-            color: #fff;
-            margin: 0 0 10px 0;
-            text-shadow: 0 0 10px #ffb7c5, 0 0 20px #ff69b4;
-            animation: breathePink 3s infinite ease-in-out;
-        }
-        @keyframes fallSakura {
-            0% { transform: translateY(-10vh) rotate(0deg) translateX(0); opacity: 0; }
-            20% { opacity: 1; }
-            100% { transform: translateY(110vh) rotate(360deg) translateX(50px); opacity: 0; }
-        }
-        @keyframes breathePink {
-            0%, 100% { text-shadow: 0 0 10px #ffb7c5; }
-            50% { text-shadow: 0 0 25px #ffb7c5, 0 0 40px #ff69b4; }
-        }
-
-        /* BLOOD THEME */
-        .title-blood {
-            font-family: 'Nosifer', cursive;
-            font-size: 2.5rem;
-            color: #ff0000;
-            margin: 0 0 10px 0;
-            text-shadow: 2px 2px 0px #000;
-            animation: glitchHorror 3s infinite;
-        }
-        @keyframes dripBlood {
-            0% { top: -10%; opacity: 1; }
-            100% { top: 120%; opacity: 0; }
-        }
-        @keyframes glitchHorror {
-            0% { transform: skew(0deg); }
-            90% { transform: skew(0deg); opacity: 1; }
-            92% { transform: skew(-10deg); opacity: 0.8; }
-            94% { transform: skew(10deg); opacity: 1; }
-            96% { transform: skew(-5deg); opacity: 0.9; }
-            100% { transform: skew(0deg); }
-        }
-
-        .magic-particle {
-            position: absolute;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes cardPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    `;
-
-    return h(
-        "div",
-        { className: "modal-overlay" },
-        h("style", null, styles),
-        h("div", {
-            id: "particle-layer",
-            style: {
-                position: "absolute",
-                top: 0, left: 0,
-                width: "100%", height: "100%",
-                background: currentTheme.bg,
-                overflow: "hidden",
-                zIndex: -1
-            }
-        }),
-        h(
-            "div",
-            {
-                className: "god-card-container",
-                style: {
-                    border: currentTheme.border,
-                    boxShadow: `0 0 30px ${currentTheme.color}40`
-                }
-            },
-            h("h1", { className: currentTheme.titleClass }, person.name),
-            h("div", { className: "role-text" }, person.role),
-            h("p", { className: "desc-text" }, person.desc),
-            h(
-                "button",
-                {
-                    className: "close-btn-epic",
-                    onClick: onClose,
-                    style: { color: currentTheme.color, borderColor: currentTheme.color }
-                },
-                "CLOSE CONNECTION"
-            )
-        )
-    );
-};
-
-// ⚙️ ELEGANT COMPACT SETTINGS MODAL
-const SettingsModal = ({ onClose }) => {
-    const [settings] = useState([
-        { id: 1, label: "MASTER VOLUME", val: 0.8, type: "slider", cat: "AUDIO" },
-        { id: 2, label: "MUSIC", val: 0.6, type: "slider", cat: "AUDIO" },
-        { id: 3, label: "SFX", val: 0.9, type: "slider", cat: "AUDIO" },
-        { id: 4, label: "HIGH CONTRAST", val: false, type: "toggle", cat: "VISUAL" },
-        { id: 5, label: "PARTICLES", val: true, type: "toggle", cat: "VISUAL" },
-        { id: 6, label: "ANIMATIONS", val: true, type: "toggle", cat: "VISUAL" },
-        { id: 7, label: "NOTIFICATIONS", val: true, type: "toggle", cat: "SYSTEM" },
-        { id: 8, label: "AUTO-SCROLL", val: false, type: "toggle", cat: "SYSTEM" },
-        { id: 9, label: "LANGUAGE", val: "EN", type: "text", cat: "SYSTEM" },
-        { id: 10, label: "DATA SAVER", val: false, type: "toggle", cat: "NETWORK" },
-    ]);
-
-    const styles = `
-        .settings-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 10000;
-            display: flex; justify-content: center; align-items: center;
-            backdrop-filter: blur(5px);
-            animation: fadeIn 0.3s ease-out;
-        }
-        
-        .settings-dialog {
-            width: 90%; max-width: 400px;
-            background: rgba(10, 15, 20, 0.95);
-            border: 1px solid #00e5ff;
-            border-radius: 8px;
-            padding: 25px;
-            box-shadow: 0 0 30px rgba(0, 229, 255, 0.2);
-            font-family: 'Rajdhani', sans-serif;
-            color: #fff;
-            position: relative;
-            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .settings-header {
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid rgba(0, 229, 255, 0.3);
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
-
-        .settings-title { 
-            font-family: 'Orbitron'; 
-            font-size: 1.2rem; 
-            letter-spacing: 2px; 
-            color: #00e5ff; 
-            margin: 0;
-        }
-
-        .close-icon-btn {
-            background: transparent; border: none; color: #fff; 
-            font-size: 1.2rem; cursor: pointer; transition: 0.2s;
-        }
-        .close-icon-btn:hover { color: #ff3333; transform: scale(1.1); }
-        
-        .settings-list {
-            display: flex; flex-direction: column; gap: 12px;
-            max-height: 60vh; overflow-y: auto; padding-right: 5px;
-        }
-
-        .setting-row {
-            display: flex; justify-content: space-between; align-items: center;
-            font-size: 0.9rem;
-            padding: 5px 0;
-        }
-
-        .setting-label { color: #aaa; letter-spacing: 0.5px; }
-
-        .toggle-switch {
-            width: 40px; height: 20px; background: #333; 
-            border-radius: 20px; position: relative; cursor: pointer;
-            transition: 0.3s;
-        }
-        .toggle-switch.on { background: #00e5ff; }
-        .toggle-switch::after {
-            content: ''; position: absolute; top: 2px; left: 2px;
-            width: 16px; height: 16px; background: #fff; border-radius: 50%;
-            transition: 0.3s;
-        }
-        .toggle-switch.on::after { left: 22px; }
-
-        .slider-control {
-            width: 100px; height: 4px; background: #333; border-radius: 2px; position: relative;
-        }
-        .slider-active { height: 100%; background: #00e5ff; border-radius: 2px; }
-        .slider-thumb {
-            width: 12px; height: 12px; background: #fff; border-radius: 50%;
-            position: absolute; top: 50%; transform: translate(50%, -50%); right: 0;
-            box-shadow: 0 0 5px rgba(0,0,0,0.5);
-        }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    `;
-
-    return h(
-        "div",
-        { className: "settings-overlay" },
-        h("style", null, styles),
-        h(
-            "div",
-            { className: "settings-dialog" },
-            h(
-                "div",
-                { className: "settings-header" },
-                h("h2", { className: "settings-title" }, "SETTINGS"),
-                h("button", { className: "close-icon-btn", onClick: onClose }, h("i", { className: "fas fa-times" }))
-            ),
-            h(
-                "div",
-                { className: "settings-list" },
-                settings.map(s => 
-                    h("div", { key: s.id, className: "setting-row" },
-                        h("span", { className: "setting-label" }, s.label),
-                        s.type === "toggle" 
-                            ? h("div", { className: `toggle-switch ${s.val ? 'on' : ''}` })
-                            : s.type === "slider"
-                                ? h("div", { className: "slider-control" },
-                                    h("div", { className: "slider-active", style: { width: s.val * 100 + "%" } },
-                                        h("div", { className: "slider-thumb" })
-                                    )
-                                  )
-                                : h("span", { style: { color: "#fff", fontWeight: "bold" } }, s.val)
-                    )
-                )
-            )
-        )
-    );
-};
-
-// 💰 PAYWALL
-const Paywall = ({ onUnlock }) => {
-    const [mode, setMode] = useState("vip");
-    const [code, setCode] = useState("");
-
-    return h(
-        "div",
-        { className: "paywall-modal" },
-        h(
-            "div",
-            { className: "gold-card" },
-            h(
-                "div",
-                { className: "pay-tabs" },
-                h(
-                    "div",
-                    {
-                        className:
-                            "pay-tab " +
-                            (mode === "vip" ? "active" : ""),
-                        onClick: () => setMode("vip")
-                    },
-                    t.unlock
-                ),
-                h(
-                    "div",
-                    {
-                        className:
-                            "pay-tab " +
-                            (mode === "card" ? "active" : ""),
-                        onClick: () => setMode("card")
-                    },
-                    t.card_pay
-                )
-            ),
-            h(
-                "h2",
-                {
-                    style: {
-                        color: "#FFD700",
-                        fontFamily: "Cinzel",
-                        fontSize: "1.2rem"
-                    }
-                },
-                t.paywall_title
-            ),
-            h("div", { className: "price-tag" }, "$4.99"),
-            h(
-                "p",
-                {
-                    style: {
-                        color: "#aaa",
-                        marginBottom: "20px",
-                        fontSize: "0.8rem"
-                    }
-                },
-                t.paywall_desc
-            ),
-            mode === "vip"
-                ? h(
-                    "div",
-                    null,
-                    h("input", {
-                        className: "cc-input",
-                        style: {
-                            width: "100%",
-                            textAlign: "center",
-                            marginBottom: "15px",
-                            color: "#FFD700",
-                            border: "1px solid #FFD700",
-                            background: "#000",
-                            padding: "12px",
-                            borderRadius: "8px"
-                        },
-                        placeholder: "ENTER VIP KEY",
-                        value: code,
-                        onChange: (e) =>
-                            setCode(
-                                e.target.value.toUpperCase()
-                            )
-                    }),
-                    h(
-                        "button",
-                        {
-                            className: "start-btn-soft",
-                            style: {
-                                width: "100%",
-                                margin: "0",
-                                background: "#FFD700",
-                                color: "#000",
-                                fontSize: "0.9rem"
-                            },
-                            onClick: () => onUnlock(code)
-                        },
-                        t.unlock
-                    )
-                )
-                : h(
-                    "div",
-                    null,
-                    h(
-                        "button",
-                        {
-                            className: "start-btn-soft",
-                            style: {
-                                width: "100%",
-                                margin: "0",
-                                fontSize: "1rem"
-                            },
-                            onClick: () =>
-                                alert("ERROR: BANK UNREACHABLE")
-                        },
-                        "PAY NOW"
-                    )
-                )
         )
     );
 };
@@ -1265,11 +751,9 @@ const HomePage = ({ onStart, onViewCredits }) => {
 // --- MANGA LIST (NEON GOD UPGRADE) ---
 const MangaPage = ({ onRead, onBack, onOpenSettings, likes, onToggleLike, savedLocation, finishedChapters }) => {
     
+    // Simplified Status Colors - Only Released remains
     const STATUS_COLORS = {
-        "FINISHED": { color: "#9933ff", glow: "0 0 10px #9933ff" },
-        "RELEASED": { color: "#00ff9d", glow: "0 0 10px #00ff9d" },
-        "ONGOING": { color: "#00e5ff", glow: "0 0 10px #00e5ff" },
-        "COMING SOON": { color: "#ff3333", glow: "0 0 10px #ff3333" }
+        "RELEASED": { color: "#00ff9d", glow: "0 0 10px #00ff9d" }
     };
 
     const styles = `
@@ -1352,16 +836,8 @@ const MangaPage = ({ onRead, onBack, onOpenSettings, likes, onToggleLike, savedL
             "div",
             { className: "list-viewport" },
             window.APP_CONFIG.chapters.map((ch, index) => {
+                // MODIFICATION: Always show RELEASED status, ignoring finished/ongoing logic
                 let statusText = "RELEASED";
-                
-                // Check if finished first
-                if (finishedChapters[ch.id]) {
-                    statusText = "FINISHED";
-                } else if (ch.id === 14) {
-                    statusText = "ONGOING";
-                } else if (ch.id >= 15) {
-                    statusText = "COMING SOON";
-                }
 
                 const theme = STATUS_COLORS[statusText];
                 
@@ -1685,7 +1161,6 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
 const App = () => {
     const [view, setView] = useState("intro");
     const [activePerson, setActivePerson] = useState(null);
-    const [showPaywall, setShowPaywall] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
     const [activeChapter, setActiveChapter] = useState(1);
     
@@ -1710,17 +1185,7 @@ const App = () => {
     }, []);
 
     const handleStart = () => {
-        const saved = localStorage.getItem("vipAccess");
-        if (saved) setView("manga");
-        else setShowPaywall(true);
-    };
-
-    const unlockVIP = (code) => {
-        if (window.APP_CONFIG.vipCodes.includes(code)) {
-            localStorage.setItem("vipAccess", "true");
-            setShowPaywall(false);
-            setView("manga");
-        } else alert("ACCESS DENIED");
+        setView("manga");
     };
 
     const toggleLike = (chapterId) => {
@@ -1796,7 +1261,6 @@ const App = () => {
             onClose: () => setActivePerson(null)
         }),
 
-        showPaywall && h(Paywall, { onUnlock: unlockVIP }),
         showSettings && h(SettingsModal, { onClose: () => setShowSettings(false) })
     );
 };
