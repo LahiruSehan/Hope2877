@@ -1,0 +1,22 @@
+{
+  "name": "Beneath the Light of a Dying Sky",
+  "short_name": "Dying Sky",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait",
+  "description": "As humanity faces its final hours, a hidden conspiracy awakens.",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

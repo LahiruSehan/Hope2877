@@ -1,41 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-    <link href="data:image/x-icon;base64,AAABAAEAEBAAAAEACABoBQAAFgAAACgAAAAQAAAAIAAAAAEACAAAAAAAAAEAAAAAAAAAAAAAAAEAAAAAAAAAAAAAeDtaANHR/wDjgbIAmVd5AHU4VwDmhLYAnVh7AFQoPwB3OlkAwInGALeJxwCWluAAkE9xAMdxnQCoYIUAkVBxAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFBQUAAAAABQUFAAAAAAAAAQwFAAAAAAUMCQAAAAAAABAMBAUAAAUEDA0AAAAAAAUEBAwEAAAEDAQEBQAAAAAFBAIEBAgIBAQCBAUAAAAAAAQEBAQICAQEBAQAAAAAAA4ODAwEAAAEDAwODgAAAAAODg4CDggIDgIODg4AAAAGCwwCAgAICAACAgwKAwAADw4OAg4AAAAADgIODg8ABA4CDg4AAAAAAAAODgIOBAcODgAAAA4AAA4AAAAODgcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=" rel="icon" type="image/x-icon">
-
-    <script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/firebase-messaging-sw.js', {scope: "/"})
-    .then(() => console.log("🔥 Manual Service Worker Registered"))
-    .catch(err => console.error("SW registration failed:", err));
-}
-</script>
-
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
-    <title>Beneath the Light of a Dying Sky</title>
+    <meta name="theme-color" content="#000000"/>
 
-    <!-- 🎨 Fonts -->
+    <title>Beneath the Light of a Dying Sky | Official Manga</title>
+    
+    <meta name="description" content="As humanity faces its final hours, a hidden conspiracy awakens — forcing Jake and Viyona to choose between the world they know and the truth that could rewrite everything. Read the Sci-Fi Horror Mystery now." />
+    
+    <meta name="keywords" content="Sci-Fi, Romance, Action, Mystery, Horror, Manga, Webcomic, Beneath the Light of a Dying Sky, Jake, Viyona, Survival" />
+    
+    <meta name="author" content="Hope2877" />
+    <meta name="copyright" content="Protected by International Copyright Law" />
+
+    <meta property="og:title" content="Beneath the Light of a Dying Sky" />
+    <meta property="og:description" content="As humanity faces its final hours, a hidden conspiracy awakens. A Sci-Fi Romance Action Horror Mystery." />
+    
+    <meta property="og:image" content="https://i.ibb.co/HfW3Py7G/Thumb.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    
+    <meta property="og:url" content="https://hope2877.online" />
+    <meta property="og:type" content="website" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Beneath the Light of a Dying Sky" />
+    <meta name="twitter:description" content="As humanity faces its final hours, a hidden conspiracy awakens..." />
+    <meta name="twitter:image" content="https://i.ibb.co/HfW3Py7G/Thumb.jpg" />
+
+    <link rel="icon" type="image/png" href="icon.png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="icon.png" />
+    
+    <link rel="manifest" href="/manifest.json" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&family=Orbitron:wght@400;700&display=swap" rel="stylesheet" />
 
-    <!-- 🎭 Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-    <!-- 🎨 Main Styles -->
     <link rel="stylesheet" href="styles/main.css" />
 
-    <!-- ⚛️ React Core (UMD CDN) -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 
-    <!-- 🔥 Firebase SDK (MUST load before firebase.js) -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-messaging-compat.js"></script>
-
-    <!-- ❌ REMOVE BABEL (not allowed on your domain because of CSP blocking) -->
-    <!-- <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script> -->
 
 </head>
 
@@ -43,17 +53,20 @@ if ('serviceWorker' in navigator) {
 
     <div id="root"></div>
 
-    <!-- 🔥 Firebase config + functions you wrote -->
     <script src="src/firebase.js"></script>
-
-    <!-- ⚙️ App config JSON -->
     <script src="scripts/config.js"></script>
-
     <script src="scripts/musicConfig.js"></script>
-
-
-    <!-- 🚀 Main Application (NO type="module", NO Babel, PURE JS) -->
     <script src="scripts/app.js"></script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/firebase-messaging-sw.js')
+                    .then((reg) => console.log('✅ Service Worker Registered'))
+                    .catch((err) => console.error('❌ Service Worker Failed', err));
+            });
+        }
+    </script>
 
 </body>
 </html>
