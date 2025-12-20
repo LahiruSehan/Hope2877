@@ -13,6 +13,78 @@ const vibrate = (pattern) => {
     }
 };
 
+// 📡 NOTIFICATION SYSTEM (NEW)
+const NOTIFICATION_MESSAGES = {
+    morning: [
+        "Good Morning, Survivor. Status check required.",
+        "Sunrise detected. Visibility improving.",
+        "Hope system online. Ready for reading.",
+        "A new day. Survival probability: 89%."
+    ],
+    afternoon: [
+        "Sun is high. Hydration levels?",
+        "Afternoon report pending. Check chapters.",
+        "Lyra: 'Are you there? I found something...'",
+        "Signal strength optimal. Continue the story."
+    ],
+    evening: [
+        "Shadows are lengthening. Stay close to the light.",
+        "Lyra is calling you...",
+        "Evening has fallen. Perfect time to read.",
+        "Don't let the fire go out."
+    ],
+    night: [
+        "It's dark out there. Stay safe.",
+        "Night reading recommended. Keep quiet.",
+        "Anomaly detected in Sector 4...",
+        "The stars are dying. Witness them while you can."
+    ],
+    generic: [
+        "Incoming transmission...",
+        "New data available.",
+        "System Alert: Narrative incomplete.",
+        "Connection established."
+    ]
+};
+
+const sendSystemNotification = (title, body) => {
+    if (!("Notification" in window)) return;
+    
+    if (Notification.permission === "granted") {
+        try {
+            // Android/Mobile often requires ServiceWorker registration for notifications, 
+            // but new Notification() works on desktop/some mobile contexts if app is active.
+            // We try both methods for maximum compatibility.
+            
+            const options = {
+                body: body,
+                icon: '/icon.png', // Ensure you have an icon.png in public folder
+                vibrate: [200, 100, 200],
+                badge: '/icon.png',
+                tag: 'hope-app-update'
+            };
+
+            if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+                navigator.serviceWorker.ready.then(registration => {
+                    registration.showNotification(title, options);
+                });
+            } else {
+                new Notification(title, options);
+            }
+        } catch (e) {
+            console.log("Notification trigger failed", e);
+        }
+    }
+};
+
+const requestNotificationPermission = async () => {
+    if (!("Notification" in window)) return false;
+    if (Notification.permission === "granted") return true;
+    
+    const permission = await Notification.requestPermission();
+    return permission === "granted";
+};
+
 // 🌌 SLOW PARTICLE BACKGROUND (TOGGLEABLE)
 const ParticleBackground = ({ enabled }) => {
     if (!enabled) return null; // BATTERY SAVER MODE
@@ -465,10 +537,27 @@ const SettingsModal = ({ onClose, settings, updateSetting }) => {
         }
     };
 
+    // 🔊 TEST NOTIFICATION
+    const sendTestSignal = () => {
+        if ("Notification" in window) {
+             if (Notification.permission === "granted") {
+                 sendSystemNotification("System Test", "Signal strength 100%. Lyra is online.");
+             } else {
+                 requestNotificationPermission().then(granted => {
+                     if(granted) sendSystemNotification("System Test", "Permission Granted. Welcome back, Survivor.");
+                 });
+             }
+        } else {
+            alert("Your device does not support holographic signals (Notifications).");
+        }
+    };
+
     const settingList = [
         { id: "masterVolume", label: "MASTER VOLUME", type: "slider", cat: "AUDIO" },
         { id: "highContrast", label: "HIGH CONTRAST (B&W)", type: "toggle", cat: "VISUAL" },
         { id: "particles", label: "PARTICLES (SAVE BATTERY)", type: "toggle", cat: "VISUAL" },
+        { id: "notifications", label: "SYSTEM NOTIFICATIONS", type: "toggle", cat: "SYSTEM" },
+        { id: "testNotify", label: "TEST SIGNAL", type: "action", action: sendTestSignal, cat: "SYSTEM" },
         { id: "fullscreen", label: "FULL SCREEN", type: "action", action: toggleFullScreen, cat: "SYSTEM" },
         { id: "autoScroll", label: "AUTO-SCROLL (BETA)", type: "toggle", cat: "SYSTEM" },
     ];
@@ -524,7 +613,16 @@ const SettingsModal = ({ onClose, settings, updateSetting }) => {
                         
                         s.type === "toggle" && h("div", { 
                             className: `toggle-switch ${settings[s.id] ? 'on' : ''}`,
-                            onClick: () => updateSetting(s.id, !settings[s.id])
+                            onClick: () => {
+                                // Specific logic for Notification permission
+                                if (s.id === 'notifications' && !settings.notifications) {
+                                    requestNotificationPermission().then(granted => {
+                                        if (granted) updateSetting(s.id, true);
+                                    });
+                                } else {
+                                    updateSetting(s.id, !settings[s.id]);
+                                }
+                            }
                         }),
                         
                         s.type === "slider" && h("div", { className: "slider-container" },
@@ -1159,12 +1257,44 @@ const App = () => {
         masterVolume: 0.8,
         highContrast: false,
         particles: true,
-        autoScroll: false
+        autoScroll: false,
+        notifications: false // Default off
     });
 
     const [likes, setLikes] = useState({});
     const [savedLocation, setSavedLocation] = useState(null);
     const [finishedChapters, setFinishedChapters] = useState({});
+
+    // 🕒 NOTIFICATION SCHEDULE LOGIC
+    useEffect(() => {
+        if (!settings.notifications) return;
+
+        // Check every minute
+        const interval = setInterval(() => {
+            const lastTime = parseInt(localStorage.getItem('lastNotifyTime') || 0);
+            const now = Date.now();
+            const THREE_HOURS = 3 * 60 * 60 * 1000;
+
+            if (now - lastTime > THREE_HOURS) {
+                // Determine time of day
+                const hour = new Date().getHours();
+                let category = 'generic';
+                if (hour >= 5 && hour < 12) category = 'morning';
+                else if (hour >= 12 && hour < 17) category = 'afternoon';
+                else if (hour >= 17 && hour < 22) category = 'evening';
+                else category = 'night';
+
+                const msgs = NOTIFICATION_MESSAGES[category];
+                const msg = msgs[Math.floor(Math.random() * msgs.length)];
+                
+                sendSystemNotification("HOPE System", msg);
+                
+                localStorage.setItem('lastNotifyTime', now.toString());
+            }
+        }, 60000); // Check every minute if we should send
+
+        return () => clearInterval(interval);
+    }, [settings.notifications]);
 
     // 💾 Persist View State
     useEffect(() => {
