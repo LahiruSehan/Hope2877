@@ -1,12 +1,12 @@
 {
-  "name": "Beneath the Light of a Dying Sky",
-  "short_name": "Dying Sky",
+  "name": "HOPE",
+  "short_name": "HOPE",
   "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",
   "orientation": "portrait",
-  "description": "As humanity faces its final hours, a hidden conspiracy awakens.",
+  "description": "The official app for Beneath the Light of a Dying Sky.",
   "icons": [
     {
       "src": "icon.png",
