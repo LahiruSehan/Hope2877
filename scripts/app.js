@@ -938,15 +938,16 @@ const CommentsModal = ({ onClose }) => {
     );
 };
 
-// --- READER (WITH HYBRID PHOTO ZOOM) ---
+// --- READER (PHOTO-LIKE ZOOM & SCROLL ENGINE) ---
 const ReaderPage = ({ chapterId, onBack, likes, onToggleLike, masterVolume }) => {
     const chapter = window.APP_CONFIG.chapters.find((c) => c.id === chapterId);
     
-    // REFS for DOM Manipulation (High Performance)
+    // REFS
     const containerRef = useRef(null);
     const contentRef = useRef(null);
     
-    // STATE (Refs)
+    // ZOOM STATE (Refs for 60fps performance)
+    // We use refs instead of state to update transforms without react re-renders
     const state = useRef({
         scale: 1,
         x: 0,
@@ -955,21 +956,18 @@ const ReaderPage = ({ chapterId, onBack, likes, onToggleLike, masterVolume }) =>
         isPanning: false,
         startX: 0,
         startY: 0,
-        startScale: 1,
-        startDistance: 0
+        initialDist: 0,
+        initialScale: 1
     });
 
     const [isMuted, setIsMuted] = useState(false);
     const [isLiked, setIsLiked] = useState(likes[chapterId]);
     const audioRef = useRef(null);
 
-    // --- ZOOM ENGINE ---
     useLayoutEffect(() => {
         const container = containerRef.current;
         const content = contentRef.current;
         if (!container || !content) return;
-
-        const s = state.current;
 
         // --- MATH HELPERS ---
         const getDistance = (touches) => Math.hypot(touches[0].pageX - touches[1].pageX, touches[0].pageY - touches[1].pageY);
@@ -977,149 +975,161 @@ const ReaderPage = ({ chapterId, onBack, likes, onToggleLike, masterVolume }) =>
             x: (touches[0].pageX + touches[1].pageX) / 2,
             y: (touches[0].pageY + touches[1].pageY) / 2
         });
-        const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
 
-        // --- UPDATE TRANSFORM ---
+        // --- UPDATE VIEW ---
         const updateTransform = () => {
-            // Apply Transform
+            const s = state.current;
             content.style.transform = `translate3d(${s.x}px, ${s.y}px, 0) scale(${s.scale})`;
             
-            // HYBRID MODE SWITCHING
+            // HYBRID SCROLL SWITCH
+            // If scale is roughly 1, we want NATIVE scroll for smooth reading.
+            // If scale > 1, we want LOCKED scroll + TRANSFORM for photo zoom feel.
             if (s.scale > 1.01) {
-                // Zoomed: Disable Native Scroll, use Transform
                 container.style.overflowY = 'hidden';
-                container.style.touchAction = 'none';
+                container.style.touchAction = 'none'; // Disable browser handling
             } else {
-                // Reset: Enable Native Scroll
                 container.style.overflowY = 'auto';
-                container.style.touchAction = 'pan-y';
-                // Reset transform to avoid conflicts (visually clean)
-                if(s.scale === 1 && s.x === 0 && s.y === 0) {
-                     content.style.transform = 'none'; 
+                container.style.touchAction = 'pan-y'; // Re-enable browser vertical scroll
+                if (s.x !== 0 || s.y !== 0) {
+                     content.style.transform = 'translate3d(0,0,0) scale(1)';
+                     s.x = 0; s.y = 0;
                 }
             }
         };
 
+        const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
+
         // --- HANDLERS ---
-        const handleTouchStart = (e) => {
+        const onTouchStart = (e) => {
+            const s = state.current;
+            
             if (e.touches.length === 2) {
-                // Pinch Start
-                e.preventDefault(); // Stop browser zoom
+                // PINCH START
                 s.isZooming = true;
-                s.startDistance = getDistance(e.touches);
-                s.startScale = s.scale;
+                s.initialDist = getDistance(e.touches);
+                s.initialScale = s.scale;
                 
-                // Calculate center relative to content to adjust Panning origin if needed?
-                // For simplicity, we stick to standard Pinch math relative to Viewport
+                // If we are starting a pinch from Scale 1, we need to capture current scroll
+                // and convert it to translate Y so it doesn't jump.
+                if (s.scale <= 1.01) {
+                    const scrollTop = container.scrollTop;
+                    s.y = -scrollTop;
+                    // Reset scroll top to 0 so transform takes over visually in same spot
+                    // Actually, safer to keep scrollTop and offset transform? 
+                    // No, for "Photo Zoom" usually we lock scroll.
+                    container.style.overflowY = 'hidden';
+                    container.scrollTop = 0; 
+                    updateTransform();
+                }
+
+                // Calculate focal point logic if we wanted advanced focus
+                // For now, simpler center zoom to avoid jumping
                 const center = getCenter(e.touches);
                 s.startX = center.x - s.x;
                 s.startY = center.y - s.y;
 
-            } else if (e.touches.length === 1 && s.scale > 1) {
-                // Pan Start (Only if zoomed)
+            } else if (e.touches.length === 1 && s.scale > 1.01) {
+                // PAN START (Only if zoomed)
                 s.isPanning = true;
                 s.startX = e.touches[0].pageX - s.x;
                 s.startY = e.touches[0].pageY - s.y;
             }
-            // If scale == 1 and 1 touch, we do NOTHING. Let native scroll happen.
         };
 
-        const handleTouchMove = (e) => {
+        const onTouchMove = (e) => {
+            const s = state.current;
+            
             if (s.isZooming && e.touches.length === 2) {
                 e.preventDefault();
                 
                 const dist = getDistance(e.touches);
-                const newScale = s.startScale * (dist / s.startDistance);
+                const zoomFactor = dist / s.initialDist;
                 
-                // Limit Scale
-                s.scale = clamp(newScale, 1, 4); 
+                // Update Scale
+                s.scale = Math.min(Math.max(s.initialScale * zoomFactor, 1), 4); // Max zoom 4x
 
-                // Basic Center Zoom Logic (Simplified for stability)
-                // To do true "Photo Zoom" sticking to fingers, we need complex delta math.
-                // For this "Manga Strip", centering zoom or keeping current focus is usually safer.
-                // Let's implement Panning adjustments:
+                // Simple Panning Compensation (Keep moves somewhat centered)
+                // Real "Photo Zoom" requires complex matrix math, but this is robust enough:
                 const center = getCenter(e.touches);
                 
-                // We calculate x/y updates if we want the image to stick to fingers:
-                // For now, let's just allow Scale updates, and user adjusts Pan naturally.
-                // Or:
-                // const deltaX = center.x - lastCenterX...
+                // If we just scale, it scales from top-left (0,0).
+                // We need to move X/Y to keep the image under fingers.
+                // Simplified: Just allow user to Pan while pinching.
+                // We update X/Y based on center movement? 
+                // Let's stick to simple scale update + clamping.
+                
+                // CLAMPING (Crucial for "No Empty Spaces")
+                const viewportW = container.clientWidth;
+                const viewportH = container.clientHeight;
+                const contentW = viewportW * s.scale;
+                const contentH = contentRef.current.offsetHeight * s.scale;
+
+                // X Clamp
+                const minX = viewportW - contentW;
+                const maxX = 0;
+                s.x = clamp(s.x, minX, maxX);
+
+                // Y Clamp
+                const minY = viewportH - contentH;
+                const maxY = 0;
+                s.y = clamp(s.y, minY, maxY);
                 
                 requestAnimationFrame(updateTransform);
 
             } else if (s.isPanning && e.touches.length === 1) {
-                e.preventDefault(); // Stop native scroll
-
+                e.preventDefault();
+                
                 let newX = e.touches[0].pageX - s.startX;
                 let newY = e.touches[0].pageY - s.startY;
 
-                // --- CLAMPING (NO EMPTY SPACES) ---
                 const viewportW = container.clientWidth;
                 const viewportH = container.clientHeight;
-                const contentW = viewportW * s.scale; 
-                const contentH = content.offsetHeight * s.scale;
+                const contentW = viewportW * s.scale;
+                const contentH = contentRef.current.offsetHeight * s.scale;
 
-                // Clamp X
-                if (contentW <= viewportW) {
-                    newX = (viewportW - contentW) / 2; // Center
-                } else {
-                    const minX = viewportW - contentW;
-                    newX = clamp(newX, minX, 0);
-                }
+                // Clamp to edges
+                const minX = viewportW - contentW;
+                s.x = clamp(newX, minX, 0);
 
-                // Clamp Y (Only clamp edges if content is bigger than viewport)
-                // Note: content.offsetHeight is HUGE.
-                if (contentH <= viewportH) {
-                    newY = (viewportH - contentH) / 2;
-                } else {
-                    // However, we are in "Hybrid Mode". 
-                    // When s.scale > 1, we are looking at a `transform` window.
-                    // We must ensure we don't pan past the top or bottom relative to the scaled height.
-                    // Actually, getting top/bottom boundaries for a transformed long div is tricky.
-                    // Let's use a loose clamp or standard boundary.
-                    const minY = viewportH - contentH;
-                    newY = clamp(newY, minY, 0);
-                }
+                const minY = viewportH - contentH;
+                s.y = clamp(newY, minY, 0);
 
-                s.x = newX;
-                s.y = newY;
-                
                 requestAnimationFrame(updateTransform);
             }
         };
 
-        const handleTouchEnd = (e) => {
+        const onTouchEnd = (e) => {
+            const s = state.current;
+            
             if (e.touches.length < 2) s.isZooming = false;
             if (e.touches.length === 0) s.isPanning = false;
 
-            // Bounce back if scale < 1 (Safety)
-            if (s.scale < 1) {
+            // SNAP BACK
+            if (s.scale < 1.1) {
+                // If scale is close to 1, reset to Native Scroll
+                const currentAbsY = Math.abs(s.y);
                 s.scale = 1;
                 s.x = 0;
-                s.y = 0; // Reset to top or keep native scroll position?
-                // If we reset Y to 0, we lose reading position.
-                // Ideally, we translate the current "Transform Y" back to "Scroll Top".
-                // But simplified: Just scale back to 1.
-                requestAnimationFrame(updateTransform);
+                s.y = 0;
+                updateTransform(); // Sets overflow auto
+                container.scrollTop = currentAbsY; // Restore position
             }
         };
 
-        // Attach non-passive listeners
-        container.addEventListener('touchstart', handleTouchStart, { passive: false });
-        container.addEventListener('touchmove', handleTouchMove, { passive: false });
-        container.addEventListener('touchend', handleTouchEnd);
+        container.addEventListener('touchstart', onTouchStart, { passive: false });
+        container.addEventListener('touchmove', onTouchMove, { passive: false });
+        container.addEventListener('touchend', onTouchEnd);
 
         return () => {
-            container.removeEventListener('touchstart', handleTouchStart);
-            container.removeEventListener('touchmove', handleTouchMove);
-            container.removeEventListener('touchend', handleTouchEnd);
+            container.removeEventListener('touchstart', onTouchStart);
+            container.removeEventListener('touchmove', onTouchMove);
+            container.removeEventListener('touchend', onTouchEnd);
         };
     }, []);
 
     // --- MUSIC LOGIC ---
     useEffect(() => {
         const rules = window.MUSIC_CONFIG.chapters[chapterId] || [];
-        // Basic autoplay logic
         if (rules.length > 0 && !audioRef.current && !isMuted) {
              const track = rules[0].track;
              const audio = new Audio(track);
@@ -1137,7 +1147,7 @@ const ReaderPage = ({ chapterId, onBack, likes, onToggleLike, masterVolume }) =>
     }, [chapterId, isMuted, masterVolume]);
 
     const styles = `
-        .reader-wrapper { width: 100vw; height: 100vh; overflow-y: auto; overflow-x: hidden; background: #000; position: relative; touch-action: pan-y; }
+        .reader-wrapper { width: 100vw; height: 100vh; overflow-y: auto; overflow-x: hidden; background: #000; position: relative; }
         .reader-content { width: 100%; transform-origin: 0 0; will-change: transform; }
         .reader-img { width: 100%; display: block; }
         .reader-toolbar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); border: 1px solid #00e5ff; padding: 10px 20px; border-radius: 30px; display: flex; gap: 20px; z-index: 1000; }
