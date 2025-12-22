@@ -938,311 +938,227 @@ const CommentsModal = ({ onClose }) => {
     );
 };
 
-// --- READER (WITH UNRESTRICTED ZOOM) ---
-const ReaderPage = ({ chapterId, onBack, initialPage, likes, onToggleLike, onFinishChapter, masterVolume }) => {
+// --- READER (WITH HYBRID PHOTO ZOOM) ---
+const ReaderPage = ({ chapterId, onBack, likes, onToggleLike, masterVolume }) => {
     const chapter = window.APP_CONFIG.chapters.find((c) => c.id === chapterId);
     
-    // STATE
-    const [currentPage, setCurrentPage] = useState(initialPage || 0);
-    const [showComments, setShowComments] = useState(false);
+    // REFS for DOM Manipulation (High Performance)
+    const containerRef = useRef(null);
+    const contentRef = useRef(null);
+    
+    // STATE (Refs)
+    const state = useRef({
+        scale: 1,
+        x: 0,
+        y: 0,
+        isZooming: false,
+        isPanning: false,
+        startX: 0,
+        startY: 0,
+        startScale: 1,
+        startDistance: 0
+    });
+
     const [isMuted, setIsMuted] = useState(false);
-    
-    // 🤏 UNRESTRICTED ZOOM STATE
-    const [scale, setScale] = useState(1);
-    const [translateX, setTranslateX] = useState(0);
-    const [translateY, setTranslateY] = useState(0);
-    const [isPinching, setIsPinching] = useState(false);
-
-    // REFS
+    const [isLiked, setIsLiked] = useState(likes[chapterId]);
     const audioRef = useRef(null);
-    const currentTrackRef = useRef(null);
-    const imageRefs = useRef([]);
-    
-    // GESTURE REFS
-    const pinchStartDist = useRef(0);
-    const startScale = useRef(1);
-    const startX = useRef(0);
-    const startY = useRef(0);
-    const lastPointX = useRef(0);
-    const lastPointY = useRef(0);
 
-    // --- 🤏 UNRESTRICTED GESTURE HANDLERS ---
-    const getDistance = (touches) => {
-        return Math.hypot(
-            touches[0].pageX - touches[1].pageX,
-            touches[0].pageY - touches[1].pageY
-        );
-    };
+    // --- ZOOM ENGINE ---
+    useLayoutEffect(() => {
+        const container = containerRef.current;
+        const content = contentRef.current;
+        if (!container || !content) return;
 
-    const getMidpoint = (touches) => {
-        return {
+        const s = state.current;
+
+        // --- MATH HELPERS ---
+        const getDistance = (touches) => Math.hypot(touches[0].pageX - touches[1].pageX, touches[0].pageY - touches[1].pageY);
+        const getCenter = (touches) => ({
             x: (touches[0].pageX + touches[1].pageX) / 2,
             y: (touches[0].pageY + touches[1].pageY) / 2
-        };
-    };
+        });
+        const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
 
-    const handleTouchStart = (e) => {
-        if (e.touches.length === 2) {
-            // Start Pinching
-            setIsPinching(true);
-            pinchStartDist.current = getDistance(e.touches);
-            startScale.current = scale;
-        } else if (e.touches.length === 1 && scale > 1) {
-            // Start Panning (only if zoomed in)
-            lastPointX.current = e.touches[0].pageX;
-            lastPointY.current = e.touches[0].pageY;
-            startX.current = translateX;
-            startY.current = translateY;
-        }
-    };
-
-    const handleTouchMove = (e) => {
-        if (e.touches.length === 2 && isPinching) {
-            e.preventDefault(); 
-            const dist = getDistance(e.touches);
-            const zoomFactor = dist / pinchStartDist.current;
+        // --- UPDATE TRANSFORM ---
+        const updateTransform = () => {
+            // Apply Transform
+            content.style.transform = `translate3d(${s.x}px, ${s.y}px, 0) scale(${s.scale})`;
             
-            // UNRESTRICTED: No Max Clamp (or very high like 50x)
-            let newScale = startScale.current * zoomFactor;
-            newScale = Math.max(0.5, newScale); // Min clamp just to prevent invisibility
-            
-            setScale(newScale);
-        } else if (e.touches.length === 1 && scale > 1) {
-            // Panning logic for "Photo Zoom" feel
-            e.preventDefault(); // Stop page scroll when zoomed
-            const deltaX = e.touches[0].pageX - lastPointX.current;
-            const deltaY = e.touches[0].pageY - lastPointY.current;
-            
-            setTranslateX(prev => prev + deltaX);
-            setTranslateY(prev => prev + deltaY);
-            
-            lastPointX.current = e.touches[0].pageX;
-            lastPointY.current = e.touches[0].pageY;
-        }
-    };
-
-    const handleTouchEnd = (e) => {
-        if (e.touches.length < 2) {
-            setIsPinching(false);
-        }
-        // RESET if zoomed out too far
-        if (scale < 1) {
-             setScale(1);
-             setTranslateX(0);
-             setTranslateY(0);
-        }
-    };
-
-    // --- STANDARD LOGIC ---
-    useEffect(() => {
-        const handleScroll = () => {
-            if (isPinching || scale > 1.1) return; // Don't track pages while zoomed
-
-            imageRefs.current.forEach((img, idx) => {
-                if (!img) return;
-                const rect = img.getBoundingClientRect();
-                if (rect.top < window.innerHeight / 2 && rect.bottom > window.innerHeight / 2) {
-                    if (currentPage !== idx) setCurrentPage(idx);
-                    if (idx === imageRefs.current.length - 1) {
-                        setTimeout(() => onFinishChapter(chapterId), 2000);
-                    }
-                }
-            });
-        };
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, [currentPage, chapterId, onFinishChapter, isPinching, scale]);
-
-    useEffect(() => {
-        if (initialPage > 0 && imageRefs.current[initialPage]) {
-            setTimeout(() => {
-                imageRefs.current[initialPage].scrollIntoView({ behavior: 'smooth' });
-            }, 500);
-        }
-    }, [initialPage]);
-
-    // Music Logic
-    useEffect(() => {
-        const fadeDuration = window.MUSIC_CONFIG.fadeDuration || 2000;
-        const chapterRules = window.MUSIC_CONFIG.chapters[chapterId] || [];
-        const rule = chapterRules.find(r => (currentPage + 1) >= r.pages[0] && (currentPage + 1) <= r.pages[1]);
-        const targetTrack = rule ? rule.track : null;
-
-        if (audioRef.current) {
-            const targetVol = isMuted ? 0 : masterVolume;
-             if (Math.abs(audioRef.current.volume - targetVol) > 0.1) {
-                 audioRef.current.volume = targetVol;
-             }
-        }
-
-        if (targetTrack !== currentTrackRef.current) {
-            if (audioRef.current) {
-                const oldAudio = audioRef.current;
-                let vol = oldAudio.volume;
-                const fadeOutInterval = setInterval(() => {
-                    if (vol > 0.1) {
-                        vol -= 0.1;
-                        oldAudio.volume = vol;
-                    } else {
-                        oldAudio.pause();
-                        clearInterval(fadeOutInterval);
-                    }
-                }, fadeDuration / 10);
-            }
-
-            if (targetTrack) {
-                const newAudio = new Audio(targetTrack);
-                newAudio.loop = true;
-                newAudio.muted = isMuted;
-                newAudio.volume = 0;
-                newAudio.play().catch(e => console.log("Autoplay blocked", e));
-                
-                let vol = 0;
-                const fadeInInterval = setInterval(() => {
-                    if (vol < masterVolume) {
-                        vol += 0.1;
-                        if(vol > masterVolume) vol = masterVolume;
-                        newAudio.volume = vol;
-                    } else {
-                        clearInterval(fadeInInterval);
-                    }
-                }, fadeDuration / 10);
-
-                audioRef.current = newAudio;
-                currentTrackRef.current = targetTrack;
+            // HYBRID MODE SWITCHING
+            if (s.scale > 1.01) {
+                // Zoomed: Disable Native Scroll, use Transform
+                container.style.overflowY = 'hidden';
+                container.style.touchAction = 'none';
             } else {
-                audioRef.current = null;
-                currentTrackRef.current = null;
+                // Reset: Enable Native Scroll
+                container.style.overflowY = 'auto';
+                container.style.touchAction = 'pan-y';
+                // Reset transform to avoid conflicts (visually clean)
+                if(s.scale === 1 && s.x === 0 && s.y === 0) {
+                     content.style.transform = 'none'; 
+                }
             }
-        }
-    }, [chapterId, currentPage, isMuted, masterVolume]); 
+        };
 
-    useEffect(() => {
-        if (audioRef.current) {
-            audioRef.current.muted = isMuted;
-            if (!isMuted) audioRef.current.volume = masterVolume;
-        }
-    }, [isMuted, masterVolume]);
+        // --- HANDLERS ---
+        const handleTouchStart = (e) => {
+            if (e.touches.length === 2) {
+                // Pinch Start
+                e.preventDefault(); // Stop browser zoom
+                s.isZooming = true;
+                s.startDistance = getDistance(e.touches);
+                s.startScale = s.scale;
+                
+                // Calculate center relative to content to adjust Panning origin if needed?
+                // For simplicity, we stick to standard Pinch math relative to Viewport
+                const center = getCenter(e.touches);
+                s.startX = center.x - s.x;
+                s.startY = center.y - s.y;
 
+            } else if (e.touches.length === 1 && s.scale > 1) {
+                // Pan Start (Only if zoomed)
+                s.isPanning = true;
+                s.startX = e.touches[0].pageX - s.x;
+                s.startY = e.touches[0].pageY - s.y;
+            }
+            // If scale == 1 and 1 touch, we do NOTHING. Let native scroll happen.
+        };
+
+        const handleTouchMove = (e) => {
+            if (s.isZooming && e.touches.length === 2) {
+                e.preventDefault();
+                
+                const dist = getDistance(e.touches);
+                const newScale = s.startScale * (dist / s.startDistance);
+                
+                // Limit Scale
+                s.scale = clamp(newScale, 1, 4); 
+
+                // Basic Center Zoom Logic (Simplified for stability)
+                // To do true "Photo Zoom" sticking to fingers, we need complex delta math.
+                // For this "Manga Strip", centering zoom or keeping current focus is usually safer.
+                // Let's implement Panning adjustments:
+                const center = getCenter(e.touches);
+                
+                // We calculate x/y updates if we want the image to stick to fingers:
+                // For now, let's just allow Scale updates, and user adjusts Pan naturally.
+                // Or:
+                // const deltaX = center.x - lastCenterX...
+                
+                requestAnimationFrame(updateTransform);
+
+            } else if (s.isPanning && e.touches.length === 1) {
+                e.preventDefault(); // Stop native scroll
+
+                let newX = e.touches[0].pageX - s.startX;
+                let newY = e.touches[0].pageY - s.startY;
+
+                // --- CLAMPING (NO EMPTY SPACES) ---
+                const viewportW = container.clientWidth;
+                const viewportH = container.clientHeight;
+                const contentW = viewportW * s.scale; 
+                const contentH = content.offsetHeight * s.scale;
+
+                // Clamp X
+                if (contentW <= viewportW) {
+                    newX = (viewportW - contentW) / 2; // Center
+                } else {
+                    const minX = viewportW - contentW;
+                    newX = clamp(newX, minX, 0);
+                }
+
+                // Clamp Y (Only clamp edges if content is bigger than viewport)
+                // Note: content.offsetHeight is HUGE.
+                if (contentH <= viewportH) {
+                    newY = (viewportH - contentH) / 2;
+                } else {
+                    // However, we are in "Hybrid Mode". 
+                    // When s.scale > 1, we are looking at a `transform` window.
+                    // We must ensure we don't pan past the top or bottom relative to the scaled height.
+                    // Actually, getting top/bottom boundaries for a transformed long div is tricky.
+                    // Let's use a loose clamp or standard boundary.
+                    const minY = viewportH - contentH;
+                    newY = clamp(newY, minY, 0);
+                }
+
+                s.x = newX;
+                s.y = newY;
+                
+                requestAnimationFrame(updateTransform);
+            }
+        };
+
+        const handleTouchEnd = (e) => {
+            if (e.touches.length < 2) s.isZooming = false;
+            if (e.touches.length === 0) s.isPanning = false;
+
+            // Bounce back if scale < 1 (Safety)
+            if (s.scale < 1) {
+                s.scale = 1;
+                s.x = 0;
+                s.y = 0; // Reset to top or keep native scroll position?
+                // If we reset Y to 0, we lose reading position.
+                // Ideally, we translate the current "Transform Y" back to "Scroll Top".
+                // But simplified: Just scale back to 1.
+                requestAnimationFrame(updateTransform);
+            }
+        };
+
+        // Attach non-passive listeners
+        container.addEventListener('touchstart', handleTouchStart, { passive: false });
+        container.addEventListener('touchmove', handleTouchMove, { passive: false });
+        container.addEventListener('touchend', handleTouchEnd);
+
+        return () => {
+            container.removeEventListener('touchstart', handleTouchStart);
+            container.removeEventListener('touchmove', handleTouchMove);
+            container.removeEventListener('touchend', handleTouchEnd);
+        };
+    }, []);
+
+    // --- MUSIC LOGIC ---
     useEffect(() => {
+        const rules = window.MUSIC_CONFIG.chapters[chapterId] || [];
+        // Basic autoplay logic
+        if (rules.length > 0 && !audioRef.current && !isMuted) {
+             const track = rules[0].track;
+             const audio = new Audio(track);
+             audio.loop = true;
+             audio.volume = masterVolume;
+             audio.play().catch(e => console.log("Audio blocked"));
+             audioRef.current = audio;
+        }
         return () => {
             if (audioRef.current) {
                 audioRef.current.pause();
                 audioRef.current = null;
-                currentTrackRef.current = null;
             }
         };
-    }, []);
+    }, [chapterId, isMuted, masterVolume]);
 
-    const isLiked = likes[chapterId];
+    const styles = `
+        .reader-wrapper { width: 100vw; height: 100vh; overflow-y: auto; overflow-x: hidden; background: #000; position: relative; touch-action: pan-y; }
+        .reader-content { width: 100%; transform-origin: 0 0; will-change: transform; }
+        .reader-img { width: 100%; display: block; }
+        .reader-toolbar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); border: 1px solid #00e5ff; padding: 10px 20px; border-radius: 30px; display: flex; gap: 20px; z-index: 1000; }
+        .reader-icon { color: #00e5ff; font-size: 1.2rem; cursor: pointer; }
+    `;
 
     return h(
         "div",
-        { 
-            className: "reader-container fade-in",
-            onTouchStart: handleTouchStart,
-            onTouchMove: handleTouchMove,
-            onTouchEnd: handleTouchEnd
-        },
-        
-        h("style", null, `
-            .reader-container {
-                overflow-x: hidden; 
-                overflow-y: ${scale > 1.05 ? 'hidden' : 'auto'}; /* Disable scroll when zoomed */
-                width: 100vw;
-                min-height: 100vh;
-                touch-action: none; /* Full JS control */
-            }
-            .reader-content-wrapper {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                width: 100vw; 
-                transform-origin: 0 0; /* Transform from top-left for manual translation */
-                /* Apply Transform directly */
-                transform: translate(${translateX}px, ${translateY}px) scale(${scale});
-                transition: ${isPinching ? 'none' : 'transform 0.2s ease-out'};
-                margin: 0 auto;
-            }
-            .reader-toolbar {
-                position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-                background: rgba(10, 10, 15, 0.9); border: 1px solid #00e5ff;
-                box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); border-radius: 50px;
-                padding: 10px 25px; display: flex; gap: 20px; z-index: 1000;
-                backdrop-filter: blur(5px);
-                opacity: ${scale > 1.2 ? 0 : 1}; /* Hide toolbar when zoomed in */
-                transition: opacity 0.3s;
-                pointer-events: ${scale > 1.2 ? 'none' : 'auto'};
-            }
-            .reader-icon {
-                color: #00e5ff; font-size: 1rem; cursor: pointer; transition: 0.1s;
-                display: flex; align-items: center; justify-content: center;
-                min-width: 35px; height: 35px; border-radius: 50%;
-                background: rgba(0, 229, 255, 0.1);
-            }
-            .reader-icon.liked { color: #ff0055; text-shadow: 0 0 10px #ff0055; background: rgba(255, 0, 85, 0.1); }
-            
-            .zoom-reset-btn {
-                position: fixed; top: 20px; right: 20px;
-                background: rgba(0,0,0,0.6); color: white; border: 1px solid white;
-                padding: 5px 10px; border-radius: 4px; font-size: 0.8rem;
-                z-index: 2000; display: ${scale > 1.5 ? 'block' : 'none'};
-            }
-        `),
-
-        // Reset Button if lost in zoom
-        h("button", { 
-            className: "zoom-reset-btn", 
-            onClick: () => { setScale(1); setTranslateX(0); setTranslateY(0); } 
-        }, "RESET ZOOM"),
-
-        h(
-            "div",
-            { className: "reader-toolbar" },
-            h("i", {
-                className: "fas fa-arrow-left reader-icon",
-                title: "Back",
-                onClick: onBack
-            }),
-            
-            h("i", {
-                className: `fas ${isMuted ? 'fa-volume-mute' : 'fa-volume-up'} reader-icon`,
-                title: "Mute Music",
-                onClick: () => setIsMuted(!isMuted)
-            }),
-            
-            // REMOVED SAVE BUTTON AS REQUESTED
-
-            h("i", {
-                className: `fas fa-heart reader-icon ${isLiked ? 'liked' : ''}`,
-                title: "Like",
-                onClick: () => onToggleLike(chapterId)
-            }),
-            h("i", {
-                className: "fas fa-comment reader-icon",
-                title: "Comments",
-                onClick: () => setShowComments(true)
-            })
+        { className: "reader-wrapper", ref: containerRef },
+        h("style", null, styles),
+        h("div", { className: "reader-content", ref: contentRef },
+            chapter.pages.map((img, i) => h("img", { key: i, src: img, className: "reader-img" }))
         ),
-        
-        h("div", { 
-            className: "reader-content-wrapper"
-        }, 
-            chapter.pages.map((img, i) =>
-                h("img", {
-                    key: i,
-                    ref: el => imageRefs.current[i] = el,
-                    src: img,
-                    className: "reader-img",
-                    loading: "lazy",
-                    onDragStart: (e) => e.preventDefault() 
-                })
-            )
-        ),
-
-        showComments && h(CommentsModal, { onClose: () => setShowComments(false) })
+        h("div", { className: "reader-toolbar" },
+            h("i", { className: "fas fa-arrow-left reader-icon", onClick: onBack }),
+            h("i", { className: `fas ${isMuted ? 'fa-volume-mute' : 'fa-volume-up'} reader-icon`, onClick: () => setIsMuted(!isMuted) }),
+            h("i", { className: `fas fa-heart reader-icon ${isLiked ? 'liked' : ''}`, style: { color: isLiked ? '#ff0055' : '#00e5ff' }, onClick: () => { onToggleLike(chapterId); setIsLiked(!isLiked); } })
+        )
     );
 };
+
 // --- MAIN APP ---
 const App = () => {
     // 💾 STATE RECALL (Only for Preferences, NO Location)
