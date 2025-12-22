@@ -168,7 +168,7 @@ window.APP_CONFIG = {
             title: "End of Eden",
             date: "Life is a Disaster",
             locked: false,
-            pages: Array.from({ length: 18 }, (_, i) => `imageschapter14/${i + 1}.png`)
+            pages: Array.from({ length: 21 }, (_, i) => `imageschapter14/${i + 1}.png`)
         },
         
       
