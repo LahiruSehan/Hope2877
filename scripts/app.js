@@ -938,237 +938,311 @@ const CommentsModal = ({ onClose }) => {
     );
 };
 
-// --- READER (PHOTO-LIKE ZOOM & SCROLL ENGINE) ---
-const ReaderPage = ({ chapterId, onBack, likes, onToggleLike, masterVolume }) => {
+// --- READER (WITH UNRESTRICTED ZOOM) ---
+const ReaderPage = ({ chapterId, onBack, initialPage, likes, onToggleLike, onFinishChapter, masterVolume }) => {
     const chapter = window.APP_CONFIG.chapters.find((c) => c.id === chapterId);
     
-    // REFS
-    const containerRef = useRef(null);
-    const contentRef = useRef(null);
-    
-    // ZOOM STATE (Refs for 60fps performance)
-    // We use refs instead of state to update transforms without react re-renders
-    const state = useRef({
-        scale: 1,
-        x: 0,
-        y: 0,
-        isZooming: false,
-        isPanning: false,
-        startX: 0,
-        startY: 0,
-        initialDist: 0,
-        initialScale: 1
-    });
-
+    // STATE
+    const [currentPage, setCurrentPage] = useState(initialPage || 0);
+    const [showComments, setShowComments] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
-    const [isLiked, setIsLiked] = useState(likes[chapterId]);
+    
+    // 🤏 UNRESTRICTED ZOOM STATE
+    const [scale, setScale] = useState(1);
+    const [translateX, setTranslateX] = useState(0);
+    const [translateY, setTranslateY] = useState(0);
+    const [isPinching, setIsPinching] = useState(false);
+
+    // REFS
     const audioRef = useRef(null);
+    const currentTrackRef = useRef(null);
+    const imageRefs = useRef([]);
+    
+    // GESTURE REFS
+    const pinchStartDist = useRef(0);
+    const startScale = useRef(1);
+    const startX = useRef(0);
+    const startY = useRef(0);
+    const lastPointX = useRef(0);
+    const lastPointY = useRef(0);
 
-    useLayoutEffect(() => {
-        const container = containerRef.current;
-        const content = contentRef.current;
-        if (!container || !content) return;
+    // --- 🤏 UNRESTRICTED GESTURE HANDLERS ---
+    const getDistance = (touches) => {
+        return Math.hypot(
+            touches[0].pageX - touches[1].pageX,
+            touches[0].pageY - touches[1].pageY
+        );
+    };
 
-        // --- MATH HELPERS ---
-        const getDistance = (touches) => Math.hypot(touches[0].pageX - touches[1].pageX, touches[0].pageY - touches[1].pageY);
-        const getCenter = (touches) => ({
+    const getMidpoint = (touches) => {
+        return {
             x: (touches[0].pageX + touches[1].pageX) / 2,
             y: (touches[0].pageY + touches[1].pageY) / 2
-        });
-
-        // --- UPDATE VIEW ---
-        const updateTransform = () => {
-            const s = state.current;
-            content.style.transform = `translate3d(${s.x}px, ${s.y}px, 0) scale(${s.scale})`;
-            
-            // HYBRID SCROLL SWITCH
-            // If scale is roughly 1, we want NATIVE scroll for smooth reading.
-            // If scale > 1, we want LOCKED scroll + TRANSFORM for photo zoom feel.
-            if (s.scale > 1.01) {
-                container.style.overflowY = 'hidden';
-                container.style.touchAction = 'none'; // Disable browser handling
-            } else {
-                container.style.overflowY = 'auto';
-                container.style.touchAction = 'pan-y'; // Re-enable browser vertical scroll
-                if (s.x !== 0 || s.y !== 0) {
-                     content.style.transform = 'translate3d(0,0,0) scale(1)';
-                     s.x = 0; s.y = 0;
-                }
-            }
         };
+    };
 
-        const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
-
-        // --- HANDLERS ---
-        const onTouchStart = (e) => {
-            const s = state.current;
-            
-            if (e.touches.length === 2) {
-                // PINCH START
-                s.isZooming = true;
-                s.initialDist = getDistance(e.touches);
-                s.initialScale = s.scale;
-                
-                // If we are starting a pinch from Scale 1, we need to capture current scroll
-                // and convert it to translate Y so it doesn't jump.
-                if (s.scale <= 1.01) {
-                    const scrollTop = container.scrollTop;
-                    s.y = -scrollTop;
-                    // Reset scroll top to 0 so transform takes over visually in same spot
-                    // Actually, safer to keep scrollTop and offset transform? 
-                    // No, for "Photo Zoom" usually we lock scroll.
-                    container.style.overflowY = 'hidden';
-                    container.scrollTop = 0; 
-                    updateTransform();
-                }
-
-                // Calculate focal point logic if we wanted advanced focus
-                // For now, simpler center zoom to avoid jumping
-                const center = getCenter(e.touches);
-                s.startX = center.x - s.x;
-                s.startY = center.y - s.y;
-
-            } else if (e.touches.length === 1 && s.scale > 1.01) {
-                // PAN START (Only if zoomed)
-                s.isPanning = true;
-                s.startX = e.touches[0].pageX - s.x;
-                s.startY = e.touches[0].pageY - s.y;
-            }
-        };
-
-        const onTouchMove = (e) => {
-            const s = state.current;
-            
-            if (s.isZooming && e.touches.length === 2) {
-                e.preventDefault();
-                
-                const dist = getDistance(e.touches);
-                const zoomFactor = dist / s.initialDist;
-                
-                // Update Scale
-                s.scale = Math.min(Math.max(s.initialScale * zoomFactor, 1), 4); // Max zoom 4x
-
-                // Simple Panning Compensation (Keep moves somewhat centered)
-                // Real "Photo Zoom" requires complex matrix math, but this is robust enough:
-                const center = getCenter(e.touches);
-                
-                // If we just scale, it scales from top-left (0,0).
-                // We need to move X/Y to keep the image under fingers.
-                // Simplified: Just allow user to Pan while pinching.
-                // We update X/Y based on center movement? 
-                // Let's stick to simple scale update + clamping.
-                
-                // CLAMPING (Crucial for "No Empty Spaces")
-                const viewportW = container.clientWidth;
-                const viewportH = container.clientHeight;
-                const contentW = viewportW * s.scale;
-                const contentH = contentRef.current.offsetHeight * s.scale;
-
-                // X Clamp
-                const minX = viewportW - contentW;
-                const maxX = 0;
-                s.x = clamp(s.x, minX, maxX);
-
-                // Y Clamp
-                const minY = viewportH - contentH;
-                const maxY = 0;
-                s.y = clamp(s.y, minY, maxY);
-                
-                requestAnimationFrame(updateTransform);
-
-            } else if (s.isPanning && e.touches.length === 1) {
-                e.preventDefault();
-                
-                let newX = e.touches[0].pageX - s.startX;
-                let newY = e.touches[0].pageY - s.startY;
-
-                const viewportW = container.clientWidth;
-                const viewportH = container.clientHeight;
-                const contentW = viewportW * s.scale;
-                const contentH = contentRef.current.offsetHeight * s.scale;
-
-                // Clamp to edges
-                const minX = viewportW - contentW;
-                s.x = clamp(newX, minX, 0);
-
-                const minY = viewportH - contentH;
-                s.y = clamp(newY, minY, 0);
-
-                requestAnimationFrame(updateTransform);
-            }
-        };
-
-        const onTouchEnd = (e) => {
-            const s = state.current;
-            
-            if (e.touches.length < 2) s.isZooming = false;
-            if (e.touches.length === 0) s.isPanning = false;
-
-            // SNAP BACK
-            if (s.scale < 1.1) {
-                // If scale is close to 1, reset to Native Scroll
-                const currentAbsY = Math.abs(s.y);
-                s.scale = 1;
-                s.x = 0;
-                s.y = 0;
-                updateTransform(); // Sets overflow auto
-                container.scrollTop = currentAbsY; // Restore position
-            }
-        };
-
-        container.addEventListener('touchstart', onTouchStart, { passive: false });
-        container.addEventListener('touchmove', onTouchMove, { passive: false });
-        container.addEventListener('touchend', onTouchEnd);
-
-        return () => {
-            container.removeEventListener('touchstart', onTouchStart);
-            container.removeEventListener('touchmove', onTouchMove);
-            container.removeEventListener('touchend', onTouchEnd);
-        };
-    }, []);
-
-    // --- MUSIC LOGIC ---
-    useEffect(() => {
-        const rules = window.MUSIC_CONFIG.chapters[chapterId] || [];
-        if (rules.length > 0 && !audioRef.current && !isMuted) {
-             const track = rules[0].track;
-             const audio = new Audio(track);
-             audio.loop = true;
-             audio.volume = masterVolume;
-             audio.play().catch(e => console.log("Audio blocked"));
-             audioRef.current = audio;
+    const handleTouchStart = (e) => {
+        if (e.touches.length === 2) {
+            // Start Pinching
+            setIsPinching(true);
+            pinchStartDist.current = getDistance(e.touches);
+            startScale.current = scale;
+        } else if (e.touches.length === 1 && scale > 1) {
+            // Start Panning (only if zoomed in)
+            lastPointX.current = e.touches[0].pageX;
+            lastPointY.current = e.touches[0].pageY;
+            startX.current = translateX;
+            startY.current = translateY;
         }
+    };
+
+    const handleTouchMove = (e) => {
+        if (e.touches.length === 2 && isPinching) {
+            e.preventDefault(); 
+            const dist = getDistance(e.touches);
+            const zoomFactor = dist / pinchStartDist.current;
+            
+            // UNRESTRICTED: No Max Clamp (or very high like 50x)
+            let newScale = startScale.current * zoomFactor;
+            newScale = Math.max(0.5, newScale); // Min clamp just to prevent invisibility
+            
+            setScale(newScale);
+        } else if (e.touches.length === 1 && scale > 1) {
+            // Panning logic for "Photo Zoom" feel
+            e.preventDefault(); // Stop page scroll when zoomed
+            const deltaX = e.touches[0].pageX - lastPointX.current;
+            const deltaY = e.touches[0].pageY - lastPointY.current;
+            
+            setTranslateX(prev => prev + deltaX);
+            setTranslateY(prev => prev + deltaY);
+            
+            lastPointX.current = e.touches[0].pageX;
+            lastPointY.current = e.touches[0].pageY;
+        }
+    };
+
+    const handleTouchEnd = (e) => {
+        if (e.touches.length < 2) {
+            setIsPinching(false);
+        }
+        // RESET if zoomed out too far
+        if (scale < 1) {
+             setScale(1);
+             setTranslateX(0);
+             setTranslateY(0);
+        }
+    };
+
+    // --- STANDARD LOGIC ---
+    useEffect(() => {
+        const handleScroll = () => {
+            if (isPinching || scale > 1.1) return; // Don't track pages while zoomed
+
+            imageRefs.current.forEach((img, idx) => {
+                if (!img) return;
+                const rect = img.getBoundingClientRect();
+                if (rect.top < window.innerHeight / 2 && rect.bottom > window.innerHeight / 2) {
+                    if (currentPage !== idx) setCurrentPage(idx);
+                    if (idx === imageRefs.current.length - 1) {
+                        setTimeout(() => onFinishChapter(chapterId), 2000);
+                    }
+                }
+            });
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [currentPage, chapterId, onFinishChapter, isPinching, scale]);
+
+    useEffect(() => {
+        if (initialPage > 0 && imageRefs.current[initialPage]) {
+            setTimeout(() => {
+                imageRefs.current[initialPage].scrollIntoView({ behavior: 'smooth' });
+            }, 500);
+        }
+    }, [initialPage]);
+
+    // Music Logic
+    useEffect(() => {
+        const fadeDuration = window.MUSIC_CONFIG.fadeDuration || 2000;
+        const chapterRules = window.MUSIC_CONFIG.chapters[chapterId] || [];
+        const rule = chapterRules.find(r => (currentPage + 1) >= r.pages[0] && (currentPage + 1) <= r.pages[1]);
+        const targetTrack = rule ? rule.track : null;
+
+        if (audioRef.current) {
+            const targetVol = isMuted ? 0 : masterVolume;
+             if (Math.abs(audioRef.current.volume - targetVol) > 0.1) {
+                 audioRef.current.volume = targetVol;
+             }
+        }
+
+        if (targetTrack !== currentTrackRef.current) {
+            if (audioRef.current) {
+                const oldAudio = audioRef.current;
+                let vol = oldAudio.volume;
+                const fadeOutInterval = setInterval(() => {
+                    if (vol > 0.1) {
+                        vol -= 0.1;
+                        oldAudio.volume = vol;
+                    } else {
+                        oldAudio.pause();
+                        clearInterval(fadeOutInterval);
+                    }
+                }, fadeDuration / 10);
+            }
+
+            if (targetTrack) {
+                const newAudio = new Audio(targetTrack);
+                newAudio.loop = true;
+                newAudio.muted = isMuted;
+                newAudio.volume = 0;
+                newAudio.play().catch(e => console.log("Autoplay blocked", e));
+                
+                let vol = 0;
+                const fadeInInterval = setInterval(() => {
+                    if (vol < masterVolume) {
+                        vol += 0.1;
+                        if(vol > masterVolume) vol = masterVolume;
+                        newAudio.volume = vol;
+                    } else {
+                        clearInterval(fadeInInterval);
+                    }
+                }, fadeDuration / 10);
+
+                audioRef.current = newAudio;
+                currentTrackRef.current = targetTrack;
+            } else {
+                audioRef.current = null;
+                currentTrackRef.current = null;
+            }
+        }
+    }, [chapterId, currentPage, isMuted, masterVolume]); 
+
+    useEffect(() => {
+        if (audioRef.current) {
+            audioRef.current.muted = isMuted;
+            if (!isMuted) audioRef.current.volume = masterVolume;
+        }
+    }, [isMuted, masterVolume]);
+
+    useEffect(() => {
         return () => {
             if (audioRef.current) {
                 audioRef.current.pause();
                 audioRef.current = null;
+                currentTrackRef.current = null;
             }
         };
-    }, [chapterId, isMuted, masterVolume]);
+    }, []);
 
-    const styles = `
-        .reader-wrapper { width: 100vw; height: 100vh; overflow-y: auto; overflow-x: hidden; background: #000; position: relative; }
-        .reader-content { width: 100%; transform-origin: 0 0; will-change: transform; }
-        .reader-img { width: 100%; display: block; }
-        .reader-toolbar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); border: 1px solid #00e5ff; padding: 10px 20px; border-radius: 30px; display: flex; gap: 20px; z-index: 1000; }
-        .reader-icon { color: #00e5ff; font-size: 1.2rem; cursor: pointer; }
-    `;
+    const isLiked = likes[chapterId];
 
     return h(
         "div",
-        { className: "reader-wrapper", ref: containerRef },
-        h("style", null, styles),
-        h("div", { className: "reader-content", ref: contentRef },
-            chapter.pages.map((img, i) => h("img", { key: i, src: img, className: "reader-img" }))
+        { 
+            className: "reader-container fade-in",
+            onTouchStart: handleTouchStart,
+            onTouchMove: handleTouchMove,
+            onTouchEnd: handleTouchEnd
+        },
+        
+        h("style", null, `
+            .reader-container {
+                overflow-x: hidden; 
+                overflow-y: ${scale > 1.05 ? 'hidden' : 'auto'}; /* Disable scroll when zoomed */
+                width: 100vw;
+                min-height: 100vh;
+                touch-action: none; /* Full JS control */
+            }
+            .reader-content-wrapper {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 100vw; 
+                transform-origin: 0 0; /* Transform from top-left for manual translation */
+                /* Apply Transform directly */
+                transform: translate(${translateX}px, ${translateY}px) scale(${scale});
+                transition: ${isPinching ? 'none' : 'transform 0.2s ease-out'};
+                margin: 0 auto;
+            }
+            .reader-toolbar {
+                position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+                background: rgba(10, 10, 15, 0.9); border: 1px solid #00e5ff;
+                box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); border-radius: 50px;
+                padding: 10px 25px; display: flex; gap: 20px; z-index: 1000;
+                backdrop-filter: blur(5px);
+                opacity: ${scale > 1.2 ? 0 : 1}; /* Hide toolbar when zoomed in */
+                transition: opacity 0.3s;
+                pointer-events: ${scale > 1.2 ? 'none' : 'auto'};
+            }
+            .reader-icon {
+                color: #00e5ff; font-size: 1rem; cursor: pointer; transition: 0.1s;
+                display: flex; align-items: center; justify-content: center;
+                min-width: 35px; height: 35px; border-radius: 50%;
+                background: rgba(0, 229, 255, 0.1);
+            }
+            .reader-icon.liked { color: #ff0055; text-shadow: 0 0 10px #ff0055; background: rgba(255, 0, 85, 0.1); }
+            
+            .zoom-reset-btn {
+                position: fixed; top: 20px; right: 20px;
+                background: rgba(0,0,0,0.6); color: white; border: 1px solid white;
+                padding: 5px 10px; border-radius: 4px; font-size: 0.8rem;
+                z-index: 2000; display: ${scale > 1.5 ? 'block' : 'none'};
+            }
+        `),
+
+        // Reset Button if lost in zoom
+        h("button", { 
+            className: "zoom-reset-btn", 
+            onClick: () => { setScale(1); setTranslateX(0); setTranslateY(0); } 
+        }, "RESET ZOOM"),
+
+        h(
+            "div",
+            { className: "reader-toolbar" },
+            h("i", {
+                className: "fas fa-arrow-left reader-icon",
+                title: "Back",
+                onClick: onBack
+            }),
+            
+            h("i", {
+                className: `fas ${isMuted ? 'fa-volume-mute' : 'fa-volume-up'} reader-icon`,
+                title: "Mute Music",
+                onClick: () => setIsMuted(!isMuted)
+            }),
+            
+            // REMOVED SAVE BUTTON AS REQUESTED
+
+            h("i", {
+                className: `fas fa-heart reader-icon ${isLiked ? 'liked' : ''}`,
+                title: "Like",
+                onClick: () => onToggleLike(chapterId)
+            }),
+            h("i", {
+                className: "fas fa-comment reader-icon",
+                title: "Comments",
+                onClick: () => setShowComments(true)
+            })
         ),
-        h("div", { className: "reader-toolbar" },
-            h("i", { className: "fas fa-arrow-left reader-icon", onClick: onBack }),
-            h("i", { className: `fas ${isMuted ? 'fa-volume-mute' : 'fa-volume-up'} reader-icon`, onClick: () => setIsMuted(!isMuted) }),
-            h("i", { className: `fas fa-heart reader-icon ${isLiked ? 'liked' : ''}`, style: { color: isLiked ? '#ff0055' : '#00e5ff' }, onClick: () => { onToggleLike(chapterId); setIsLiked(!isLiked); } })
-        )
+        
+        h("div", { 
+            className: "reader-content-wrapper"
+        }, 
+            chapter.pages.map((img, i) =>
+                h("img", {
+                    key: i,
+                    ref: el => imageRefs.current[i] = el,
+                    src: img,
+                    className: "reader-img",
+                    loading: "lazy",
+                    onDragStart: (e) => e.preventDefault() 
+                })
+            )
+        ),
+
+        showComments && h(CommentsModal, { onClose: () => setShowComments(false) })
     );
 };
-
 // --- MAIN APP ---
 const App = () => {
     // 💾 STATE RECALL (Only for Preferences, NO Location)
