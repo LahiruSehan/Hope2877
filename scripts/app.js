@@ -1006,7 +1006,7 @@ const CommentsModal = ({ onClose }) => {
     );
 };
 
-// --- READER ---
+// --- READER (UPDATED WITH ZOOM) ---
 const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSave, likes, onToggleLike, hasSave, onFinishChapter, masterVolume }) => {
     const chapter = window.APP_CONFIG.chapters.find((c) => c.id === chapterId);
     const [currentPage, setCurrentPage] = useState(initialPage || 0);
@@ -1014,6 +1014,9 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
     const [isMuted, setIsMuted] = useState(false);
     const [notification, setNotification] = useState(null);
     
+    // 🔍 ZOOM STATE
+    const [zoomLevel, setZoomLevel] = useState(1); // 1 = 100%, 1.5 = 150%, etc.
+
     // 🎵 MUSIC REFS
     const audioRef = useRef(null);
     const currentTrackRef = useRef(null);
@@ -1031,6 +1034,9 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
     // Track Scroll Position & Finish Logic
     useEffect(() => {
         const handleScroll = () => {
+            // Only update page tracking if we are not heavily zoomed in (optimization)
+            if (zoomLevel > 1.2) return; 
+
             imageRefs.current.forEach((img, idx) => {
                 if (!img) return;
                 const rect = img.getBoundingClientRect();
@@ -1046,27 +1052,23 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
         };
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    }, [currentPage, chapterId, onFinishChapter]);
+    }, [currentPage, chapterId, onFinishChapter, zoomLevel]);
 
-    // 🎵 MUSIC ENGINE SYSTEM (NOW USES MASTER VOLUME)
+    // 🎵 MUSIC ENGINE SYSTEM
     useEffect(() => {
         const fadeDuration = window.MUSIC_CONFIG.fadeDuration || 2000;
         const chapterRules = window.MUSIC_CONFIG.chapters[chapterId] || [];
         const rule = chapterRules.find(r => (currentPage + 1) >= r.pages[0] && (currentPage + 1) <= r.pages[1]);
         const targetTrack = rule ? rule.track : null;
 
-        // Apply Master Volume immediately if track is playing
         if (audioRef.current) {
-            // Target volume is masterVolume unless muted
             const targetVol = isMuted ? 0 : masterVolume;
-            // Smoothly adjust if volume changed
              if (Math.abs(audioRef.current.volume - targetVol) > 0.1) {
                  audioRef.current.volume = targetVol;
              }
         }
 
         if (targetTrack !== currentTrackRef.current) {
-            // Fade out
             if (audioRef.current) {
                 const oldAudio = audioRef.current;
                 let vol = oldAudio.volume;
@@ -1081,7 +1083,6 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
                 }, fadeDuration / 10);
             }
 
-            // Start new track
             if (targetTrack) {
                 const newAudio = new Audio(targetTrack);
                 newAudio.loop = true;
@@ -1089,7 +1090,6 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
                 newAudio.volume = 0;
                 newAudio.play().catch(e => console.log("Autoplay blocked", e));
                 
-                // Fade in to Master Volume
                 let vol = 0;
                 const fadeInInterval = setInterval(() => {
                     if (vol < masterVolume) {
@@ -1110,7 +1110,6 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
         }
     }, [chapterId, currentPage, isMuted, masterVolume]); 
 
-    // Handle Mute Toggle & Master Volume Changes
     useEffect(() => {
         if (audioRef.current) {
             audioRef.current.muted = isMuted;
@@ -1133,6 +1132,16 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
         setTimeout(() => setNotification(null), 3000);
     };
 
+    // 🔍 TOGGLE ZOOM FUNCTION
+    const toggleZoom = () => {
+        setZoomLevel(prev => {
+            if (prev === 1) return 1.5;
+            if (prev === 1.5) return 2.0;
+            return 1;
+        });
+        showToast(zoomLevel === 2.0 ? "ZOOM RESET" : "ZOOM ENHANCED");
+    };
+
     const isLiked = likes[chapterId];
 
     return h(
@@ -1140,29 +1149,51 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
         { className: "reader-container fade-in" },
         
         h("style", null, `
+            /* Allow horizontal scroll only when zoomed */
+            .reader-container {
+                overflow-x: ${zoomLevel > 1 ? 'auto' : 'hidden'}; 
+                overflow-y: visible;
+                width: 100vw;
+            }
+            .reader-content-wrapper {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                /* Smooth transition for zoom effect */
+                transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                margin: 0 auto;
+            }
             .reader-toolbar {
                 position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
                 background: rgba(10, 10, 15, 0.9); border: 1px solid #00e5ff;
                 box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); border-radius: 50px;
                 padding: 10px 25px; display: flex; gap: 20px; z-index: 1000;
                 backdrop-filter: blur(5px);
+                max-width: 95vw; overflow-x: auto; /* Handle small screens */
             }
             .reader-icon {
                 color: #00e5ff; font-size: 1rem; cursor: pointer; transition: 0.1s;
                 display: flex; align-items: center; justify-content: center;
-                width: 35px; height: 35px; border-radius: 50%;
+                min-width: 35px; height: 35px; border-radius: 50%;
                 background: rgba(0, 229, 255, 0.1);
             }
             .reader-icon:active { transform: scale(0.9); background: rgba(0, 229, 255, 0.4); }
             .reader-icon:hover { background: rgba(0, 229, 255, 0.2); box-shadow: 0 0 10px #00e5ff; }
             .reader-icon.liked { color: #ff0055; text-shadow: 0 0 10px #ff0055; background: rgba(255, 0, 85, 0.1); }
+            
+            .zoom-indicator {
+                position: absolute; top: -10px; right: -5px; 
+                font-size: 0.6rem; background: #000; color: #fff; 
+                padding: 2px 4px; border-radius: 4px; border: 1px solid #00e5ff;
+            }
+
             .save-btn {
                 background: linear-gradient(90deg, #00e5ff, #0099ff);
                 color: #000; font-weight: bold; border: none;
                 padding: 0 15px; border-radius: 20px;
                 font-family: 'Rajdhani'; font-size: 0.8rem;
                 cursor: pointer; display: flex; align-items: center; gap: 8px;
-                transition: transform 0.1s;
+                transition: transform 0.1s; white-space: nowrap;
             }
             .save-btn:active { transform: scale(0.95); }
             .save-btn.unsave { background: linear-gradient(90deg, #ff3333, #aa0000); color: white; }
@@ -1191,6 +1222,17 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
                 title: "Back",
                 onClick: onBack
             }),
+            
+            // 🔍 ZOOM BUTTON
+            h("div", { style: { position: 'relative' } },
+                h("i", {
+                    className: `fas ${zoomLevel > 1 ? 'fa-search-minus' : 'fa-search-plus'} reader-icon`,
+                    title: "Zoom",
+                    onClick: toggleZoom
+                }),
+                zoomLevel > 1 && h("span", { className: "zoom-indicator" }, `${zoomLevel}x`)
+            ),
+
             h("i", {
                 className: `fas ${isMuted ? 'fa-volume-mute' : 'fa-volume-up'} reader-icon`,
                 title: "Mute Music",
@@ -1212,7 +1254,7 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
                     }
                 },
                 h("i", { className: hasSave ? "fas fa-trash" : "fas fa-bookmark" }),
-                hasSave ? "DELETE SAVE" : `SAVE P.${currentPage + 1}`
+                hasSave ? "DELETE" : `SAVE P.${currentPage + 1}`
             ),
 
             h("i", {
@@ -1227,20 +1269,29 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
             })
         ),
         
-        chapter.pages.map((img, i) =>
-            h("img", {
-                key: i,
-                ref: el => imageRefs.current[i] = el,
-                src: img,
-                className: "reader-img",
-                loading: "lazy"
-            })
+        // 🔍 IMAGE WRAPPER (Handles the width scaling)
+        h("div", { 
+            className: "reader-content-wrapper",
+            style: { width: `${zoomLevel * 100}vw` }, // Dynamically set width based on zoom
+            // Add double tap to zoom functionality
+            onDoubleClick: toggleZoom
+        }, 
+            chapter.pages.map((img, i) =>
+                h("img", {
+                    key: i,
+                    ref: el => imageRefs.current[i] = el,
+                    src: img,
+                    className: "reader-img",
+                    loading: "lazy",
+                    // Prevent image dragging to make touch gestures smoother
+                    onDragStart: (e) => e.preventDefault() 
+                })
+            )
         ),
 
         showComments && h(CommentsModal, { onClose: () => setShowComments(false) })
     );
 };
-
 // --- MAIN APP (PERSISTENCE & SETTINGS) ---
 const App = () => {
     // 💾 TOTAL STATE RECALL
