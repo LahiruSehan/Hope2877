@@ -1006,23 +1006,72 @@ const CommentsModal = ({ onClose }) => {
     );
 };
 
-// --- READER (UPDATED WITH ZOOM) ---
+// --- READER (WITH GESTURE ZOOM) ---
 const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSave, likes, onToggleLike, hasSave, onFinishChapter, masterVolume }) => {
     const chapter = window.APP_CONFIG.chapters.find((c) => c.id === chapterId);
+    
+    // STATE
     const [currentPage, setCurrentPage] = useState(initialPage || 0);
     const [showComments, setShowComments] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
     const [notification, setNotification] = useState(null);
     
-    // 🔍 ZOOM STATE
-    const [zoomLevel, setZoomLevel] = useState(1); // 1 = 100%, 1.5 = 150%, etc.
+    // 🤏 ZOOM STATE (Scale factor: 1.0 to 3.0)
+    const [scale, setScale] = useState(1);
+    const [isPinching, setIsPinching] = useState(false);
 
-    // 🎵 MUSIC REFS
+    // REFS
     const audioRef = useRef(null);
     const currentTrackRef = useRef(null);
     const imageRefs = useRef([]);
+    
+    // GESTURE REFS (Used to calculate pinch math without re-rendering constantly)
+    const pinchStartDist = useRef(0);
+    const startScale = useRef(1);
 
-    // Scroll to initial page
+    // --- 🤏 GESTURE HANDLERS ---
+    const getDistance = (touches) => {
+        return Math.hypot(
+            touches[0].pageX - touches[1].pageX,
+            touches[0].pageY - touches[1].pageY
+        );
+    };
+
+    const handleTouchStart = (e) => {
+        if (e.touches.length === 2) {
+            // Start Pinching
+            setIsPinching(true);
+            pinchStartDist.current = getDistance(e.touches);
+            startScale.current = scale;
+        }
+    };
+
+    const handleTouchMove = (e) => {
+        if (e.touches.length === 2 && isPinching) {
+            // Prevent browser native zoom (which zooms the whole UI)
+            e.preventDefault(); 
+            
+            const dist = getDistance(e.touches);
+            const zoomFactor = dist / pinchStartDist.current;
+            
+            // Calculate new scale based on how much fingers moved
+            let newScale = startScale.current * zoomFactor;
+
+            // Clamp Scale (Min 1.0, Max 3.0)
+            newScale = Math.min(Math.max(newScale, 1), 3);
+            
+            setScale(newScale);
+        }
+    };
+
+    const handleTouchEnd = () => {
+        setIsPinching(false);
+        // Optional: Snap back to 1 if user pinched in too much ( < 1.1)
+        if (scale < 1.1) setScale(1);
+    };
+
+    // --- STANDARD LOGIC (Scroll, Music, etc) ---
+    
     useEffect(() => {
         if (initialPage > 0 && imageRefs.current[initialPage]) {
             setTimeout(() => {
@@ -1031,19 +1080,16 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
         }
     }, [initialPage]);
 
-    // Track Scroll Position & Finish Logic
     useEffect(() => {
         const handleScroll = () => {
-            // Only update page tracking if we are not heavily zoomed in (optimization)
-            if (zoomLevel > 1.2) return; 
+            // Don't track pages while actively pinching to save performance
+            if (isPinching) return;
 
             imageRefs.current.forEach((img, idx) => {
                 if (!img) return;
                 const rect = img.getBoundingClientRect();
                 if (rect.top < window.innerHeight / 2 && rect.bottom > window.innerHeight / 2) {
-                    if (currentPage !== idx) {
-                        setCurrentPage(idx);
-                    }
+                    if (currentPage !== idx) setCurrentPage(idx);
                     if (idx === imageRefs.current.length - 1) {
                         setTimeout(() => onFinishChapter(chapterId), 2000);
                     }
@@ -1052,9 +1098,9 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
         };
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    }, [currentPage, chapterId, onFinishChapter, zoomLevel]);
+    }, [currentPage, chapterId, onFinishChapter, isPinching]);
 
-    // 🎵 MUSIC ENGINE SYSTEM
+    // Music Logic (Same as before)
     useEffect(() => {
         const fadeDuration = window.MUSIC_CONFIG.fadeDuration || 2000;
         const chapterRules = window.MUSIC_CONFIG.chapters[chapterId] || [];
@@ -1132,36 +1178,40 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
         setTimeout(() => setNotification(null), 3000);
     };
 
-    // 🔍 TOGGLE ZOOM FUNCTION
-    const toggleZoom = () => {
-        setZoomLevel(prev => {
-            if (prev === 1) return 1.5;
-            if (prev === 1.5) return 2.0;
-            return 1;
-        });
-        showToast(zoomLevel === 2.0 ? "ZOOM RESET" : "ZOOM ENHANCED");
-    };
-
     const isLiked = likes[chapterId];
 
     return h(
         "div",
-        { className: "reader-container fade-in" },
+        { 
+            className: "reader-container fade-in",
+            // ATTACH GESTURE LISTENERS TO MAIN CONTAINER
+            onTouchStart: handleTouchStart,
+            onTouchMove: handleTouchMove,
+            onTouchEnd: handleTouchEnd
+        },
         
         h("style", null, `
             /* Allow horizontal scroll only when zoomed */
             .reader-container {
-                overflow-x: ${zoomLevel > 1 ? 'auto' : 'hidden'}; 
+                overflow-x: ${scale > 1.01 ? 'auto' : 'hidden'}; 
                 overflow-y: visible;
                 width: 100vw;
+                min-height: 100vh;
+                touch-action: pan-x pan-y; /* Important for browser handling */
             }
             .reader-content-wrapper {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                /* Smooth transition for zoom effect */
-                transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                /* We use width scaling. 
+                   If scale is 1.5, width is 150vw.
+                   We add a transition ONLY when not pinching (snapping back).
+                   When pinching, we want instant updates (no lag).
+                */
+                width: ${scale * 100}vw; 
+                transition: ${isPinching ? 'none' : 'width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)'};
                 margin: 0 auto;
+                transform-origin: top center;
             }
             .reader-toolbar {
                 position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
@@ -1169,7 +1219,7 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
                 box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); border-radius: 50px;
                 padding: 10px 25px; display: flex; gap: 20px; z-index: 1000;
                 backdrop-filter: blur(5px);
-                max-width: 95vw; overflow-x: auto; /* Handle small screens */
+                max-width: 95vw; overflow-x: auto;
             }
             .reader-icon {
                 color: #00e5ff; font-size: 1rem; cursor: pointer; transition: 0.1s;
@@ -1181,10 +1231,13 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
             .reader-icon:hover { background: rgba(0, 229, 255, 0.2); box-shadow: 0 0 10px #00e5ff; }
             .reader-icon.liked { color: #ff0055; text-shadow: 0 0 10px #ff0055; background: rgba(255, 0, 85, 0.1); }
             
-            .zoom-indicator {
-                position: absolute; top: -10px; right: -5px; 
-                font-size: 0.6rem; background: #000; color: #fff; 
-                padding: 2px 4px; border-radius: 4px; border: 1px solid #00e5ff;
+            .zoom-badge {
+                position: fixed; top: 70px; right: 20px;
+                background: rgba(0,0,0,0.8); border: 1px solid #00e5ff;
+                color: #00e5ff; padding: 5px 10px; border-radius: 12px;
+                font-family: 'Rajdhani'; font-weight: bold;
+                pointer-events: none; opacity: ${isPinching || scale > 1 ? 1 : 0};
+                transition: opacity 0.3s; z-index: 100;
             }
 
             .save-btn {
@@ -1213,6 +1266,9 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
             h("i", { className: "fas fa-check-circle" }),
             notification
         ),
+        
+        // VISUAL INDICATOR FOR CURRENT ZOOM LEVEL
+        h("div", { className: "zoom-badge" }, `${Math.round(scale * 100)}%`),
 
         h(
             "div",
@@ -1223,15 +1279,7 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
                 onClick: onBack
             }),
             
-            // 🔍 ZOOM BUTTON
-            h("div", { style: { position: 'relative' } },
-                h("i", {
-                    className: `fas ${zoomLevel > 1 ? 'fa-search-minus' : 'fa-search-plus'} reader-icon`,
-                    title: "Zoom",
-                    onClick: toggleZoom
-                }),
-                zoomLevel > 1 && h("span", { className: "zoom-indicator" }, `${zoomLevel}x`)
-            ),
+            // NOTE: Removed Zoom Buttons - now handled by Pinch
 
             h("i", {
                 className: `fas ${isMuted ? 'fa-volume-mute' : 'fa-volume-up'} reader-icon`,
@@ -1271,10 +1319,7 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
         
         // 🔍 IMAGE WRAPPER (Handles the width scaling)
         h("div", { 
-            className: "reader-content-wrapper",
-            style: { width: `${zoomLevel * 100}vw` }, // Dynamically set width based on zoom
-            // Add double tap to zoom functionality
-            onDoubleClick: toggleZoom
+            className: "reader-content-wrapper"
         }, 
             chapter.pages.map((img, i) =>
                 h("img", {
@@ -1283,7 +1328,7 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
                     src: img,
                     className: "reader-img",
                     loading: "lazy",
-                    // Prevent image dragging to make touch gestures smoother
+                    // Prevent default drag to ensure pinch works smoothly
                     onDragStart: (e) => e.preventDefault() 
                 })
             )
