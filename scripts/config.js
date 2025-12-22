@@ -1,10 +1,16 @@
-
 // ⚙️ CENTRAL CONFIGURATION & DATA
 window.APP_CONFIG = {
     assets: {
         cover: "images/cover.png",
     },
     vipCodes: ["CHAVEEN", "SAIDA", "LAHIRU"],
+
+    // 🌟 LATEST UPDATE CONFIGURATION
+    // Set the chapter ID and page number (starts at 0) for the "NEW" button
+    latest: {
+        chapterId: 14, 
+        pageIndex: 0
+    },
 
     // 🌍 Language Dictionary (English Only Active)
     translations: {
@@ -56,7 +62,8 @@ window.APP_CONFIG = {
         ]
     },
 
-    // Generate pages 1-11 for Chapter 1
+    // Generate pages simply based on file count
+    // Using Array.from to generate 1.png, 2.png... N.png based on 'length'
     chapters: [
         {
             id: 1,
@@ -70,9 +77,7 @@ window.APP_CONFIG = {
             title: "Broken New World",
             date: "Beauty is a lie.",
             locked: false,
-            pages: [...Array(39)].flatMap((_, i) =>
-                i + 1 === 27 ? [] : `imageschapter2/${i + 1}.png`
-            )
+            pages: Array.from({ length: 39 }, (_, i) => `imageschapter2/${i + 1}.png`)
         },
 
         {
@@ -83,7 +88,7 @@ window.APP_CONFIG = {
             pages: Array.from({ length: 15 }, (_, i) => `imageschapter3/${i + 1}.png`)
         },
 
-                {
+        {
             id: 4,
             title: "Regrets",
             date: "A False Hope ",
@@ -91,7 +96,7 @@ window.APP_CONFIG = {
             pages: Array.from({ length: 19 }, (_, i) => `imageschapter4/${i + 1}.png`)
         },
 
-                {
+        {
             id: 5,
             title: "CRUEL",
             date: "Losses",
@@ -99,7 +104,7 @@ window.APP_CONFIG = {
             pages: Array.from({ length: 12 }, (_, i) => `imageschapter5/${i + 1}.png`)
         },
 
-                {
+        {
             id: 6,
             title: "Gods",
             date: "Begining of the End",
@@ -107,7 +112,7 @@ window.APP_CONFIG = {
             pages: Array.from({ length: 20 }, (_, i) => `imageschapter6/${i + 1}.png`)
         },
 
-                        {
+        {
             id: 7,
             title: "Begining",
             date: "Who Wronged Who?",
@@ -115,7 +120,7 @@ window.APP_CONFIG = {
             pages: Array.from({ length: 10 }, (_, i) => `imageschapter7/${i + 1}.png`)
         },
 
-                                {
+        {
             id: 8,
             title: "Hope",
             date: "Uncertain Journey",
@@ -123,7 +128,7 @@ window.APP_CONFIG = {
             pages: Array.from({ length: 25 }, (_, i) => `imageschapter8/${i + 1}.png`)
         },
 
-                                {
+        {
             id: 9,
             title: "You & Me",
             date: "I am here for you",
@@ -131,7 +136,7 @@ window.APP_CONFIG = {
             pages: Array.from({ length: 11 }, (_, i) => `imageschapter9/${i + 1}.png`)
         },
 
-                                {
+        {
             id: 10,
             title: "Something ODD",
             date: "Yes! Definetely",
@@ -139,7 +144,7 @@ window.APP_CONFIG = {
             pages: Array.from({ length: 7 }, (_, i) => `imageschapter10/${i + 1}.png`)
         },
         
-                                {
+        {
             id: 11,
             title: "Lyra",
             date: "Trip down the memory lane",
@@ -147,7 +152,7 @@ window.APP_CONFIG = {
             pages: Array.from({ length: 11 }, (_, i) => `imageschapter11/${i + 1}.png`)
         },
         
-                                {
+        {
             id: 12,
             title: "Whats new?",
             date: "Almost Nothing",
@@ -155,7 +160,7 @@ window.APP_CONFIG = {
             pages: Array.from({ length: 8 }, (_, i) => `imageschapter12/${i + 1}.png`)
         },
         
-                                {
+        {
             id: 13,
             title: "Begning of EDEN",
             date: "Life is Beautiful",
@@ -163,14 +168,12 @@ window.APP_CONFIG = {
             pages: Array.from({ length: 10 }, (_, i) => `imageschapter13/${i + 1}.png`)
         },
 
-                                        {
+        {
             id: 14,
             title: "End of Eden",
             date: "Life is a Disaster",
             locked: false,
             pages: Array.from({ length: 21 }, (_, i) => `imageschapter14/${i + 1}.png`)
-        },
-        
-      
+        }
     ]
 };

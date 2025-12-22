@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <!-- Updated Viewport: Removed user-scalable=no to allow zooming -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#000000"/>
 
     <title>Beneath the Light of a Dying Sky | HOPE</title>
@@ -68,85 +69,8 @@
             });
         }
     </script>
-
-    <div id="install-popup" style="
-        display: none; 
-        position: fixed; 
-        bottom: 20px; 
-        left: 50%; 
-        transform: translateX(-50%); 
-        width: 90%; 
-        max-width: 400px; 
-        background: rgba(10, 10, 15, 0.95); 
-        border: 1px solid #444; 
-        border-radius: 12px; 
-        padding: 20px; 
-        box-shadow: 0 0 20px rgba(0, 255, 255, 0.2); 
-        z-index: 9999; 
-        color: white; 
-        font-family: 'Inter', sans-serif; 
-        text-align: center;
-    ">
-        <h3 style="margin: 0 0 10px 0; font-family: 'Orbitron', sans-serif; color: #00eaff;">INSTALL HOPE</h3>
-        <p style="font-size: 14px; color: #ccc; margin-bottom: 20px;">
-            Install the official app for the best reading experience.
-        </p>
-        
-        <div style="display: flex; gap: 10px; justify-content: center;">
-            <button id="btn-dismiss" style="
-                background: transparent; 
-                border: 1px solid #666; 
-                color: #aaa; 
-                padding: 10px 20px; 
-                border-radius: 6px; 
-                cursor: pointer;
-            ">Later</button>
-            
-            <button id="btn-install" style="
-                background: linear-gradient(45deg, #00eaff, #0077ff); 
-                border: none; 
-                color: black; 
-                font-weight: bold; 
-                padding: 10px 30px; 
-                border-radius: 6px; 
-                cursor: pointer;
-            ">INSTALL</button>
-        </div>
-    </div>
-
-    <script>
-        let deferredPrompt;
-        const installPopup = document.getElementById('install-popup');
-        const installBtn = document.getElementById('btn-install');
-        const dismissBtn = document.getElementById('btn-dismiss');
-
-        // 1. Listen for browser install signal
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installPopup.style.display = 'block'; // Show popup
-        });
-
-        // 2. Handle Install Click
-        installBtn.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                deferredPrompt = null;
-            }
-            installPopup.style.display = 'none';
-        });
-
-        // 3. Handle Dismiss Click
-        dismissBtn.addEventListener('click', () => {
-            installPopup.style.display = 'none';
-        });
-
-        // 4. Hide if already installed
-        if (window.matchMedia('(display-mode: standalone)').matches) {
-            installPopup.style.display = 'none';
-        }
-    </script>
+    
+    <!-- Install Prompt Logic Handled in app.js now -->
 
 </body>
 </html>

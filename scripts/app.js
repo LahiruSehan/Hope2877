@@ -13,78 +13,6 @@ const vibrate = (pattern) => {
     }
 };
 
-// 📡 NOTIFICATION SYSTEM (NEW)
-const NOTIFICATION_MESSAGES = {
-    morning: [
-        "Good Morning, Survivor. Status check required.",
-        "Sunrise detected. Visibility improving.",
-        "Hope system online. Ready for reading.",
-        "A new day. Survival probability: 89%."
-    ],
-    afternoon: [
-        "Sun is high. Hydration levels?",
-        "Afternoon report pending. Check chapters.",
-        "Lyra: 'Are you there? I found something...'",
-        "Signal strength optimal. Continue the story."
-    ],
-    evening: [
-        "Shadows are lengthening. Stay close to the light.",
-        "Lyra is calling you...",
-        "Evening has fallen. Perfect time to read.",
-        "Don't let the fire go out."
-    ],
-    night: [
-        "It's dark out there. Stay safe.",
-        "Night reading recommended. Keep quiet.",
-        "Anomaly detected in Sector 4...",
-        "The stars are dying. Witness them while you can."
-    ],
-    generic: [
-        "Incoming transmission...",
-        "New data available.",
-        "System Alert: Narrative incomplete.",
-        "Connection established."
-    ]
-};
-
-const sendSystemNotification = (title, body) => {
-    if (!("Notification" in window)) return;
-    
-    if (Notification.permission === "granted") {
-        try {
-            // Android/Mobile often requires ServiceWorker registration for notifications, 
-            // but new Notification() works on desktop/some mobile contexts if app is active.
-            // We try both methods for maximum compatibility.
-            
-            const options = {
-                body: body,
-                icon: '/icon.png', // Ensure you have an icon.png in public folder
-                vibrate: [200, 100, 200],
-                badge: '/icon.png',
-                tag: 'hope-app-update'
-            };
-
-            if (navigator.serviceWorker && navigator.serviceWorker.ready) {
-                navigator.serviceWorker.ready.then(registration => {
-                    registration.showNotification(title, options);
-                });
-            } else {
-                new Notification(title, options);
-            }
-        } catch (e) {
-            console.log("Notification trigger failed", e);
-        }
-    }
-};
-
-const requestNotificationPermission = async () => {
-    if (!("Notification" in window)) return false;
-    if (Notification.permission === "granted") return true;
-    
-    const permission = await Notification.requestPermission();
-    return permission === "granted";
-};
-
 // 🌌 SLOW PARTICLE BACKGROUND (TOGGLEABLE)
 const ParticleBackground = ({ enabled }) => {
     if (!enabled) return null; // BATTERY SAVER MODE
@@ -157,7 +85,7 @@ const ParticleBackground = ({ enabled }) => {
     return h("canvas", { id: "particle-canvas", ref: canvasRef });
 };
 
-// 🎬 CINEMATIC VOID INTRO (WITH VIBRATION)
+// 🎬 CINEMATIC VOID INTRO
 const CinematicIntro = ({ onComplete }) => {
     const [progress, setProgress] = useState(0);
     const particleRef = useRef(null);
@@ -228,7 +156,7 @@ const CinematicIntro = ({ onComplete }) => {
         frame();
     }, []);
 
-    // ⚡ LIGHTNING SYSTEM (VIBRATION ENABLED)
+    // ⚡ LIGHTNING SYSTEM
     useEffect(() => {
         const canvas = document.getElementById("lightning-canvas");
         if (!canvas) return;
@@ -295,7 +223,6 @@ const CinematicIntro = ({ onComplete }) => {
         };
 
         const triggerLightning = (e) => {
-            // ⚡ VIBRATION TRIGGER: Sync with lightning
             vibrate([40, 30, 40]);
 
             let targetX, targetY;
@@ -526,7 +453,7 @@ const ThemeModal = ({ person, onClose }) => {
 };
 
 // ⚙️ REAL WORKING SETTINGS MODAL
-const SettingsModal = ({ onClose, settings, updateSetting }) => {
+const SettingsModal = ({ onClose, settings, updateSetting, deferredPrompt }) => {
     
     // Toggle Full Screen
     const toggleFullScreen = () => {
@@ -537,18 +464,14 @@ const SettingsModal = ({ onClose, settings, updateSetting }) => {
         }
     };
 
-    // 🔊 TEST NOTIFICATION
-    const sendTestSignal = () => {
-        if ("Notification" in window) {
-             if (Notification.permission === "granted") {
-                 sendSystemNotification("System Test", "Signal strength 100%. Lyra is online.");
-             } else {
-                 requestNotificationPermission().then(granted => {
-                     if(granted) sendSystemNotification("System Test", "Permission Granted. Welcome back, Survivor.");
-                 });
-             }
+    // Install App
+    const handleInstall = async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log("Install outcome:", outcome);
         } else {
-            alert("Your device does not support holographic signals (Notifications).");
+            alert("Installation not available. Try using your browser menu.");
         }
     };
 
@@ -556,11 +479,15 @@ const SettingsModal = ({ onClose, settings, updateSetting }) => {
         { id: "masterVolume", label: "MASTER VOLUME", type: "slider", cat: "AUDIO" },
         { id: "highContrast", label: "HIGH CONTRAST (B&W)", type: "toggle", cat: "VISUAL" },
         { id: "particles", label: "PARTICLES (SAVE BATTERY)", type: "toggle", cat: "VISUAL" },
-        { id: "notifications", label: "SYSTEM NOTIFICATIONS", type: "toggle", cat: "SYSTEM" },
-        { id: "testNotify", label: "TEST SIGNAL", type: "action", action: sendTestSignal, cat: "SYSTEM" },
+        // Notification Toggle REMOVED
         { id: "fullscreen", label: "FULL SCREEN", type: "action", action: toggleFullScreen, cat: "SYSTEM" },
         { id: "autoScroll", label: "AUTO-SCROLL (BETA)", type: "toggle", cat: "SYSTEM" },
     ];
+
+    // Add install option if available
+    if (deferredPrompt) {
+        settingList.push({ id: "installApp", label: "INSTALL APP", type: "action", action: handleInstall, cat: "SYSTEM" });
+    }
 
     const styles = `
         .settings-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.7); z-index: 10000; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px); animation: fadeIn 0.3s ease-out; }
@@ -613,16 +540,7 @@ const SettingsModal = ({ onClose, settings, updateSetting }) => {
                         
                         s.type === "toggle" && h("div", { 
                             className: `toggle-switch ${settings[s.id] ? 'on' : ''}`,
-                            onClick: () => {
-                                // Specific logic for Notification permission
-                                if (s.id === 'notifications' && !settings.notifications) {
-                                    requestNotificationPermission().then(granted => {
-                                        if (granted) updateSetting(s.id, true);
-                                    });
-                                } else {
-                                    updateSetting(s.id, !settings[s.id]);
-                                }
-                            }
+                            onClick: () => updateSetting(s.id, !settings[s.id])
                         }),
                         
                         s.type === "slider" && h("div", { className: "slider-container" },
@@ -634,7 +552,7 @@ const SettingsModal = ({ onClose, settings, updateSetting }) => {
                             })
                         ),
 
-                        s.type === "action" && h("button", { className: "action-btn", onClick: s.action }, "ACTIVATE")
+                        s.type === "action" && h("button", { className: "action-btn", onClick: s.action }, "GO")
                     )
                 )
             )
@@ -642,8 +560,8 @@ const SettingsModal = ({ onClose, settings, updateSetting }) => {
     );
 };
 
-// --- HOME PAGE (WITH 3D GYRO EFFECT & ENGINE VIBRATION) ---
-const HomePage = ({ onStart, onViewCredits }) => {
+// --- HOME PAGE (WITH 3D GYRO EFFECT & SPLIT BUTTONS) ---
+const HomePage = ({ onStartChapters, onStartNew, onViewCredits }) => {
     
     // 🧊 3D TILT LOGIC
     const cardRef = useRef(null);
@@ -729,12 +647,17 @@ const HomePage = ({ onStart, onViewCredits }) => {
         .circuit-line.left::before { right: 0; }
         .circuit-line.right::before { left: 0; }
         @media (min-width: 600px) { .circuit-line { display: block; } }
-        .btn-wrapper-outer { position: relative; padding: 3px; border-radius: 8px; background: linear-gradient(90deg, transparent, rgba(255, 60, 0, 0.5), transparent); box-shadow: 0 0 15px rgba(255, 60, 0, 0.2); margin-bottom: 50px; transition: transform 0.3s; }
+        
+        /* NEW SPLIT BUTTON STYLES */
+        .btn-split-container { display: flex; gap: 20px; width: 100%; justify-content: center; margin-bottom: 50px; }
+        .btn-wrapper-outer { position: relative; padding: 3px; border-radius: 8px; background: linear-gradient(90deg, transparent, rgba(255, 60, 0, 0.5), transparent); box-shadow: 0 0 15px rgba(255, 60, 0, 0.2); transition: transform 0.3s; flex: 1; max-width: 200px; }
         .btn-wrapper-outer:hover { transform: scale(1.03); }
-        .btn-frame { position: relative; padding: 4px; border: 2px solid #ff5555; border-radius: 8px; background: rgba(40, 0, 0, 0.6); box-shadow: 0 0 10px rgba(255, 0, 0, 0.4), inset 0 0 20px rgba(255, 0, 0, 0.2); display: flex; align-items: center; justify-content: center; }
-        .start-btn-inner { background: linear-gradient(180deg, #aa0000 0%, #440000 100%); color: #fff; font-family: 'Cinzel', serif; font-size: 0.9rem; font-weight: 700; padding: 8px 30px; border: 1px solid rgba(255, 150, 150, 0.4); border-radius: 4px; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; text-shadow: 0 2px 2px rgba(0,0,0,0.5); box-shadow: inset 0 1px 0 rgba(255,255,255,0.2); position: relative; overflow: hidden; }
+        .btn-frame { position: relative; padding: 4px; border: 2px solid #ff5555; border-radius: 8px; background: rgba(40, 0, 0, 0.6); box-shadow: 0 0 10px rgba(255, 0, 0, 0.4), inset 0 0 20px rgba(255, 0, 0, 0.2); display: flex; align-items: center; justify-content: center; height: 100%; }
+        .start-btn-inner { width: 100%; background: linear-gradient(180deg, #aa0000 0%, #440000 100%); color: #fff; font-family: 'Cinzel', serif; font-size: 0.9rem; font-weight: 700; padding: 12px 10px; border: 1px solid rgba(255, 150, 150, 0.4); border-radius: 4px; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; text-shadow: 0 2px 2px rgba(0,0,0,0.5); box-shadow: inset 0 1px 0 rgba(255,255,255,0.2); position: relative; overflow: hidden; }
+        .start-btn-inner.new-btn { background: linear-gradient(180deg, #0055aa 0%, #001144 100%); border-color: rgba(150, 200, 255, 0.4); }
         .start-btn-inner::after { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); animation: btnShine 3s infinite; }
         @keyframes btnShine { 0% { left: -100%; } 20% { left: 100%; } 100% { left: 100%; } }
+        
         .rec-section { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; margin-bottom: 20px; }
         .rec-title { font-family: 'Cinzel', serif; color: #666; font-size: 0.8rem; letter-spacing: 1px; text-transform: uppercase; }
         .rec-btn-container { display: flex; gap: 20px; }
@@ -761,10 +684,9 @@ const HomePage = ({ onStart, onViewCredits }) => {
         return window.APP_CONFIG.credits.find(c => c.name.toUpperCase().includes(name)) || window.APP_CONFIG.credits[0];
     };
 
-    const handleStartClick = () => {
-        // ⚡ HEAVY MECHANICAL VIBRATION
+    const handleAction = (action) => {
         vibrate([80, 50, 100, 50, 400]);
-        onStart();
+        action();
     };
 
     return h(
@@ -825,16 +747,34 @@ const HomePage = ({ onStart, onViewCredits }) => {
                 h("div", { className: "circuit-line right" })
             ),
 
+            // SPLIT BUTTONS
             h(
                 "div",
-                { className: "btn-wrapper-outer" },
+                { className: "btn-split-container" },
                 h(
                     "div",
-                    { className: "btn-frame" },
+                    { className: "btn-wrapper-outer" },
                     h(
-                        "button",
-                        { className: "start-btn-inner", onClick: handleStartClick },
-                        "START READING"
+                        "div",
+                        { className: "btn-frame" },
+                        h(
+                            "button",
+                            { className: "start-btn-inner", onClick: () => handleAction(onStartChapters) },
+                            "CHAPTERS"
+                        )
+                    )
+                ),
+                 h(
+                    "div",
+                    { className: "btn-wrapper-outer" },
+                    h(
+                        "div",
+                        { className: "btn-frame" },
+                        h(
+                            "button",
+                            { className: "start-btn-inner new-btn", onClick: () => handleAction(onStartNew) },
+                            "NEW"
+                        )
                     )
                 )
             ),
@@ -864,8 +804,8 @@ const HomePage = ({ onStart, onViewCredits }) => {
     );
 };
 
-// --- MANGA LIST (NEON GOD UPGRADE) ---
-const MangaPage = ({ onRead, onBack, onOpenSettings, likes, onToggleLike, savedLocation }) => {
+// --- MANGA LIST ---
+const MangaPage = ({ onRead, onBack, onOpenSettings, likes, onToggleLike }) => {
     
     // Simplified Status Colors
     const STATUS_COLORS = {
@@ -883,7 +823,6 @@ const MangaPage = ({ onRead, onBack, onOpenSettings, likes, onToggleLike, savedL
         .home-btn { left: 20px; }
         .settings-btn { right: 20px; }
         
-        /* 🌀 ANIMATED GEAR UI */
         .fa-cog { transition: transform 0.5s linear; }
         .settings-btn:hover .fa-cog { transform: rotate(180deg); }
         .anim-spin { animation: spin 4s linear infinite; }
@@ -901,13 +840,11 @@ const MangaPage = ({ onRead, onBack, onOpenSettings, likes, onToggleLike, savedL
         .ch-info-group { display: flex; flex-direction: column; gap: 4px; }
         .ch-title { font-size: 1.1rem; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 1px; }
         .ch-date { font-size: 0.75rem; color: #888; font-family: monospace; }
-        .continue-text { font-size: 0.7rem; color: #FFD700; font-weight: bold; letter-spacing: 1px; margin-top: 3px; display: flex; align-items: center; gap: 5px; animation: pulse 2s infinite; }
         .status-pill { font-size: 0.65rem; font-weight: 700; padding: 4px 10px; border: 1px solid currentColor; border-radius: 4px; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); margin-left: 10px; }
         .lock-icon { font-size: 1.2rem; color: #ff3333; text-shadow: 0 0 10px rgba(255, 50, 50, 0.6); margin-left: 15px; }
         @keyframes flicker { 0%, 18%, 22%, 25%, 53%, 57%, 100% { text-shadow: 0 0 4px #fff, 0 0 10px #fff, 0 0 20px #00e5ff; opacity: 1; } 20%, 24%, 55% { text-shadow: none; opacity: 0.2; } }
         @keyframes moveStars { from { background-position: 0 0; } to { background-position: -1000px 500px; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
     `;
 
     return h(
@@ -939,7 +876,6 @@ const MangaPage = ({ onRead, onBack, onOpenSettings, likes, onToggleLike, savedL
             window.APP_CONFIG.chapters.map((ch, index) => {
                 let statusText = "RELEASED";
                 const theme = STATUS_COLORS[statusText];
-                const hasSave = savedLocation && savedLocation.chapterId === ch.id;
 
                 return h(
                     "div",
@@ -947,7 +883,7 @@ const MangaPage = ({ onRead, onBack, onOpenSettings, likes, onToggleLike, savedL
                         key: ch.id,
                         className: "god-card " + (ch.locked ? "locked" : ""),
                         style: { animationDelay: `${index * 0.1}s` },
-                        onClick: () => !ch.locked && onRead(ch.id, hasSave ? savedLocation.pageIndex : 0)
+                        onClick: () => !ch.locked && onRead(ch.id, 0) // ALWAYS START AT PAGE 0
                     },
                     h(
                         "div",
@@ -958,11 +894,7 @@ const MangaPage = ({ onRead, onBack, onOpenSettings, likes, onToggleLike, savedL
                         }),
                         h("div", { className: "ch-info-group" }, 
                             h("div", { className: "ch-title" }, `CH.${ch.id} : ${ch.title}`), 
-                            h("div", { className: "ch-date" }, ch.locked ? "ENCRYPTED" : ch.date),
-                            hasSave && h("div", { className: "continue-text" }, 
-                                h("i", { className: "fas fa-bookmark" }), 
-                                `CONTINUE FROM PAGE ${savedLocation.pageIndex + 1}`
-                            )
+                            h("div", { className: "ch-date" }, ch.locked ? "ENCRYPTED" : ch.date)
                         )
                     ),
                     h(
@@ -1006,18 +938,19 @@ const CommentsModal = ({ onClose }) => {
     );
 };
 
-// --- READER (WITH GESTURE ZOOM) ---
-const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSave, likes, onToggleLike, hasSave, onFinishChapter, masterVolume }) => {
+// --- READER (WITH UNRESTRICTED ZOOM) ---
+const ReaderPage = ({ chapterId, onBack, initialPage, likes, onToggleLike, onFinishChapter, masterVolume }) => {
     const chapter = window.APP_CONFIG.chapters.find((c) => c.id === chapterId);
     
     // STATE
     const [currentPage, setCurrentPage] = useState(initialPage || 0);
     const [showComments, setShowComments] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
-    const [notification, setNotification] = useState(null);
     
-    // 🤏 ZOOM STATE (Scale factor: 1.0 to 3.0)
+    // 🤏 UNRESTRICTED ZOOM STATE
     const [scale, setScale] = useState(1);
+    const [translateX, setTranslateX] = useState(0);
+    const [translateY, setTranslateY] = useState(0);
     const [isPinching, setIsPinching] = useState(false);
 
     // REFS
@@ -1025,16 +958,27 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
     const currentTrackRef = useRef(null);
     const imageRefs = useRef([]);
     
-    // GESTURE REFS (Used to calculate pinch math without re-rendering constantly)
+    // GESTURE REFS
     const pinchStartDist = useRef(0);
     const startScale = useRef(1);
+    const startX = useRef(0);
+    const startY = useRef(0);
+    const lastPointX = useRef(0);
+    const lastPointY = useRef(0);
 
-    // --- 🤏 GESTURE HANDLERS ---
+    // --- 🤏 UNRESTRICTED GESTURE HANDLERS ---
     const getDistance = (touches) => {
         return Math.hypot(
             touches[0].pageX - touches[1].pageX,
             touches[0].pageY - touches[1].pageY
         );
+    };
+
+    const getMidpoint = (touches) => {
+        return {
+            x: (touches[0].pageX + touches[1].pageX) / 2,
+            y: (touches[0].pageY + touches[1].pageY) / 2
+        };
     };
 
     const handleTouchStart = (e) => {
@@ -1043,47 +987,56 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
             setIsPinching(true);
             pinchStartDist.current = getDistance(e.touches);
             startScale.current = scale;
+        } else if (e.touches.length === 1 && scale > 1) {
+            // Start Panning (only if zoomed in)
+            lastPointX.current = e.touches[0].pageX;
+            lastPointY.current = e.touches[0].pageY;
+            startX.current = translateX;
+            startY.current = translateY;
         }
     };
 
     const handleTouchMove = (e) => {
         if (e.touches.length === 2 && isPinching) {
-            // Prevent browser native zoom (which zooms the whole UI)
             e.preventDefault(); 
-            
             const dist = getDistance(e.touches);
             const zoomFactor = dist / pinchStartDist.current;
             
-            // Calculate new scale based on how much fingers moved
+            // UNRESTRICTED: No Max Clamp (or very high like 50x)
             let newScale = startScale.current * zoomFactor;
-
-            // Clamp Scale (Min 1.0, Max 3.0)
-            newScale = Math.min(Math.max(newScale, 1), 3);
+            newScale = Math.max(0.5, newScale); // Min clamp just to prevent invisibility
             
             setScale(newScale);
+        } else if (e.touches.length === 1 && scale > 1) {
+            // Panning logic for "Photo Zoom" feel
+            e.preventDefault(); // Stop page scroll when zoomed
+            const deltaX = e.touches[0].pageX - lastPointX.current;
+            const deltaY = e.touches[0].pageY - lastPointY.current;
+            
+            setTranslateX(prev => prev + deltaX);
+            setTranslateY(prev => prev + deltaY);
+            
+            lastPointX.current = e.touches[0].pageX;
+            lastPointY.current = e.touches[0].pageY;
         }
     };
 
-    const handleTouchEnd = () => {
-        setIsPinching(false);
-        // Optional: Snap back to 1 if user pinched in too much ( < 1.1)
-        if (scale < 1.1) setScale(1);
+    const handleTouchEnd = (e) => {
+        if (e.touches.length < 2) {
+            setIsPinching(false);
+        }
+        // RESET if zoomed out too far
+        if (scale < 1) {
+             setScale(1);
+             setTranslateX(0);
+             setTranslateY(0);
+        }
     };
 
-    // --- STANDARD LOGIC (Scroll, Music, etc) ---
-    
-    useEffect(() => {
-        if (initialPage > 0 && imageRefs.current[initialPage]) {
-            setTimeout(() => {
-                imageRefs.current[initialPage].scrollIntoView({ behavior: 'smooth' });
-            }, 500);
-        }
-    }, [initialPage]);
-
+    // --- STANDARD LOGIC ---
     useEffect(() => {
         const handleScroll = () => {
-            // Don't track pages while actively pinching to save performance
-            if (isPinching) return;
+            if (isPinching || scale > 1.1) return; // Don't track pages while zoomed
 
             imageRefs.current.forEach((img, idx) => {
                 if (!img) return;
@@ -1098,9 +1051,17 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
         };
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    }, [currentPage, chapterId, onFinishChapter, isPinching]);
+    }, [currentPage, chapterId, onFinishChapter, isPinching, scale]);
 
-    // Music Logic (Same as before)
+    useEffect(() => {
+        if (initialPage > 0 && imageRefs.current[initialPage]) {
+            setTimeout(() => {
+                imageRefs.current[initialPage].scrollIntoView({ behavior: 'smooth' });
+            }, 500);
+        }
+    }, [initialPage]);
+
+    // Music Logic
     useEffect(() => {
         const fadeDuration = window.MUSIC_CONFIG.fadeDuration || 2000;
         const chapterRules = window.MUSIC_CONFIG.chapters[chapterId] || [];
@@ -1173,45 +1134,35 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
         };
     }, []);
 
-    const showToast = (msg) => {
-        setNotification(msg);
-        setTimeout(() => setNotification(null), 3000);
-    };
-
     const isLiked = likes[chapterId];
 
     return h(
         "div",
         { 
             className: "reader-container fade-in",
-            // ATTACH GESTURE LISTENERS TO MAIN CONTAINER
             onTouchStart: handleTouchStart,
             onTouchMove: handleTouchMove,
             onTouchEnd: handleTouchEnd
         },
         
         h("style", null, `
-            /* Allow horizontal scroll only when zoomed */
             .reader-container {
-                overflow-x: ${scale > 1.01 ? 'auto' : 'hidden'}; 
-                overflow-y: visible;
+                overflow-x: hidden; 
+                overflow-y: ${scale > 1.05 ? 'hidden' : 'auto'}; /* Disable scroll when zoomed */
                 width: 100vw;
                 min-height: 100vh;
-                touch-action: pan-x pan-y; /* Important for browser handling */
+                touch-action: none; /* Full JS control */
             }
             .reader-content-wrapper {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                /* We use width scaling. 
-                   If scale is 1.5, width is 150vw.
-                   We add a transition ONLY when not pinching (snapping back).
-                   When pinching, we want instant updates (no lag).
-                */
-                width: ${scale * 100}vw; 
-                transition: ${isPinching ? 'none' : 'width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)'};
+                width: 100vw; 
+                transform-origin: 0 0; /* Transform from top-left for manual translation */
+                /* Apply Transform directly */
+                transform: translate(${translateX}px, ${translateY}px) scale(${scale});
+                transition: ${isPinching ? 'none' : 'transform 0.2s ease-out'};
                 margin: 0 auto;
-                transform-origin: top center;
             }
             .reader-toolbar {
                 position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
@@ -1219,7 +1170,9 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
                 box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); border-radius: 50px;
                 padding: 10px 25px; display: flex; gap: 20px; z-index: 1000;
                 backdrop-filter: blur(5px);
-                max-width: 95vw; overflow-x: auto;
+                opacity: ${scale > 1.2 ? 0 : 1}; /* Hide toolbar when zoomed in */
+                transition: opacity 0.3s;
+                pointer-events: ${scale > 1.2 ? 'none' : 'auto'};
             }
             .reader-icon {
                 color: #00e5ff; font-size: 1rem; cursor: pointer; transition: 0.1s;
@@ -1227,48 +1180,21 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
                 min-width: 35px; height: 35px; border-radius: 50%;
                 background: rgba(0, 229, 255, 0.1);
             }
-            .reader-icon:active { transform: scale(0.9); background: rgba(0, 229, 255, 0.4); }
-            .reader-icon:hover { background: rgba(0, 229, 255, 0.2); box-shadow: 0 0 10px #00e5ff; }
             .reader-icon.liked { color: #ff0055; text-shadow: 0 0 10px #ff0055; background: rgba(255, 0, 85, 0.1); }
             
-            .zoom-badge {
-                position: fixed; top: 70px; right: 20px;
-                background: rgba(0,0,0,0.8); border: 1px solid #00e5ff;
-                color: #00e5ff; padding: 5px 10px; border-radius: 12px;
-                font-family: 'Rajdhani'; font-weight: bold;
-                pointer-events: none; opacity: ${isPinching || scale > 1 ? 1 : 0};
-                transition: opacity 0.3s; z-index: 100;
+            .zoom-reset-btn {
+                position: fixed; top: 20px; right: 20px;
+                background: rgba(0,0,0,0.6); color: white; border: 1px solid white;
+                padding: 5px 10px; border-radius: 4px; font-size: 0.8rem;
+                z-index: 2000; display: ${scale > 1.5 ? 'block' : 'none'};
             }
-
-            .save-btn {
-                background: linear-gradient(90deg, #00e5ff, #0099ff);
-                color: #000; font-weight: bold; border: none;
-                padding: 0 15px; border-radius: 20px;
-                font-family: 'Rajdhani'; font-size: 0.8rem;
-                cursor: pointer; display: flex; align-items: center; gap: 8px;
-                transition: transform 0.1s; white-space: nowrap;
-            }
-            .save-btn:active { transform: scale(0.95); }
-            .save-btn.unsave { background: linear-gradient(90deg, #ff3333, #aa0000); color: white; }
-            .toast-notification {
-                position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-                background: rgba(0, 229, 255, 0.9); color: #000;
-                padding: 10px 20px; border-radius: 8px;
-                font-family: 'Orbitron'; font-size: 0.8rem;
-                box-shadow: 0 0 20px #00e5ff; z-index: 2000;
-                animation: slideDown 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                display: flex; align-items: center; gap: 10px;
-            }
-            @keyframes slideDown { from { transform: translate(-50%, -100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
         `),
 
-        notification && h("div", { className: "toast-notification" }, 
-            h("i", { className: "fas fa-check-circle" }),
-            notification
-        ),
-        
-        // VISUAL INDICATOR FOR CURRENT ZOOM LEVEL
-        h("div", { className: "zoom-badge" }, `${Math.round(scale * 100)}%`),
+        // Reset Button if lost in zoom
+        h("button", { 
+            className: "zoom-reset-btn", 
+            onClick: () => { setScale(1); setTranslateX(0); setTranslateY(0); } 
+        }, "RESET ZOOM"),
 
         h(
             "div",
@@ -1279,31 +1205,13 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
                 onClick: onBack
             }),
             
-            // NOTE: Removed Zoom Buttons - now handled by Pinch
-
             h("i", {
                 className: `fas ${isMuted ? 'fa-volume-mute' : 'fa-volume-up'} reader-icon`,
                 title: "Mute Music",
                 onClick: () => setIsMuted(!isMuted)
             }),
             
-            h(
-                "button", 
-                { 
-                    className: `save-btn ${hasSave ? 'unsave' : ''}`,
-                    onClick: () => {
-                        if (hasSave) {
-                            onClearSave();
-                            showToast("SAVE CLEARED");
-                        } else {
-                            onSaveLocation(chapterId, currentPage);
-                            showToast(`LOCATION SAVED: PAGE ${currentPage + 1}`);
-                        }
-                    }
-                },
-                h("i", { className: hasSave ? "fas fa-trash" : "fas fa-bookmark" }),
-                hasSave ? "DELETE" : `SAVE P.${currentPage + 1}`
-            ),
+            // REMOVED SAVE BUTTON AS REQUESTED
 
             h("i", {
                 className: `fas fa-heart reader-icon ${isLiked ? 'liked' : ''}`,
@@ -1317,7 +1225,6 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
             })
         ),
         
-        // 🔍 IMAGE WRAPPER (Handles the width scaling)
         h("div", { 
             className: "reader-content-wrapper"
         }, 
@@ -1328,7 +1235,6 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
                     src: img,
                     className: "reader-img",
                     loading: "lazy",
-                    // Prevent default drag to ensure pinch works smoothly
                     onDragStart: (e) => e.preventDefault() 
                 })
             )
@@ -1337,82 +1243,51 @@ const ReaderPage = ({ chapterId, onBack, initialPage, onSaveLocation, onClearSav
         showComments && h(CommentsModal, { onClose: () => setShowComments(false) })
     );
 };
-// --- MAIN APP (PERSISTENCE & SETTINGS) ---
+// --- MAIN APP ---
 const App = () => {
-    // 💾 TOTAL STATE RECALL
-    const savedView = localStorage.getItem("appView") || "intro";
-    const savedActiveChap = localStorage.getItem("appActiveChapter");
-    
+    // 💾 STATE RECALL (Only for Preferences, NO Location)
+    const savedView = "intro"; // ALWAYS START AT INTRO/NORMAL
     const [view, setView] = useState(savedView);
     const [activePerson, setActivePerson] = useState(null);
     const [showSettings, setShowSettings] = useState(false);
-    const [activeChapter, setActiveChapter] = useState(savedActiveChap ? parseInt(savedActiveChap) : 1);
+    const [activeChapter, setActiveChapter] = useState(1);
     
     // ⚙️ GLOBAL SETTINGS
     const [settings, setSettings] = useState({
         masterVolume: 0.8,
         highContrast: false,
         particles: true,
-        autoScroll: false,
-        notifications: false // Default off
+        autoScroll: false
+        // Notifications Setting REMOVED
     });
 
     const [likes, setLikes] = useState({});
-    const [savedLocation, setSavedLocation] = useState(null);
     const [finishedChapters, setFinishedChapters] = useState({});
+    
+    // INSTALL PROMPT STATE
+    const [deferredPrompt, setDeferredPrompt] = useState(null);
 
-    // 🕒 NOTIFICATION SCHEDULE LOGIC
+    // Capture Install Prompt
     useEffect(() => {
-        if (!settings.notifications) return;
+        const handler = (e) => {
+            e.preventDefault();
+            setDeferredPrompt(e);
+            console.log("Install prompt captured");
+        };
+        window.addEventListener('beforeinstallprompt', handler);
+        return () => window.removeEventListener('beforeinstallprompt', handler);
+    }, []);
 
-        // Check every minute
-        const interval = setInterval(() => {
-            const lastTime = parseInt(localStorage.getItem('lastNotifyTime') || 0);
-            const now = Date.now();
-            const THREE_HOURS = 3 * 60 * 60 * 1000;
-
-            if (now - lastTime > THREE_HOURS) {
-                // Determine time of day
-                const hour = new Date().getHours();
-                let category = 'generic';
-                if (hour >= 5 && hour < 12) category = 'morning';
-                else if (hour >= 12 && hour < 17) category = 'afternoon';
-                else if (hour >= 17 && hour < 22) category = 'evening';
-                else category = 'night';
-
-                const msgs = NOTIFICATION_MESSAGES[category];
-                const msg = msgs[Math.floor(Math.random() * msgs.length)];
-                
-                sendSystemNotification("HOPE System", msg);
-                
-                localStorage.setItem('lastNotifyTime', now.toString());
-            }
-        }, 60000); // Check every minute if we should send
-
-        return () => clearInterval(interval);
-    }, [settings.notifications]);
-
-    // 💾 Persist View State
+    // Load Settings if any
     useEffect(() => {
-        localStorage.setItem("appView", view);
-        localStorage.setItem("appActiveChapter", activeChapter);
-    }, [view, activeChapter]);
-
-    useEffect(() => {
-        if (window.requestNotificationPermission) window.requestNotificationPermission();
-        
-        const savedLoc = localStorage.getItem("savedLocation");
-        if (savedLoc) setSavedLocation(JSON.parse(savedLoc));
+        const localSettings = localStorage.getItem("appSettings");
+        if (localSettings) setSettings(JSON.parse(localSettings));
         
         const savedLikes = localStorage.getItem("userLikes");
         if (savedLikes) setLikes(JSON.parse(savedLikes));
 
         const savedFinished = localStorage.getItem("finishedChapters");
         if (savedFinished) setFinishedChapters(JSON.parse(savedFinished));
-
-        // Load Settings if any
-        const localSettings = localStorage.getItem("appSettings");
-        if (localSettings) setSettings(JSON.parse(localSettings));
     }, []);
 
     const updateSetting = (key, val) => {
@@ -1421,25 +1296,22 @@ const App = () => {
         localStorage.setItem("appSettings", JSON.stringify(newSettings));
     };
 
-    const handleStart = () => {
+    const handleStartChapters = () => {
         setView("manga");
+    };
+
+    const handleStartNew = () => {
+        // Reads from Config
+        const latest = window.APP_CONFIG.latest;
+        setActiveChapter(latest.chapterId);
+        // Start reader at specific page
+        setView("reader"); 
     };
 
     const toggleLike = (chapterId) => {
         const newLikes = { ...likes, [chapterId]: !likes[chapterId] };
         setLikes(newLikes);
         localStorage.setItem("userLikes", JSON.stringify(newLikes));
-    };
-
-    const handleSaveLocation = (chapterId, pageIndex) => {
-        const loc = { chapterId, pageIndex };
-        setSavedLocation(loc);
-        localStorage.setItem("savedLocation", JSON.stringify(loc));
-    };
-
-    const handleClearSave = () => {
-        setSavedLocation(null);
-        localStorage.removeItem("savedLocation");
     };
 
     const handleFinishChapter = (chapterId) => {
@@ -1476,7 +1348,8 @@ const App = () => {
         view === "intro" && h(CinematicIntro, { onComplete: () => setView("home") }),
 
         view === "home" && h(HomePage, {
-            onStart: handleStart,
+            onStartChapters: handleStartChapters,
+            onStartNew: handleStartNew,
             onViewCredits: setActivePerson
         }),
 
@@ -1486,21 +1359,17 @@ const App = () => {
             onOpenSettings: () => setShowSettings(true),
             likes: likes,
             onToggleLike: toggleLike,
-            savedLocation: savedLocation,
             finishedChapters: finishedChapters
         }),
 
         view === "reader" && h(ReaderPage, {
             chapterId: activeChapter,
-            initialPage: savedLocation && savedLocation.chapterId === activeChapter ? savedLocation.pageIndex : 0,
+            initialPage: 0, // ALWAYS 0 or config based if triggered via "New" (Handled by logic above)
             onBack: () => setView("manga"),
-            onSaveLocation: handleSaveLocation,
-            onClearSave: handleClearSave,
             likes: likes,
             onToggleLike: toggleLike,
-            hasSave: savedLocation && savedLocation.chapterId === activeChapter,
             onFinishChapter: handleFinishChapter,
-            masterVolume: settings.masterVolume // 🔊 Pass volume to reader
+            masterVolume: settings.masterVolume
         }),
 
         activePerson && h(ThemeModal, {
@@ -1511,7 +1380,8 @@ const App = () => {
         showSettings && h(SettingsModal, { 
             onClose: () => setShowSettings(false),
             settings: settings,
-            updateSetting: updateSetting
+            updateSetting: updateSetting,
+            deferredPrompt: deferredPrompt
         })
     );
 };
