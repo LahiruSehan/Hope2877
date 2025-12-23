@@ -537,11 +537,13 @@ const SettingsModal = ({ onClose, settings, updateSetting, deferredPrompt }) => 
 };
 
 
+
 // 🚨 LICENSE BAR
 const LicenseBar = () => {
     const warnings = window.APP_CONFIG.legal.warnings;
     const [index, setIndex] = useState(0);
     const [fade, setFade] = useState(false);
+    const [showAiModal, setShowAiModal] = useState(false);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -554,10 +556,120 @@ const LicenseBar = () => {
         return () => clearInterval(interval);
     }, [warnings]);
 
+    const modalStyles = `
+        .ai-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.3s ease-out;
+        }
+        .ai-modal-content {
+            background: linear-gradient(145deg, #1a0000, #0a0000);
+            border: 1px solid #ff3333;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            position: relative;
+            box-shadow: 0 0 40px rgba(255, 0, 0, 0.2);
+            font-family: 'Orbitron', sans-serif;
+            color: #ddd;
+        }
+        .ai-modal-title {
+            font-family: 'Cinzel', serif;
+            color: #ff3333;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #330000;
+            padding-bottom: 10px;
+            letter-spacing: 2px;
+        }
+        .ai-modal-body {
+            font-size: 0.85rem;
+            line-height: 1.8;
+            letter-spacing: 0.5px;
+        }
+        .ai-modal-body p {
+            margin-bottom: 15px;
+        }
+        .close-modal-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #555;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .close-modal-btn:hover { color: #ff3333; }
+        .ai-usage-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            color: #ffaaaa;
+            font-size: 0.6rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+        }
+        .ai-usage-btn:hover {
+            background: rgba(255, 0, 0, 0.3);
+            color: #fff;
+            border-color: #ff3333;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    `;
+
+    // Process warnings: shrink/summarize if it's the long copyright text
+    const currentWarning = warnings[index];
+    const isCopyright = currentWarning.toLowerCase().includes("copyright");
+    const displayWarning = isCopyright ? "© Int. Copyright Law Protected" : currentWarning;
+
     return h(
         "div",
-        { className: "license-bar", style: { marginBottom: '0px' } }, // Ensured no bottom margin
-        h("div", { className: "license-text " + (fade ? "fade-out" : "") }, warnings[index])
+        { className: "license-bar", style: { marginBottom: '0px', position: 'relative' } },
+        h("style", null, modalStyles),
+        h("div", { 
+            className: "license-text " + (fade ? "fade-out" : ""),
+            style: { fontSize: isCopyright ? '0.7rem' : '0.8rem' } 
+        }, displayWarning),
+        
+        h("button", { 
+            className: "ai-usage-btn", 
+            onClick: () => setShowAiModal(true) 
+        }, "AI USAGE"),
+
+        showAiModal && h("div", { className: "ai-modal-overlay", onClick: () => setShowAiModal(false) },
+            h("div", { className: "ai-modal-content", onClick: (e) => e.stopPropagation() },
+                h("button", { className: "close-modal-btn", onClick: () => setShowAiModal(false) }, "×"),
+                h("div", { className: "ai-modal-title" }, "ARTIFICIAL INTELLIGENCE DISCLOSURE"),
+                h("div", { className: "ai-modal-body" },
+                    h("p", null, 
+                        "The foundational manuscript of the beta novel, \"Hope 2877 - Human Extinction,\" conceived and authored between 2015 and 2021 and subsequently inaugurated in 2022, was crafted entirely without the intervention of generative artificial intelligence."
+                    ),
+                    h("p", null, 
+                        "Advanced computational models were leveraged exclusively to augment and validate the scientific rigour of celestial mechanics and space travel postulates, as well as to conduct exhaustive architectural research regarding the linguistic-to-visual transposition of the narrative into a serialized manga format."
+                    ),
+                    h("p", null, 
+                        "In the production of the manga's visual landscape, while the primary conceptual drafts and structural outlines remain the product of artisanal hand-drawn artistry, the sophisticated processes of chrominance calibration, tonal refinement, and digital editing have been facilitated through specialized AI-driven visual suites."
+                    )
+                )
+            )
+        )
     );
 };
 
@@ -577,7 +689,7 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
   overflow: hidden;
   display: flex;
   justify-content: center;
-  padding-top: 0px; /* Removed empty space entirely */
+  padding-top: 0px; 
   font-family: 'Orbitron', sans-serif;
   color: #fff;
 }
@@ -702,7 +814,7 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
 /* 📜 DESC - MADE SMALLER */
 .desc-text {
   max-width: 560px;
-  font-size: 0.82rem; /* Reduced size */
+  font-size: 0.82rem; 
   line-height: 1.5;
   color: #ccc;
   font-weight: 500;
@@ -719,11 +831,11 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
 
 .cine-btn {
   position: relative;
-  width: 200px; /* Wider for "READ STORY" */
+  width: 200px; 
   height: 50px;
   cursor: pointer;
   background: radial-gradient(circle at top, rgba(255,80,80,0.35), rgba(20,0,0,0.9) 60%);
-  border-radius: 25px; /* Fully rounded corners */
+  border-radius: 25px; 
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   box-shadow: 0 0 15px rgba(255,0,0,0.2);
@@ -740,7 +852,7 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
   position: absolute;
   inset: 0;
   padding: 2px;
-  border-radius: 25px; /* Match rounded corners */
+  border-radius: 25px; 
   background: linear-gradient(120deg, #ff3b3b, #ff9999, #ff3b3b, #ff0000);
   background-size: 300% 300%;
   animation: strokeFlow 3s linear infinite;
@@ -758,7 +870,7 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
   position: absolute;
   inset: 2px;
   background: linear-gradient(180deg, rgba(30,0,0,0.98), rgba(60,0,0,0.9));
-  border-radius: 23px; /* Match inner rounding */
+  border-radius: 23px; 
   display: flex;
   align-items: center;
   justify-content: center;
@@ -887,13 +999,11 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
       ),
 
       h("div", { className: "btn-split-container" },
-        // "READ STORY" Button (Formerly Chapters) with same function
         h("div", { className: "cine-btn", onClick: () => handleAction(onStartChapters) },
           h("div", { className: "cine-btn-inner" },
             h("span", { className: "cine-btn-text" }, "READ STORY")
           )
         )
-        // NEW button removed entirely
       ),
 
       h(
@@ -920,7 +1030,6 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
     )
   );
 };
-
 
 
 
