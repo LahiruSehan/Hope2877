@@ -213,7 +213,7 @@ window.APP_CONFIG = {
             title: "Plan",
             date: "Get away",
             locked: false,
-            pages: Array.from({ length: 21 }, (_, i) => `imageschapter14/${i + 1}.png`)
+            pages: Array.from({ length: 21 }, (_, i) => `imageschapter19/${i + 1}.png`)
         },
 
                 {
@@ -221,7 +221,7 @@ window.APP_CONFIG = {
             title: "-",
             date: "-",
             locked: true,
-            pages: Array.from({ length: 21 }, (_, i) => `imageschapter14/${i + 1}.png`)
+            pages: Array.from({ length: 21 }, (_, i) => `imageschapter20/${i + 1}.png`)
         },
 
                 {
@@ -229,7 +229,7 @@ window.APP_CONFIG = {
             title: "-",
             date: "-",
             locked: true,
-            pages: Array.from({ length: 21 }, (_, i) => `imageschapter14/${i + 1}.png`)
+            pages: Array.from({ length: 21 }, (_, i) => `imageschapter21/${i + 1}.png`)
         },
     ]
 };

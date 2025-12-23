@@ -1043,7 +1043,7 @@ const CommentsModal = ({ onClose }) => {
         `)
     );
 };
-// --- READER (FINAL EPIC VERSION - CLEAN) ---
+// --- READER (ULTRA MODERN EPIC VERSION) ---
 const ReaderPage = ({
   chapterId,
   onBack,
@@ -1063,12 +1063,10 @@ const ReaderPage = ({
   const [currentPage, setCurrentPage] = useState(initialPage || 0);
   const [isMuted, setIsMuted] = useState(false);
   const [layoutMode, setLayoutMode] = useState("vertical");
-
+  const [showSettings, setShowSettings] = useState(false);
   const [showReview, setShowReview] = useState(false);
   const [reviewText, setReviewText] = useState("");
-
-  const [showSettings, setShowSettings] = useState(false);
-  const [showComments, setShowComments] = useState(false);
+  const [likeBurst, setLikeBurst] = useState(false);
 
   const [autoMusic, setAutoMusic] = useState(true);
   const [reduceMotion, setReduceMotion] = useState(false);
@@ -1114,10 +1112,17 @@ const ReaderPage = ({
     }
   }, [currentPage, isMuted, masterVolume, autoMusic]);
 
+  /* LIKE TSUNAMI */
+  const triggerLike = () => {
+    onToggleLike();
+    setLikeBurst(true);
+    setTimeout(() => setLikeBurst(false), 2000);
+  };
+
   const sendReview = () => {
     const img = chapter.pages[currentPage];
     const msg = `
-📖 Beta Reader Review
+📖 Reader Message
 
 Chapter ${chapter.id}: ${chapter.title}
 Page ${currentPage + 1}
@@ -1137,86 +1142,159 @@ ${img}
   return h("div", { className: `reader-container ${layoutMode}` },
 
     h("style", null, `
-.reader-container { background:#000; min-height:100vh; padding-bottom:160px; }
+.reader-container { background:#000; min-height:100vh; padding-bottom:160px; overflow-x:hidden; }
 .reader-content { display:flex; flex-direction:column; align-items:center; }
-
 .reader-page { width:100%; position:relative; }
 .reader-img { width:100%; display:block; pointer-events:none; }
-.reader-img.low { filter:blur(18px); transform:scale(1.05); }
-.reader-img.high { position:absolute; inset:0; opacity:0; transition:1s; }
+.reader-img.low { filter:blur(20px); transform:scale(1.08); }
+.reader-img.high { position:absolute; inset:0; opacity:0; transition:1.2s; }
 .reader-img.high.loaded { opacity:1; }
 
+/* TOOLBAR */
 .reader-toolbar {
-  position:fixed; bottom:18px; left:50%; transform:translateX(-50%);
-  display:flex; gap:10px; padding:12px 18px;
-  background:rgba(20,0,0,.96);
-  border:1px solid rgba(255,80,80,.45);
-  box-shadow:0 0 35px rgba(255,0,0,.45);
+  position:fixed;
+  bottom:20px;
+  width:100%;
+  display:flex;
+  justify-content:space-between;
+  padding:0 22px;
+  z-index:2000;
+}
+
+.toolbar-group {
+  display:flex;
+  gap:14px;
 }
 
 .reader-icon {
-  width:42px; height:42px;
-  display:flex; align-items:center; justify-content:center;
-  background:linear-gradient(#300,#120);
-  border:1px solid rgba(255,80,80,.35);
-  color:#ffdede; cursor:pointer;
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(145deg,#3a0000,#120000);
+  border:1px solid rgba(255,90,90,.4);
+  color:#ffd6d6;
+  cursor:pointer;
+  box-shadow:0 0 20px rgba(255,0,0,.35);
+  transition:.25s;
 }
 
-.reader-icon.active { background:linear-gradient(#700,#300); }
-
-.end-chapter {
-  text-align:center; margin-top:90px; padding:60px 20px;
-  border-top:1px solid rgba(255,80,80,.3);
+.reader-icon:hover {
+  transform:scale(1.1);
+  box-shadow:0 0 28px rgba(255,60,60,.8);
 }
 
-.next-ep-btn {
-  margin-top:18px; padding:14px 34px;
-  background:linear-gradient(135deg,#ff2a2a,#7a0000);
-  border:none; color:#fff; cursor:pointer;
-  box-shadow:0 0 18px rgba(255,0,0,.6);
+/* LIKE TSUNAMI */
+.like-rain {
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:3000;
+}
+
+.like {
+  position:absolute;
+  color:hotpink;
+  animation:fall 2s linear forwards;
+}
+
+@keyframes fall {
+  from { transform:translateY(0) scale(1); opacity:1; }
+  to { transform:translateY(100vh) scale(.3); opacity:0; }
 }
 
 /* MODALS */
 .overlay {
-  position:fixed; inset:0; background:rgba(0,0,0,.88);
-  display:flex; justify-content:center; align-items:center; z-index:3000;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.7);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:4000;
 }
 
 .card {
-  width:92%; max-width:340px;
-  background:linear-gradient(#140000,#060000);
-  border:1px solid rgba(255,80,80,.35);
-  box-shadow:0 0 40px rgba(255,0,0,.5);
-  padding:16px; position:relative;
+  width:92%;
+  max-width:380px;
+  background:linear-gradient(180deg,#1a0000,#070000);
+  border-radius:18px;
+  padding:20px;
+  box-shadow:0 0 40px rgba(255,0,0,.4);
+  color:#fff;
+  position:relative;
 }
 
 .close {
-  position:absolute; top:8px; right:10px;
-  cursor:pointer; color:#ff6666;
+  position:absolute;
+  top:12px;
+  right:14px;
+  cursor:pointer;
+  color:#ff7777;
 }
 
 .card textarea {
-  width:100%; height:90px;
-  background:#0a0000; color:#fff;
-  border:1px solid rgba(255,80,80,.35);
+  width:100%;
+  height:100px;
+  margin-top:12px;
+  border-radius:12px;
+  background:#120000;
+  color:#fff;
+  border:1px solid rgba(255,80,80,.3);
   padding:10px;
 }
 
 .setting-row {
-  display:flex; justify-content:space-between; align-items:center;
-  margin:12px 0; color:#ffdede;
+  display:flex;
+  justify-content:space-between;
+  margin:14px 0;
+}
+
+.end-chapter {
+  text-align:center;
+  margin:100px 0;
+}
+
+.next-ep-btn {
+  margin-top:20px;
+  padding:14px 36px;
+  border-radius:30px;
+  border:none;
+  background:linear-gradient(135deg,#ff3b3b,#7a0000);
+  color:#fff;
+  font-size:16px;
+  cursor:pointer;
+  box-shadow:0 0 20px rgba(255,0,0,.7);
 }
     `),
 
+    /* LIKE TSUNAMI */
+    likeBurst && h("div",{className:"like-rain"},
+      Array.from({length:45}).map((_,i)=>
+        h("i",{
+          className:"fas fa-heart like",
+          style:{
+            left:Math.random()*100+"%",
+            fontSize:12+Math.random()*26+"px",
+            color:`hsl(${330+Math.random()*20},90%,60%)`,
+            animationDelay:Math.random()*0.3+"s"
+          }
+        })
+      )
+    ),
+
     /* TOOLBAR */
-    h("div", { className:"reader-toolbar" },
-      h("i",{className:"fas fa-arrow-left reader-icon",onClick:onBack}),
-      h("i",{className:`fas ${isMuted?"fa-volume-mute":"fa-volume-up"} reader-icon`,onClick:()=>setIsMuted(!isMuted)}),
-      h("i",{className:"fas fa-exchange-alt reader-icon",onClick:()=>setLayoutMode(m=>m==="vertical"?"horizontal":"vertical")}),
-      h("i",{className:"fas fa-heart reader-icon",onClick:onToggleLike}),
-      h("i",{className:`fas fa-comment reader-icon ${showComments?"active":""}`,onClick:()=>setShowComments(!showComments)}),
-      h("i",{className:"fas fa-cog reader-icon",onClick:()=>setShowSettings(true)}),
-      h("i",{className:"fas fa-envelope reader-icon",onClick:()=>setShowReview(true)})
+    h("div",{className:"reader-toolbar"},
+      h("div",{className:"toolbar-group"},
+        h("i",{className:"fas fa-arrow-left reader-icon",onClick:onBack}),
+        h("i",{className:"fas fa-heart reader-icon",onClick:triggerLike})
+      ),
+      h("div",{className:"toolbar-group"},
+        h("i",{className:"fas fa-cog reader-icon",onClick:()=>setShowSettings(true)}),
+        h("i",{className:"fas fa-envelope reader-icon",onClick:()=>setShowReview(true)})
+      )
     ),
 
     /* CONTENT */
@@ -1229,32 +1307,29 @@ ${img}
       ),
 
       nextChapter && !nextChapter.locked && h("div",{className:"end-chapter"},
-        h("div",{style:{color:"#ff4444",letterSpacing:3}},"END OF CHAPTER"),
         h("h2",null,nextChapter.title),
-        h("p",{style:{color:"#aaa"}},nextChapter.date),
         h("button",{className:"next-ep-btn",onClick:()=>onOpenChapter(nextChapter.id)},"▶ NEXT CHAPTER")
       )
     ),
 
-    /* REVIEW MODAL */
-    showReview && h("div",{className:"overlay"},
-      h("div",{className:"card"},
-        h("i",{className:"fas fa-times close",onClick:()=>setShowReview(false)}),
-        h("h3",{style:{color:"#ff6666"}},"Beta Review"),
-        h("textarea",{value:reviewText,onInput:e=>setReviewText(e.target.value),placeholder:"Your thoughts…"}),
-        h("button",{className:"next-ep-btn",onClick:sendReview},"Send to Creator")
-      )
-    ),
-
-    /* SETTINGS MODAL */
+    /* SETTINGS */
     showSettings && h("div",{className:"overlay"},
       h("div",{className:"card"},
         h("i",{className:"fas fa-times close",onClick:()=>setShowSettings(false)}),
-        h("h3",{style:{color:"#ff6666"}},"Reader Settings"),
+        h("h3",null,"Reader Settings"),
+        h("div",{className:"setting-row"},["Auto Music",h("input",{type:"checkbox",checked:autoMusic,onChange:e=>setAutoMusic(e.target.checked)})]),
+        h("div",{className:"setting-row"},["Reduce Motion",h("input",{type:"checkbox",checked:reduceMotion,onChange:e=>setReduceMotion(e.target.checked)})]),
+        h("div",{className:"setting-row"},["HQ Images",h("input",{type:"checkbox",checked:hqImages,onChange:e=>setHqImages(e.target.checked)})])
+      )
+    ),
 
-        h("div",{className:"setting-row"},["Auto Music", h("input",{type:"checkbox",checked:autoMusic,onChange:e=>setAutoMusic(e.target.checked)})]),
-        h("div",{className:"setting-row"},["Reduce Motion", h("input",{type:"checkbox",checked:reduceMotion,onChange:e=>setReduceMotion(e.target.checked)})]),
-        h("div",{className:"setting-row"},["High Quality Images", h("input",{type:"checkbox",checked:hqImages,onChange:e=>setHqImages(e.target.checked)})])
+    /* MESSAGE */
+    showReview && h("div",{className:"overlay"},
+      h("div",{className:"card"},
+        h("i",{className:"fas fa-times close",onClick:()=>setShowReview(false)}),
+        h("h3",null,"Message to Creator"),
+        h("textarea",{value:reviewText,onInput:e=>setReviewText(e.target.value)}),
+        h("button",{className:"next-ep-btn",onClick:sendReview},"Send")
       )
     )
   );
