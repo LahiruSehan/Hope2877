@@ -110,7 +110,7 @@ const CinematicIntro = ({ onComplete }) => {
             const el = document.querySelector(".cinematic-intro");
             if (el) el.classList.add("implode");
             setTimeout(onComplete, 1400);
-        }, 11000);
+        }, 7000);
         return () => clearTimeout(timer);
     }, [onComplete]);
 
