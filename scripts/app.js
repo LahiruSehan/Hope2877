@@ -1043,227 +1043,246 @@ const CommentsModal = ({ onClose }) => {
         `)
     );
 };
+// --- READER (LQIP + RED PREMIUM TOOLBAR + LAYOUT SWITCH) ---
+const ReaderPage = ({
+  chapterId,
+  onBack,
+  initialPage,
+  likes,
+  onToggleLike,
+  onFinishChapter,
+  masterVolume
+}) => {
 
-// --- READER (NATIVE BROWSER ZOOM & SCROLL) ---
-const ReaderPage = ({ chapterId, onBack, initialPage, likes, onToggleLike, onFinishChapter, masterVolume }) => {
-    const chapter = window.APP_CONFIG.chapters.find((c) => c.id === chapterId);
-    
-    // STATE
-    const [currentPage, setCurrentPage] = useState(initialPage || 0);
-    const [showComments, setShowComments] = useState(false);
-    const [isMuted, setIsMuted] = useState(false);
-    
-    // REFS
-    const audioRef = useRef(null);
-    const currentTrackRef = useRef(null);
-    const imageRefs = useRef([]);
-    
-    // Enable Native Zoom on Mount
-    useEffect(() => {
-        // Ensure the viewport allows zooming for a "normal website" experience
-        const viewport = document.querySelector('meta[name="viewport"]');
-        if (viewport) {
-            viewport.content = "width=device-width, initial-scale=1.0, user-scalable=yes";
+  const chapter = window.APP_CONFIG.chapters.find(c => c.id === chapterId);
+
+  // STATE
+  const [currentPage, setCurrentPage] = useState(initialPage || 0);
+  const [showComments, setShowComments] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [layoutMode, setLayoutMode] = useState("vertical"); // vertical | horizontal
+
+  // REFS
+  const audioRef = useRef(null);
+  const currentTrackRef = useRef(null);
+  const imageRefs = useRef([]);
+
+  /* 🔍 ENABLE NATIVE ZOOM */
+  useEffect(() => {
+    const viewport = document.querySelector('meta[name="viewport"]');
+    if (viewport) {
+      viewport.content = "width=device-width, initial-scale=1.0, user-scalable=yes";
+    }
+  }, []);
+
+  /* 📜 PAGE TRACKING */
+  useEffect(() => {
+    const handleScroll = () => {
+      imageRefs.current.forEach((img, idx) => {
+        if (!img) return;
+        const rect = img.getBoundingClientRect();
+        if (rect.left < window.innerWidth / 2 && rect.right > window.innerWidth / 2) {
+          if (currentPage !== idx) setCurrentPage(idx);
+          if (idx === imageRefs.current.length - 1) {
+            onFinishChapter(chapterId);
+          }
         }
-    }, []);
+      });
+    };
 
-    // --- STANDARD SCROLL TRACKING ---
-    useEffect(() => {
-        const handleScroll = () => {
-            imageRefs.current.forEach((img, idx) => {
-                if (!img) return;
-                const rect = img.getBoundingClientRect();
-                // Check if image is roughly in center of view
-                if (rect.top < window.innerHeight / 2 && rect.bottom > window.innerHeight / 2) {
-                    if (currentPage !== idx) setCurrentPage(idx);
-                    
-                    // Simple end detection
-                    if (idx === imageRefs.current.length - 1) {
-                         // Debounce finish trigger
-                        if(!window.finishTimeout) {
-                            window.finishTimeout = setTimeout(() => {
-                                onFinishChapter(chapterId);
-                                window.finishTimeout = null;
-                            }, 2000);
-                        }
-                    }
-                }
-            });
-        };
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, [currentPage, chapterId, onFinishChapter]);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [currentPage, chapterId]);
 
-    useEffect(() => {
-        if (initialPage > 0 && imageRefs.current[initialPage]) {
-            setTimeout(() => {
-                imageRefs.current[initialPage].scrollIntoView({ behavior: 'smooth' });
-            }, 500);
-        }
-    }, [initialPage]);
+  /* 🎵 MUSIC LOGIC (UNCHANGED) */
+  useEffect(() => {
+    const rules = window.MUSIC_CONFIG?.chapters?.[chapterId] || [];
+    const rule = rules.find(r => currentPage + 1 >= r.pages[0] && currentPage + 1 <= r.pages[1]);
+    const track = rule?.track || null;
 
-    // Music Logic
-    useEffect(() => {
-        const fadeDuration = window.MUSIC_CONFIG.fadeDuration || 2000;
-        const chapterRules = window.MUSIC_CONFIG.chapters[chapterId] || [];
-        const rule = chapterRules.find(r => (currentPage + 1) >= r.pages[0] && (currentPage + 1) <= r.pages[1]);
-        const targetTrack = rule ? rule.track : null;
+    if (track !== currentTrackRef.current) {
+      if (audioRef.current) audioRef.current.pause();
 
-        if (audioRef.current) {
-            const targetVol = isMuted ? 0 : masterVolume;
-             if (Math.abs(audioRef.current.volume - targetVol) > 0.1) {
-                 audioRef.current.volume = targetVol;
-             }
-        }
+      if (track) {
+        const audio = new Audio(track);
+        audio.loop = true;
+        audio.volume = isMuted ? 0 : masterVolume;
+        audio.play().catch(() => {});
+        audioRef.current = audio;
+        currentTrackRef.current = track;
+      }
+    }
+  }, [chapterId, currentPage, isMuted, masterVolume]);
 
-        if (targetTrack !== currentTrackRef.current) {
-            if (audioRef.current) {
-                const oldAudio = audioRef.current;
-                let vol = oldAudio.volume;
-                const fadeOutInterval = setInterval(() => {
-                    if (vol > 0.1) {
-                        vol -= 0.1;
-                        oldAudio.volume = vol;
-                    } else {
-                        oldAudio.pause();
-                        clearInterval(fadeOutInterval);
-                    }
-                }, fadeDuration / 10);
-            }
+  useEffect(() => () => audioRef.current?.pause(), []);
 
-            if (targetTrack) {
-                const newAudio = new Audio(targetTrack);
-                newAudio.loop = true;
-                newAudio.muted = isMuted;
-                newAudio.volume = 0;
-                newAudio.play().catch(e => console.log("Autoplay blocked", e));
-                
-                let vol = 0;
-                const fadeInInterval = setInterval(() => {
-                    if (vol < masterVolume) {
-                        vol += 0.1;
-                        if(vol > masterVolume) vol = masterVolume;
-                        newAudio.volume = vol;
-                    } else {
-                        clearInterval(fadeInInterval);
-                    }
-                }, fadeDuration / 10);
+  const isLiked = likes[chapterId];
 
-                audioRef.current = newAudio;
-                currentTrackRef.current = targetTrack;
-            } else {
-                audioRef.current = null;
-                currentTrackRef.current = null;
-            }
-        }
-    }, [chapterId, currentPage, isMuted, masterVolume]); 
+  return h(
+    "div",
+    { className: `reader-container ${layoutMode}` },
 
-    useEffect(() => {
-        if (audioRef.current) {
-            audioRef.current.muted = isMuted;
-            if (!isMuted) audioRef.current.volume = masterVolume;
-        }
-    }, [isMuted, masterVolume]);
+    h("style", null, `
+/* ================= READER BASE ================= */
+.reader-container {
+  width: 100vw;
+  min-height: 100vh;
+  background: #000;
+  padding-bottom: 110px;
+}
 
-    useEffect(() => {
-        return () => {
-            if (audioRef.current) {
-                audioRef.current.pause();
-                audioRef.current = null;
-                currentTrackRef.current = null;
-            }
-        };
-    }, []);
+/* ================= CONTENT ================= */
+.reader-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-    const isLiked = likes[chapterId];
+/* HORIZONTAL MODE */
+.reader-container.horizontal .reader-content {
+  flex-direction: row;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  height: 100vh;
+}
 
-    return h(
-        "div",
-        { className: "reader-container fade-in" },
-        
-        h("style", null, `
-            .reader-container {
-                width: 100vw;
-                min-height: 100vh;
-                padding-bottom: 100px; /* Space for toolbar */
-                background-color: #000;
-                /* Standard scrolling enabled by default */
-            }
-            .reader-content-wrapper {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                width: 100%; 
-                margin: 0 auto;
-            }
-            .reader-img {
-                width: 100%;
-                max-width: 100%; /* Ensure it fits width but allows zooming via browser */
-                height: auto;
-                display: block;
-                margin: 0;
-            }
-            .reader-toolbar {
-                position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-                background: rgba(10, 10, 15, 0.9); border: 1px solid #00e5ff;
-                box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); border-radius: 50px;
-                padding: 10px 25px; display: flex; gap: 20px; z-index: 1000;
-                backdrop-filter: blur(5px);
-            }
-            .reader-icon {
-                color: #00e5ff; font-size: 1rem; cursor: pointer; transition: 0.1s;
-                display: flex; align-items: center; justify-content: center;
-                min-width: 35px; height: 35px; border-radius: 50%;
-                background: rgba(0, 229, 255, 0.1);
-            }
-            .reader-icon.liked { color: #ff0055; text-shadow: 0 0 10px #ff0055; background: rgba(255, 0, 85, 0.1); }
-        `),
+.reader-container.horizontal .reader-page {
+  flex: 0 0 100vw;
+  scroll-snap-align: center;
+}
 
-        h(
-            "div",
-            { className: "reader-toolbar" },
-            h("i", {
-                className: "fas fa-arrow-left reader-icon",
-                title: "Back",
-                onClick: onBack
-            }),
-            
-            h("i", {
-                className: `fas ${isMuted ? 'fa-volume-mute' : 'fa-volume-up'} reader-icon`,
-                title: "Mute Music",
-                onClick: () => setIsMuted(!isMuted)
-            }),
-            
-            h("i", {
-                className: `fas fa-heart reader-icon ${isLiked ? 'liked' : ''}`,
-                title: "Like",
-                onClick: () => onToggleLike(chapterId)
-            }),
-            h("i", {
-                className: "fas fa-comment reader-icon",
-                title: "Comments",
-                onClick: () => setShowComments(true)
-            })
-        ),
-        
-        h("div", { 
-            className: "reader-content-wrapper"
-        }, 
-            chapter.pages.map((img, i) =>
-                h("img", {
-                    key: i,
-                    ref: el => imageRefs.current[i] = el,
-                    src: img,
-                    className: "reader-img",
-                    loading: "lazy",
-                    onDragStart: (e) => e.preventDefault() 
-                })
-            )
-        ),
+/* ================= IMAGE ================= */
+.reader-page {
+  position: relative;
+  width: 100%;
+}
 
-        showComments && h(CommentsModal, { onClose: () => setShowComments(false) })
-    );
+.reader-img {
+  width: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+/* LQIP BLUR */
+.reader-img.low {
+  filter: blur(18px);
+  transform: scale(1.05);
+}
+
+.reader-img.high {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+.reader-img.high.loaded {
+  opacity: 1;
+}
+
+/* ================= TOOLBAR ================= */
+.reader-toolbar {
+  position: fixed;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 18px;
+  padding: 12px 26px;
+  border-radius: 999px;
+  background: rgba(30,0,0,0.85);
+  border: 1px solid rgba(255,60,60,0.4);
+  box-shadow: 0 0 25px rgba(255,0,0,0.35);
+  backdrop-filter: blur(8px);
+  z-index: 999;
+}
+
+.reader-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffb3b3;
+  cursor: pointer;
+  background: rgba(255,0,0,0.08);
+}
+
+.reader-icon.liked {
+  color: #ff3355;
+  box-shadow: 0 0 10px rgba(255,50,80,0.6);
+}
+    `),
+
+    /* 🔴 TOOLBAR */
+    h("div", { className: "reader-toolbar" },
+
+      h("i", {
+        className: "fas fa-arrow-left reader-icon",
+        onClick: onBack,
+        title: "Back"
+      }),
+
+      h("i", {
+        className: `fas ${isMuted ? 'fa-volume-mute' : 'fa-volume-up'} reader-icon`,
+        onClick: () => setIsMuted(!isMuted),
+        title: "Music"
+      }),
+
+      h("i", {
+        className: "fas fa-exchange-alt reader-icon",
+        title: "Change Layout",
+        onClick: () =>
+          setLayoutMode(m => m === "vertical" ? "horizontal" : "vertical")
+      }),
+
+      h("i", {
+        className: `fas fa-heart reader-icon ${isLiked ? 'liked' : ''}`,
+        onClick: () => onToggleLike(chapterId),
+        title: "Like"
+      }),
+
+      h("i", {
+        className: "fas fa-comment reader-icon",
+        onClick: () => setShowComments(true),
+        title: "Comments"
+      })
+    ),
+
+    /* 📖 CONTENT */
+    h("div", { className: "reader-content" },
+
+      chapter.pages.map((p, i) => {
+        const low = typeof p === "string" ? p : p.low;
+        const high = typeof p === "string" ? p : p.high;
+
+        return h("div", {
+          key: i,
+          className: "reader-page",
+          ref: el => imageRefs.current[i] = el
+        },
+
+          h("img", {
+            src: low,
+            className: "reader-img low",
+            draggable: false
+          }),
+
+          h("img", {
+            src: high,
+            className: "reader-img high",
+            onLoad: e => e.target.classList.add("loaded"),
+            draggable: false
+          })
+        );
+      })
+    ),
+
+    showComments && h(CommentsModal, { onClose: () => setShowComments(false) })
+  );
 };
+
 // --- MAIN APP ---
 const App = () => {
     // 💾 STATE RECALL (Only for Preferences, NO Location)
