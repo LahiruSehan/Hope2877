@@ -537,7 +537,6 @@ const SettingsModal = ({ onClose, settings, updateSetting, deferredPrompt }) => 
 };
 
 
-
 // 🚨 LICENSE BAR
 const LicenseBar = () => {
     const warnings = window.APP_CONFIG.legal.warnings;
@@ -550,14 +549,14 @@ const LicenseBar = () => {
             setTimeout(() => {
                 setIndex((prev) => (prev + 1) % warnings.length);
                 setFade(false);
-            }, 400);
-        }, 3200);
+            }, 500);
+        }, 3500);
         return () => clearInterval(interval);
     }, [warnings]);
 
     return h(
         "div",
-        { className: "license-bar", style:{ marginBottom: 0 } },
+        { className: "license-bar" },
         h(
           "div",
           { className: "license-text " + (fade ? "fade-out" : "") },
@@ -566,238 +565,199 @@ const LicenseBar = () => {
     );
 };
 
-// --- HOME PAGE (BLUE × RED NEON EDITION) ---
-const HomePage = ({ onStartChapters, onViewCredits }) => {
+// --- HOME PAGE (MAGICAL RED EDITION – NO 3D TILT) ---
+const HomePage = ({ onStartChapters, onStartNew, onViewCredits }) => {
 
-const styles = `
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Orbitron:wght@400;600;800&display=swap');
+  const styles = `
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Orbitron:wght@400;600;800&display=swap');
 
 * { box-sizing: border-box; }
 
-.home-container{
-  position:relative;
-  width:100vw;
-  height:100vh;
-  background:
-    radial-gradient(circle at top, #0b1c2d 0%, #020812 65%);
-  overflow:hidden;
-  display:flex;
-  justify-content:center;
-  padding-top:0;
-  font-family:'Orbitron',sans-serif;
-  color:#fff;
+.home-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(circle at top, #1a0000 0%, #000 60%);
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  padding-top: 0;
+  font-family: 'Orbitron', sans-serif;
+  color: #fff;
 }
 
-/* 🌌 BLUE ENERGY */
-.energy-overlay{
-  position:absolute;
-  inset:0;
-  background:
-    radial-gradient(circle at 25% 20%, rgba(0,140,255,0.15), transparent 45%),
-    radial-gradient(circle at 70% 80%, rgba(255,40,40,0.08), transparent 50%);
-  z-index:1;
-  mix-blend-mode:screen;
+.content-layer {
+  z-index: 10;
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.content-layer::-webkit-scrollbar { display: none; }
+
+.hero-img-container {
+  width: 100%;
+  max-width: 500px;
+  position: relative;
+  margin-bottom: 10px;
 }
 
-/* 🔥 FLOATING PARTICLES */
-.ember{
-  position:absolute;
-  bottom:-20px;
-  width:3px;
-  height:3px;
-  background:#4fc3ff;
-  border-radius:50%;
-  box-shadow:0 0 10px rgba(80,180,255,0.9);
-  animation:rise linear infinite;
-  z-index:2;
-}
-@keyframes rise{
-  from{transform:translateY(0) scale(1);opacity:1;}
-  to{transform:translateY(-95vh) scale(0);opacity:0;}
+.desc-text {
+  max-width: 520px;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: #ddd;
+  font-weight: 600;
+  margin-bottom: 28px;
 }
 
-.content-layer{
-  z-index:10;
-  width:100%;
-  max-width:820px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  text-align:center;
+.btn-split-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 22px;
 }
 
-/* 🖼 HERO */
-.hero-img-container{
-  width:100%;
-  max-width:520px;
-  margin-top:0;
-}
-.hero-image{
-  width:100%;
-  display:block;
-  mask-image:linear-gradient(to bottom,#000 65%,transparent);
-}
-
-/* ⚡ GLITCH TITLE */
-.main-title-glitch{
-  font-family:'Cinzel',serif;
-  font-size:2.2rem;
-  font-weight:900;
-  letter-spacing:3px;
-  color:#e6f6ff;
-  position:relative;
-  margin:18px 0 24px;
-  text-shadow:
-    0 0 10px rgba(0,160,255,.6),
-    0 0 25px rgba(255,40,40,.25);
-}
-.main-title-glitch::before,
-.main-title-glitch::after{
-  content:attr(data-text);
-  position:absolute;
-  left:0;top:0;
-  width:100%;
-  overflow:hidden;
-}
-.main-title-glitch::before{
-  color:#ff4b4b;
-  transform:translate(2px,-1px);
-  clip-path:polygon(0 0,100% 0,100% 45%,0 45%);
-  animation:glitch1 2.5s infinite;
-}
-.main-title-glitch::after{
-  color:#3fc7ff;
-  transform:translate(-2px,1px);
-  clip-path:polygon(0 55%,100% 55%,100% 100%,0 100%);
-  animation:glitch2 2.5s infinite;
-}
-@keyframes glitch1{
-  0%,100%{transform:translate(2px,-1px);}
-  50%{transform:translate(-1px,1px);}
-}
-@keyframes glitch2{
-  0%,100%{transform:translate(-2px,1px);}
-  50%{transform:translate(1px,-1px);}
+.cine-btn {
+  position: relative;
+  width: 170px;
+  height: 46px;
+  cursor: pointer;
+  background: radial-gradient(circle at top, rgba(255,80,80,0.25), rgba(20,0,0,0.9) 60%);
+  border-radius: 999px;
+  overflow: hidden;
+  transition: transform 0.3s ease;
 }
 
-/* 📜 SUMMARY (SMALLER) */
-.desc-text{
-  max-width:540px;
-  font-size:.85rem;
-  line-height:1.55;
-  color:#cfd9e6;
-  margin-bottom:32px;
+.cine-btn::after {
+  content: '';
+  position: absolute;
+  inset: -40%;
+  background: radial-gradient(circle, rgba(255,80,80,0.35), transparent 60%);
+  animation: pulseGlow 3s infinite;
 }
 
-/* 🚀 READ STORY BUTTON */
-.btn-split-container{
-  display:flex;
-  justify-content:center;
-  margin-bottom:25px;
-}
-.cine-btn{
-  width:190px;
-  height:50px;
-  border-radius:999px;
-  background:
-    linear-gradient(135deg,#0b2e55,#061a30);
-  position:relative;
-  cursor:pointer;
-  overflow:hidden;
-  box-shadow:
-    0 0 18px rgba(0,140,255,.35),
-    inset 0 0 12px rgba(255,60,60,.15);
-  transition:transform .3s;
-}
-.cine-btn::before{
-  content:'';
-  position:absolute;
-  inset:0;
-  background:
-    linear-gradient(120deg,
-      transparent,
-      rgba(0,160,255,.8),
-      transparent);
-  animation:shine 3s infinite;
-}
-@keyframes shine{
-  from{transform:translateX(-120%);}
-  to{transform:translateX(120%);}
-}
-.cine-btn:hover{transform:scale(1.08);}
-.cine-btn-inner{
-  position:absolute;
-  inset:3px;
-  background:#050f1e;
-  border-radius:999px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-.cine-btn-text{
-  font-family:'Cinzel',serif;
-  letter-spacing:3px;
-  font-size:.8rem;
-  color:#e8f5ff;
+@keyframes pulseGlow {
+  0%,100% { opacity: 0.4; }
+  50% { opacity: 0.9; }
 }
 
-/* ⭐ RECOGNITION */
-.rec-section{transform:scale(.9);}
-.rec-title{
-  font-size:.7rem;
-  letter-spacing:2px;
-  color:#6d88a5;
-  margin-bottom:10px;
+.cine-btn:hover { transform: scale(1.08); }
+
+.cine-btn-inner {
+  position: absolute;
+  inset: 2px;
+  background: linear-gradient(180deg, rgba(15,0,0,0.95), rgba(40,0,0,0.85));
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.rec-btn{
-  padding:6px 18px;
-  border-radius:999px;
-  border:1px solid rgba(0,160,255,.4);
-  background:rgba(5,20,40,.6);
-  color:#cfe9ff;
-  cursor:pointer;
+
+.cine-btn-text {
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  letter-spacing: 4px;
+  font-weight: 800;
+  color: #ffecec;
+  animation: textDrift 3.5s ease-in-out infinite;
 }
+
+@keyframes textDrift {
+  0%,100% { opacity: 0.85; }
+  50% { opacity: 1; }
+}
+
+/* ⭐ SPECIAL RECOGNITION */
+.rec-section {
+  transform: scale(0.9);
+  margin-top: 8px;
+}
+
+.rec-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  color: #777;
+  margin-bottom: 10px;
+}
+
+.rec-btn-container {
+  display: flex;
+  gap: 16px;
+}
+
+.rec-btn {
+  padding: 6px 18px;
+  font-size: 0.75rem;
+  font-family: 'Cinzel', serif;
+  color: #ffcccc;
+  border: 1px solid #ff3333;
+  background: rgba(40,0,0,0.6);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.rec-icon { margin-left: 6px; }
 `;
 
-const [embers,setEmbers]=React.useState([]);
-React.useEffect(()=>{
-  const e=[];
-  for(let i=0;i<30;i++){
-    e.push({
-      left:Math.random()*100+"%",
-      duration:Math.random()*3+3+"s",
-      delay:Math.random()*5+"s"
-    });
-  }
-  setEmbers(e);
-},[]);
+  const getCredit = (name) =>
+    window.APP_CONFIG.credits.find(c => c.name.toUpperCase().includes(name))
+    || window.APP_CONFIG.credits[0];
 
-return h(
-  "div",{className:"home-container"},
-  h("style",null,styles),
-  h("div",{className:"energy-overlay"}),
-  embers.map((e,i)=>h("div",{key:i,className:"ember",style:{left:e.left,animationDuration:e.duration,animationDelay:e.delay}})),
-  h("div",{className:"content-layer"},
-    h("div",{className:"hero-img-container"},
-      h("img",{src:"/images/Cover.png",className:"hero-image"})
-    ),
-    h("div",{
-      className:"main-title-glitch",
-      "data-text":"BENEATH THE LIGHT OF A DYING SKY"
-    },"BENEATH THE LIGHT OF A DYING SKY"),
-    h("p",{className:"desc-text"},
-      "As humanity reaches its final hours, a hidden truth awakens — forcing two souls to choose between love, survival, and the end of everything."
-    ),
-    h("div",{className:"btn-split-container"},
-      h("div",{className:"cine-btn",onClick:onStartChapters},
-        h("div",{className:"cine-btn-inner"},
-          h("span",{className:"cine-btn-text"},"READ STORY")
+  return h(
+    "div",
+    { className: "home-container" },
+    h("style", null, styles),
+
+    h("div", { className: "content-layer" },
+
+      h("div", { className: "hero-img-container" },
+        h("img", { src: "/images/Cover.png", className: "hero-image" })
+      ),
+
+      h("div", { className: "sub-title-clean" }, "BENEATH THE LIGHT"),
+      h("div", { className: "main-title-electric" }, "OF A DYING SKY"),
+
+      h("div", { className: "tags-row" },
+        ["Sci-Fi", "Romance", "Action", "Mystery", "Horror"].map(t =>
+          h("span", { className: "tag-pill" }, t)
+        )
+      ),
+
+      h("p", { className: "desc-text" },
+        "As humanity faces its final hours, a hidden conspiracy awakens — forcing Jake and Viyona to choose between the world they know and the truth that could rewrite everything."
+      ),
+
+      h("div", { className: "btn-split-container" },
+        h("div", { className: "cine-btn", onClick: onStartChapters },
+          h("div", { className: "cine-btn-inner" },
+            h("span", { className: "cine-btn-text" }, "READ STORY")
+          )
+        )
+      ),
+
+      /* ⭐ SPECIAL RECOGNITION — RESTORED */
+      h("div", { className: "rec-section" },
+        h("div", { className: "rec-title" }, "SPECIAL RECOGNITION"),
+        h("div", { className: "rec-btn-container" },
+          h("div", { className: "rec-btn", onClick: () => onViewCredits(getCredit('MINASHA')) },
+            "MINASHA",
+            h("i", { className: "fas fa-heart rec-icon" })
+          ),
+          h("div", { className: "rec-btn", onClick: () => onViewCredits(getCredit('AROSHA')) },
+            "AROSHA",
+            h("i", { className: "fas fa-fire rec-icon" })
+          )
         )
       )
     )
-  )
-);
+  );
 };
+
 
 
 
