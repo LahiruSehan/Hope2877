@@ -93,7 +93,7 @@ const CinematicIntro = ({ onComplete }) => {
     // Progress bar
     useEffect(() => {
         let start = performance.now();
-        const duration = 11000;
+        const duration = 7000;
 
         function animate(t) {
             const elapsed = t - start;
