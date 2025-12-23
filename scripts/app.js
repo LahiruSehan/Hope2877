@@ -705,7 +705,7 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
   const styles = `
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Orbitron:wght@400;600;800&display=swap');
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; }
 
 .home-container {
   position: relative;
@@ -760,7 +760,6 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
   text-align: center;
   overflow-y: auto;
   scrollbar-width: none;
-  padding-top: 40px; /* Space for the absolute positioned License Bar */
 }
 .content-layer::-webkit-scrollbar { display: none; }
 
