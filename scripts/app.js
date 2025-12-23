@@ -556,17 +556,13 @@ const LicenseBar = () => {
 
     return h(
         "div",
-        { className: "license-bar" },
-        h(
-          "div",
-          { className: "license-text " + (fade ? "fade-out" : "") },
-          warnings[index]
-        )
+        { className: "license-bar", style: { marginBottom: '0px' } }, // Ensured no bottom margin
+        h("div", { className: "license-text " + (fade ? "fade-out" : "") }, warnings[index])
     );
 };
 
-// --- HOME PAGE (MAGICAL RED EDITION – NO 3D TILT) ---
-const HomePage = ({ onStartChapters, onStartNew, onViewCredits }) => {
+// --- HOME PAGE (MAGICAL RED EDITION) ---
+const HomePage = ({ onStartChapters, onViewCredits }) => {
 
   const styles = `
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Orbitron:wght@400;600;800&display=swap');
@@ -581,9 +577,39 @@ const HomePage = ({ onStartChapters, onStartNew, onViewCredits }) => {
   overflow: hidden;
   display: flex;
   justify-content: center;
-  padding-top: 0;
+  padding-top: 0px; /* Removed empty space entirely */
   font-family: 'Orbitron', sans-serif;
   color: #fff;
+}
+
+/* 🔥 RED ENERGY FOG */
+.energy-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255,0,0,0.12), transparent 40%),
+    radial-gradient(circle at 70% 80%, rgba(255,40,0,0.1), transparent 45%);
+  z-index: 1;
+  mix-blend-mode: screen;
+}
+
+/* 🔥 FLOATING EMBERS */
+.ember {
+  position: absolute;
+  bottom: -20px;
+  width: 4px;
+  height: 4px;
+  background: #ff3b1a;
+  border-radius: 50%;
+  box-shadow: 0 0 12px #ff2200;
+  animation: rise linear infinite;
+  opacity: 0;
+  z-index: 2;
+}
+
+@keyframes rise {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-90vh) scale(0); opacity: 0; }
 }
 
 .content-layer {
@@ -599,82 +625,174 @@ const HomePage = ({ onStartChapters, onStartNew, onViewCredits }) => {
 }
 .content-layer::-webkit-scrollbar { display: none; }
 
+/* 🌌 HERO IMAGE + SHIMMER */
 .hero-img-container {
   width: 100%;
   max-width: 500px;
   position: relative;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
 
-.desc-text {
-  max-width: 520px;
-  font-size: 0.82rem;
-  line-height: 1.5;
-  color: #ddd;
+.hero-image {
+  width: 100%;
+  display: block;
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0));
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0));
+}
+
+.hero-img-container::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    transparent 30%,
+    rgba(255,80,80,0.25),
+    transparent 70%
+  );
+  animation: shimmer 4s infinite;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(120%); }
+}
+
+/* ✨ TITLES */
+.sub-title-clean {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  letter-spacing: 4px;
+  color: #ffffff;
+  font-weight: 700;
+  margin-top: 10px;
+}
+
+.main-title-electric {
+  font-family: 'Cinzel', serif;
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: #ff1a1a;
+  text-shadow: 0 0 10px #ff0000, 0 0 30px rgba(255,0,0,0.6);
+  margin-bottom: 25px;
+}
+
+/* 🏷 TAGS */
+.tags-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.tag-pill {
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.7rem;
   font-weight: 600;
-  margin-bottom: 28px;
+  border: 1px solid #ff4444;
+  color: #ffaaaa;
+  background: rgba(0,0,0,0.6);
 }
 
+/* 📜 DESC - MADE SMALLER */
+.desc-text {
+  max-width: 560px;
+  font-size: 0.82rem; /* Reduced size */
+  line-height: 1.5;
+  color: #ccc;
+  font-weight: 500;
+  margin-bottom: 40px;
+}
+
+/* 🌑 CINEMATIC BUTTONS - ROUNDER & ANIMATED */
 .btn-split-container {
   display: flex;
+  gap: 22px;
   justify-content: center;
-  margin-bottom: 22px;
+  margin-bottom: 25px;
 }
 
 .cine-btn {
   position: relative;
-  width: 170px;
-  height: 46px;
+  width: 200px; /* Wider for "READ STORY" */
+  height: 50px;
   cursor: pointer;
-  background: radial-gradient(circle at top, rgba(255,80,80,0.25), rgba(20,0,0,0.9) 60%);
-  border-radius: 999px;
+  background: radial-gradient(circle at top, rgba(255,80,80,0.35), rgba(20,0,0,0.9) 60%);
+  border-radius: 25px; /* Fully rounded corners */
   overflow: hidden;
-  transition: transform 0.3s ease;
-}
-
-.cine-btn::after {
-  content: '';
-  position: absolute;
-  inset: -40%;
-  background: radial-gradient(circle, rgba(255,80,80,0.35), transparent 60%);
-  animation: pulseGlow 3s infinite;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 0 15px rgba(255,0,0,0.2);
+  animation: pulseGlow 3s infinite alternate;
 }
 
 @keyframes pulseGlow {
-  0%,100% { opacity: 0.4; }
-  50% { opacity: 0.9; }
+  0% { box-shadow: 0 0 10px rgba(255,0,0,0.2); }
+  100% { box-shadow: 0 0 25px rgba(255,50,50,0.5); transform: translateY(-2px); }
 }
 
-.cine-btn:hover { transform: scale(1.08); }
+.cine-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  border-radius: 25px; /* Match rounded corners */
+  background: linear-gradient(120deg, #ff3b3b, #ff9999, #ff3b3b, #ff0000);
+  background-size: 300% 300%;
+  animation: strokeFlow 3s linear infinite;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+@keyframes strokeFlow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
 
 .cine-btn-inner {
   position: absolute;
   inset: 2px;
-  background: linear-gradient(180deg, rgba(15,0,0,0.95), rgba(40,0,0,0.85));
-  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(30,0,0,0.98), rgba(60,0,0,0.9));
+  border-radius: 23px; /* Match inner rounding */
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background 0.3s;
 }
 
 .cine-btn-text {
   font-family: 'Cinzel', serif;
-  font-size: 0.8rem;
-  letter-spacing: 4px;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
   font-weight: 800;
-  color: #ffecec;
-  animation: textDrift 3.5s ease-in-out infinite;
+  color: #fff;
+  text-shadow: 0 0 8px rgba(255,255,255,0.3);
+  animation: textDrift 3s ease-in-out infinite;
 }
 
 @keyframes textDrift {
-  0%,100% { opacity: 0.85; }
-  50% { opacity: 1; }
+  0%,100% { opacity: 0.9; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
 }
 
-/* ⭐ SPECIAL RECOGNITION */
+.cine-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 35px rgba(255,0,0,0.6);
+}
+
+.cine-btn:hover .cine-btn-inner {
+  background: linear-gradient(180deg, rgba(60,0,0,0.95), rgba(20,0,0,0.9));
+}
+
+/* ⭐ RECOGNITION */
 .rec-section {
   transform: scale(0.9);
-  margin-top: 8px;
+  margin-top: 5px;
 }
 
 .rec-title {
@@ -699,19 +817,55 @@ const HomePage = ({ onStartChapters, onStartNew, onViewCredits }) => {
   background: rgba(40,0,0,0.6);
   border-radius: 999px;
   cursor: pointer;
+  transition: all 0.2s;
 }
 
-.rec-icon { margin-left: 6px; }
+.rec-btn:hover {
+  background: rgba(100,0,0,0.4);
+  transform: translateY(-2px);
+}
+
+.rec-icon {
+  margin-left: 6px;
+}
 `;
+
+  const [embers, setEmbers] = React.useState([]);
+
+  React.useEffect(() => {
+    const e = [];
+    for (let i = 0; i < 35; i++) {
+      e.push({
+        left: Math.random() * 100 + "%",
+        duration: Math.random() * 3 + 3 + "s",
+        delay: Math.random() * 5 + "s"
+      });
+    }
+    setEmbers(e);
+  }, []);
 
   const getCredit = (name) =>
     window.APP_CONFIG.credits.find(c => c.name.toUpperCase().includes(name))
     || window.APP_CONFIG.credits[0];
 
+  const handleAction = (action) => {
+    if (navigator.vibrate) navigator.vibrate([60, 40, 80]);
+    action();
+  };
+
   return h(
     "div",
     { className: "home-container" },
     h("style", null, styles),
+    h("div", { className: "energy-overlay" }),
+
+    embers.map((e, i) =>
+      h("div", {
+        key: i,
+        className: "ember",
+        style: { left: e.left, animationDuration: e.duration, animationDelay: e.delay }
+      })
+    ),
 
     h("div", { className: "content-layer" },
 
@@ -733,22 +887,31 @@ const HomePage = ({ onStartChapters, onStartNew, onViewCredits }) => {
       ),
 
       h("div", { className: "btn-split-container" },
-        h("div", { className: "cine-btn", onClick: onStartChapters },
+        // "READ STORY" Button (Formerly Chapters) with same function
+        h("div", { className: "cine-btn", onClick: () => handleAction(onStartChapters) },
           h("div", { className: "cine-btn-inner" },
             h("span", { className: "cine-btn-text" }, "READ STORY")
           )
         )
+        // NEW button removed entirely
       ),
 
-      /* ⭐ SPECIAL RECOGNITION — RESTORED */
-      h("div", { className: "rec-section" },
+      h(
+        "div",
+        { className: "rec-section" },
         h("div", { className: "rec-title" }, "SPECIAL RECOGNITION"),
-        h("div", { className: "rec-btn-container" },
-          h("div", { className: "rec-btn", onClick: () => onViewCredits(getCredit('MINASHA')) },
+        h(
+          "div",
+          { className: "rec-btn-container" },
+          h(
+            "div",
+            { className: "rec-btn", onClick: () => onViewCredits(getCredit('MINASHA')) },
             "MINASHA",
             h("i", { className: "fas fa-heart rec-icon" })
           ),
-          h("div", { className: "rec-btn", onClick: () => onViewCredits(getCredit('AROSHA')) },
+          h(
+            "div",
+            { className: "rec-btn", onClick: () => onViewCredits(getCredit('AROSHA')) },
             "AROSHA",
             h("i", { className: "fas fa-fire rec-icon" })
           )
