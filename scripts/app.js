@@ -1043,7 +1043,7 @@ const CommentsModal = ({ onClose }) => {
         `)
     );
 };
-// --- READER (LQIP + RED PREMIUM TOOLBAR + LAYOUT SWITCH) ---
+// --- READER (LQIP + RED RECT TOOLBAR + LAYOUT SWITCH) ---
 const ReaderPage = ({
   chapterId,
   onBack,
@@ -1060,7 +1060,7 @@ const ReaderPage = ({
   const [currentPage, setCurrentPage] = useState(initialPage || 0);
   const [showComments, setShowComments] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [layoutMode, setLayoutMode] = useState("vertical"); // vertical | horizontal
+  const [layoutMode, setLayoutMode] = useState("vertical");
 
   // REFS
   const audioRef = useRef(null);
@@ -1078,31 +1078,29 @@ const ReaderPage = ({
   /* 📜 PAGE TRACKING */
   useEffect(() => {
     const handleScroll = () => {
-      imageRefs.current.forEach((img, idx) => {
-        if (!img) return;
-        const rect = img.getBoundingClientRect();
+      imageRefs.current.forEach((el, idx) => {
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
         if (rect.left < window.innerWidth / 2 && rect.right > window.innerWidth / 2) {
-          if (currentPage !== idx) setCurrentPage(idx);
+          setCurrentPage(idx);
           if (idx === imageRefs.current.length - 1) {
             onFinishChapter(chapterId);
           }
         }
       });
     };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [chapterId]);
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [currentPage, chapterId]);
-
-  /* 🎵 MUSIC LOGIC (UNCHANGED) */
+  /* 🎵 MUSIC */
   useEffect(() => {
     const rules = window.MUSIC_CONFIG?.chapters?.[chapterId] || [];
     const rule = rules.find(r => currentPage + 1 >= r.pages[0] && currentPage + 1 <= r.pages[1]);
     const track = rule?.track || null;
 
     if (track !== currentTrackRef.current) {
-      if (audioRef.current) audioRef.current.pause();
-
+      audioRef.current?.pause();
       if (track) {
         const audio = new Audio(track);
         audio.loop = true;
@@ -1112,7 +1110,7 @@ const ReaderPage = ({
         currentTrackRef.current = track;
       }
     }
-  }, [chapterId, currentPage, isMuted, masterVolume]);
+  }, [currentPage, chapterId, isMuted, masterVolume]);
 
   useEffect(() => () => audioRef.current?.pause(), []);
 
@@ -1123,12 +1121,12 @@ const ReaderPage = ({
     { className: `reader-container ${layoutMode}` },
 
     h("style", null, `
-/* ================= READER BASE ================= */
+/* ================= BASE ================= */
 .reader-container {
   width: 100vw;
   min-height: 100vh;
   background: #000;
-  padding-bottom: 110px;
+  padding-bottom: 90px;
 }
 
 /* ================= CONTENT ================= */
@@ -1163,7 +1161,7 @@ const ReaderPage = ({
   pointer-events: none;
 }
 
-/* LQIP BLUR */
+/* LQ BLUR */
 .reader-img.low {
   filter: blur(18px);
   transform: scale(1.05);
@@ -1180,33 +1178,35 @@ const ReaderPage = ({
   opacity: 1;
 }
 
-/* ================= TOOLBAR ================= */
+/* ================= TOOLBAR (RECTANGLE) ================= */
 .reader-toolbar {
   position: fixed;
-  bottom: 18px;
+  bottom: 16px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   gap: 18px;
-  padding: 12px 26px;
-  border-radius: 999px;
-  background: rgba(30,0,0,0.85);
-  border: 1px solid rgba(255,60,60,0.4);
-  box-shadow: 0 0 25px rgba(255,0,0,0.35);
-  backdrop-filter: blur(8px);
+  padding: 10px 22px;
+  background: rgba(25,0,0,0.9);
+  border: 1px solid rgba(255,60,60,0.45);
+  box-shadow: 0 0 28px rgba(255,0,0,0.35);
+  backdrop-filter: blur(6px);
   z-index: 999;
 }
 
 .reader-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
+  width: 34px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #ffb3b3;
   cursor: pointer;
   background: rgba(255,0,0,0.08);
+}
+
+.reader-icon:hover {
+  background: rgba(255,0,0,0.18);
 }
 
 .reader-icon.liked {
@@ -1220,33 +1220,33 @@ const ReaderPage = ({
 
       h("i", {
         className: "fas fa-arrow-left reader-icon",
-        onClick: onBack,
-        title: "Back"
+        title: "Back",
+        onClick: onBack
       }),
 
       h("i", {
-        className: `fas ${isMuted ? 'fa-volume-mute' : 'fa-volume-up'} reader-icon`,
-        onClick: () => setIsMuted(!isMuted),
-        title: "Music"
+        className: `fas ${isMuted ? "fa-volume-mute" : "fa-volume-up"} reader-icon`,
+        title: "Mute",
+        onClick: () => setIsMuted(!isMuted)
       }),
 
       h("i", {
         className: "fas fa-exchange-alt reader-icon",
-        title: "Change Layout",
+        title: "Switch Layout",
         onClick: () =>
           setLayoutMode(m => m === "vertical" ? "horizontal" : "vertical")
       }),
 
       h("i", {
-        className: `fas fa-heart reader-icon ${isLiked ? 'liked' : ''}`,
-        onClick: () => onToggleLike(chapterId),
-        title: "Like"
+        className: `fas fa-heart reader-icon ${isLiked ? "liked" : ""}`,
+        title: "Like",
+        onClick: () => onToggleLike(chapterId)
       }),
 
       h("i", {
         className: "fas fa-comment reader-icon",
-        onClick: () => setShowComments(true),
-        title: "Comments"
+        title: "Comments",
+        onClick: () => setShowComments(true)
       })
     ),
 
@@ -1257,11 +1257,9 @@ const ReaderPage = ({
         const low = typeof p === "string" ? p : p.low;
         const high = typeof p === "string" ? p : p.high;
 
-        return h("div", {
-          key: i,
-          className: "reader-page",
-          ref: el => imageRefs.current[i] = el
-        },
+        return h(
+          "div",
+          { key: i, className: "reader-page", ref: el => imageRefs.current[i] = el },
 
           h("img", {
             src: low,
@@ -1272,8 +1270,8 @@ const ReaderPage = ({
           h("img", {
             src: high,
             className: "reader-img high",
-            onLoad: e => e.target.classList.add("loaded"),
-            draggable: false
+            draggable: false,
+            onLoad: e => e.target.classList.add("loaded")
           })
         );
       })
