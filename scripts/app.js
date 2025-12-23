@@ -564,216 +564,253 @@ const SettingsModal = ({ onClose, settings, updateSetting, deferredPrompt }) => 
 const HomePage = ({ onStartChapters, onStartNew, onViewCredits }) => {
 
   const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Orbitron:wght@400;600;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Orbitron:wght@400;600;800&display=swap');
 
-  * { box-sizing: border-box; }
+* { box-sizing: border-box; }
 
-  .home-container {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-    background: radial-gradient(circle at top, #1a0000 0%, #000 60%);
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    padding-top: 30px;
-    font-family: 'Orbitron', sans-serif;
-    color: #fff;
-  }
+.home-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(circle at top, #1a0000 0%, #000 60%);
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  padding-top: 30px;
+  font-family: 'Orbitron', sans-serif;
+  color: #fff;
+}
 
-  /* 🔥 RED ENERGY FOG */
-  .energy-overlay {
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(circle at 30% 20%, rgba(255,0,0,0.12), transparent 40%),
-      radial-gradient(circle at 70% 80%, rgba(255,40,0,0.1), transparent 45%);
-    z-index: 1;
-    mix-blend-mode: screen;
-  }
+/* 🔥 RED ENERGY FOG */
+.energy-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255,0,0,0.12), transparent 40%),
+    radial-gradient(circle at 70% 80%, rgba(255,40,0,0.1), transparent 45%);
+  z-index: 1;
+  mix-blend-mode: screen;
+}
 
-  /* 🔥 FLOATING EMBERS */
-  .ember {
-    position: absolute;
-    bottom: -20px;
-    width: 4px;
-    height: 4px;
-    background: #ff3b1a;
-    border-radius: 50%;
-    box-shadow: 0 0 12px #ff2200;
-    animation: rise linear infinite;
-    opacity: 0;
-    z-index: 2;
-  }
+/* 🔥 FLOATING EMBERS */
+.ember {
+  position: absolute;
+  bottom: -20px;
+  width: 4px;
+  height: 4px;
+  background: #ff3b1a;
+  border-radius: 50%;
+  box-shadow: 0 0 12px #ff2200;
+  animation: rise linear infinite;
+  opacity: 0;
+  z-index: 2;
+}
 
-  @keyframes rise {
-    0% { transform: translateY(0) scale(1); opacity: 1; }
-    100% { transform: translateY(-90vh) scale(0); opacity: 0; }
-  }
+@keyframes rise {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-90vh) scale(0); opacity: 0; }
+}
 
-  .content-layer {
-    z-index: 10;
-    width: 100%;
-    max-width: 800px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    overflow-y: auto;
-    scrollbar-width: none;
-  }
-  .content-layer::-webkit-scrollbar { display: none; }
+.content-layer {
+  z-index: 10;
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.content-layer::-webkit-scrollbar { display: none; }
 
-  /* 🌌 HERO IMAGE + SHIMMER */
-  .hero-img-container {
-    width: 100%;
-    max-width: 500px;
-    position: relative;
-    margin-bottom: 15px;
-  }
+/* 🌌 HERO IMAGE + SHIMMER */
+.hero-img-container {
+  width: 100%;
+  max-width: 500px;
+  position: relative;
+  margin-bottom: 15px;
+}
 
-  .hero-image {
-    width: 100%;
-    display: block;
-    mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0));
-    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0));
-  }
+.hero-image {
+  width: 100%;
+  display: block;
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0));
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0));
+}
 
-  .hero-img-container::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-      linear-gradient(120deg,
-        transparent 30%,
-        rgba(255,80,80,0.25),
-        transparent 70%);
-    animation: shimmer 4s infinite;
-    mix-blend-mode: screen;
-    pointer-events: none;
-  }
+.hero-img-container::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    transparent 30%,
+    rgba(255,80,80,0.25),
+    transparent 70%
+  );
+  animation: shimmer 4s infinite;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
 
-  @keyframes shimmer {
-    0% { transform: translateX(-120%); }
-    100% { transform: translateX(120%); }
-  }
+@keyframes shimmer {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(120%); }
+}
 
-  /* ✨ TITLES */
-  .sub-title-clean {
-    font-family: 'Cinzel', serif;
-    font-size: 1.1rem;
-    letter-spacing: 4px;
-    color: #ffffff;
-    font-weight: 700;
-    margin-top: 10px;
-  }
+/* ✨ TITLES */
+.sub-title-clean {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  letter-spacing: 4px;
+  color: #ffffff;
+  font-weight: 700;
+  margin-top: 10px;
+}
 
-  .main-title-electric {
-    font-family: 'Cinzel', serif;
-    font-size: 2rem;
-    font-weight: 900;
-    letter-spacing: 3px;
-    color: #ff1a1a;
-    text-shadow:
-      0 0 10px #ff0000,
-      0 0 30px rgba(255,0,0,0.6);
-    margin-bottom: 25px;
-  }
+.main-title-electric {
+  font-family: 'Cinzel', serif;
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: #ff1a1a;
+  text-shadow: 0 0 10px #ff0000, 0 0 30px rgba(255,0,0,0.6);
+  margin-bottom: 25px;
+}
 
-  /* 🏷 TAGS – NO ANIMATION */
-  .tags-row {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    margin-bottom: 30px;
-    flex-wrap: wrap;
-  }
+/* 🏷 TAGS */
+.tags-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
 
-  .tag-pill {
-    padding: 5px 12px;
-    border-radius: 999px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    border: 1px solid #ff4444;
-    color: #ffaaaa;
-    background: rgba(0,0,0,0.6);
-  }
+.tag-pill {
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border: 1px solid #ff4444;
+  color: #ffaaaa;
+  background: rgba(0,0,0,0.6);
+}
 
-  /* 📜 DESC */
-  .desc-text {
-    max-width: 560px;
-    font-size: 0.95rem;
-    line-height: 1.6;
-    color: #ddd;
-    font-weight: 600;
-    margin-bottom: 45px;
-  }
+/* 📜 DESC */
+.desc-text {
+  max-width: 560px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #ddd;
+  font-weight: 600;
+  margin-bottom: 40px;
+}
 
-  /* 🧙‍♂️ ULTRA MAGICAL BUTTONS */
-  .btn-split-container {
-    display: flex;
-    gap: 25px;
-    margin-bottom: 50px;
-  }
+/* 🌑 CINEMATIC BUTTONS */
+.btn-split-container {
+  display: flex;
+  gap: 22px;
+  justify-content: center;
+  margin-bottom: 25px;
+}
 
-  .magic-btn {
-    position: relative;
-    width: 180px;
-    height: 55px;
-    border: none;
-    cursor: pointer;
-    font-family: 'Cinzel', serif;
-    font-weight: 800;
-    letter-spacing: 3px;
-    color: #fff;
-    background: radial-gradient(circle at top, #ff2a2a, #550000 70%);
-    box-shadow:
-      0 0 20px rgba(255,0,0,0.6),
-      inset 0 0 20px rgba(255,120,120,0.3);
-    overflow: hidden;
-    border-radius: 10px;
-  }
+.cine-btn {
+  position: relative;
+  width: 150px;
+  height: 44px;
+  cursor: pointer;
+  background: radial-gradient(circle at top, rgba(255,80,80,0.25), rgba(20,0,0,0.9) 60%);
+  border-radius: 10px;
+  overflow: hidden;
+}
 
-  .magic-btn::before {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    border-radius: 12px;
-    background: conic-gradient(
-      from 0deg,
-      transparent,
-      #ff4444,
-      transparent,
-      #ff0000,
-      transparent
-    );
-    animation: rotate 3s linear infinite;
-    z-index: -1;
-  }
+.cine-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: 10px;
+  background: linear-gradient(120deg, #ff3b3b, #ff9999, #ff3b3b);
+  background-size: 300% 300%;
+  animation: strokeFlow 4s linear infinite;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
 
-  .magic-btn::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle, rgba(255,255,255,0.35), transparent 60%);
-    opacity: 0;
-    transition: 0.3s;
-  }
+@keyframes strokeFlow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
 
-  .magic-btn:hover::after {
-    opacity: 1;
-  }
+.cine-btn-inner {
+  position: absolute;
+  inset: 1px;
+  background: linear-gradient(180deg, rgba(15,0,0,0.95), rgba(40,0,0,0.85));
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  .magic-btn:hover {
-    transform: scale(1.08);
-    box-shadow: 0 0 40px rgba(255,0,0,0.9);
-  }
+.cine-btn-text {
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  letter-spacing: 3px;
+  font-weight: 700;
+  color: #ffdede;
+  animation: textDrift 3.5s ease-in-out infinite;
+}
 
-  @keyframes rotate {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  `;
+@keyframes textDrift {
+  0%,100% { opacity: 0.85; }
+  50% { opacity: 1; }
+}
+
+.cine-btn:hover {
+  transform: scale(1.06);
+}
+
+.cine-btn.new {
+  background: radial-gradient(circle at top, rgba(255,120,120,0.35), rgba(30,0,0,0.95) 60%);
+}
+
+/* ⭐ RECOGNITION */
+.rec-section {
+  transform: scale(0.9);
+  margin-top: 5px;
+}
+
+.rec-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  color: #777;
+  margin-bottom: 10px;
+}
+
+.rec-btn-container {
+  display: flex;
+  gap: 16px;
+}
+
+.rec-btn {
+  padding: 6px 18px;
+  font-size: 0.75rem;
+  font-family: 'Cinzel', serif;
+  color: #ffcccc;
+  border: 1px solid #ff3333;
+  background: rgba(40,0,0,0.6);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.rec-icon {
+  margin-left: 6px;
+}
+`;
 
   const [embers, setEmbers] = React.useState([]);
 
@@ -788,6 +825,15 @@ const HomePage = ({ onStartChapters, onStartNew, onViewCredits }) => {
     }
     setEmbers(e);
   }, []);
+
+  const getCredit = (name) =>
+    window.APP_CONFIG.credits.find(c => c.name.toUpperCase().includes(name))
+    || window.APP_CONFIG.credits[0];
+
+  const handleAction = (action) => {
+    if (navigator.vibrate) navigator.vibrate([60, 40, 80]);
+    action();
+  };
 
   return h(
     "div",
@@ -823,12 +869,45 @@ const HomePage = ({ onStartChapters, onStartNew, onViewCredits }) => {
       ),
 
       h("div", { className: "btn-split-container" },
-        h("button", { className: "magic-btn", onClick: onStartChapters }, "CHAPTERS"),
-        h("button", { className: "magic-btn", onClick: onStartNew }, "NEW")
+
+        h("div", { className: "cine-btn", onClick: () => handleAction(onStartChapters) },
+          h("div", { className: "cine-btn-inner" },
+            h("span", { className: "cine-btn-text" }, "CHAPTERS")
+          )
+        ),
+
+        h("div", { className: "cine-btn new", onClick: () => handleAction(onStartNew) },
+          h("div", { className: "cine-btn-inner" },
+            h("span", { className: "cine-btn-text" }, "NEW")
+          )
+        )
+      ),
+
+      h(
+        "div",
+        { className: "rec-section" },
+        h("div", { className: "rec-title" }, "SPECIAL RECOGNITION"),
+        h(
+          "div",
+          { className: "rec-btn-container" },
+          h(
+            "div",
+            { className: "rec-btn", onClick: () => onViewCredits(getCredit('MINASHA')) },
+            "MINASHA",
+            h("i", { className: "fas fa-heart rec-icon" })
+          ),
+          h(
+            "div",
+            { className: "rec-btn", onClick: () => onViewCredits(getCredit('AROSHA')) },
+            "AROSHA",
+            h("i", { className: "fas fa-fire rec-icon" })
+          )
+        )
       )
     )
   );
 };
+
 
 
 // --- MANGA LIST ---
