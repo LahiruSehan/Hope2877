@@ -1043,7 +1043,7 @@ const CommentsModal = ({ onClose }) => {
         `)
     );
 };
-// --- READER (HONEST + PREMIUM VERSION) ---
+// --- READER (FINAL EPIC VERSION - CLEAN) ---
 const ReaderPage = ({
   chapterId,
   onBack,
@@ -1063,12 +1063,19 @@ const ReaderPage = ({
   const [currentPage, setCurrentPage] = useState(initialPage || 0);
   const [isMuted, setIsMuted] = useState(false);
   const [layoutMode, setLayoutMode] = useState("vertical");
+
   const [showReview, setShowReview] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
   const [reviewText, setReviewText] = useState("");
-  const [hideUI, setHideUI] = useState(false);
+
+  const [showSettings, setShowSettings] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+
+  const [autoMusic, setAutoMusic] = useState(true);
+  const [reduceMotion, setReduceMotion] = useState(false);
   const [hqImages, setHqImages] = useState(true);
 
+  const audioRef = useRef(null);
+  const currentTrackRef = useRef(null);
   const imageRefs = useRef([]);
 
   /* PAGE TRACK */
@@ -1077,18 +1084,35 @@ const ReaderPage = ({
       imageRefs.current.forEach((el, i) => {
         if (!el) return;
         const r = el.getBoundingClientRect();
-        if (r.top < innerHeight * 0.6 && r.bottom > innerHeight * 0.4) {
+        if (r.top < window.innerHeight * 0.6 && r.bottom > window.innerHeight * 0.4) {
           setCurrentPage(i);
           if (i === chapter.pages.length - 1) onFinishChapter(chapterId);
         }
       });
-      setHideUI(true);
-      clearTimeout(window._uiTimer);
-      window._uiTimer = setTimeout(() => setHideUI(false), 800);
     };
-    addEventListener("scroll", onScroll);
-    return () => removeEventListener("scroll", onScroll);
-  }, []);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [chapterId]);
+
+  /* MUSIC */
+  useEffect(() => {
+    if (!autoMusic) return;
+    const rules = window.MUSIC_CONFIG?.chapters?.[chapterId] || [];
+    const rule = rules.find(r => currentPage + 1 >= r.pages[0] && currentPage + 1 <= r.pages[1]);
+    const track = rule?.track;
+
+    if (track !== currentTrackRef.current) {
+      audioRef.current?.pause();
+      if (track) {
+        const a = new Audio(track);
+        a.loop = true;
+        a.volume = isMuted ? 0 : masterVolume;
+        a.play().catch(() => {});
+        audioRef.current = a;
+        currentTrackRef.current = track;
+      }
+    }
+  }, [currentPage, isMuted, masterVolume, autoMusic]);
 
   const sendReview = () => {
     const img = chapter.pages[currentPage];
@@ -1096,114 +1120,141 @@ const ReaderPage = ({
 📖 Beta Reader Review
 
 Chapter ${chapter.id}: ${chapter.title}
-${chapter.date || ""}
 Page ${currentPage + 1}
 
 ${reviewText}
+
+Image:
+${img}
 `.trim();
 
     window.open(
       `https://wa.me/94715717171?text=${encodeURIComponent(msg)}`,
       "_blank"
     );
-
-    window.open(img, "_blank");
   };
 
-  return h("div", { className: "reader-root" },
+  return h("div", { className: `reader-container ${layoutMode}` },
 
     h("style", null, `
-.reader-root { background:#000; min-height:100vh; padding-bottom:160px; }
-.reader-page img { width:100%; display:block; }
-.toolbar {
-  position:fixed; bottom:16px; left:50%; transform:translateX(-50%);
-  display:flex; gap:12px; padding:12px 18px;
-  background:rgba(10,0,0,.92);
-  border:1px solid rgba(255,80,80,.35);
+.reader-container { background:#000; min-height:100vh; padding-bottom:160px; }
+.reader-content { display:flex; flex-direction:column; align-items:center; }
+
+.reader-page { width:100%; position:relative; }
+.reader-img { width:100%; display:block; pointer-events:none; }
+.reader-img.low { filter:blur(18px); transform:scale(1.05); }
+.reader-img.high { position:absolute; inset:0; opacity:0; transition:1s; }
+.reader-img.high.loaded { opacity:1; }
+
+.reader-toolbar {
+  position:fixed; bottom:18px; left:50%; transform:translateX(-50%);
+  display:flex; gap:10px; padding:12px 18px;
+  background:rgba(20,0,0,.96);
+  border:1px solid rgba(255,80,80,.45);
   box-shadow:0 0 35px rgba(255,0,0,.45);
-  transition:.3s;
-  opacity:${hideUI ? 0 : 1};
 }
-.icon {
+
+.reader-icon {
   width:42px; height:42px;
   display:flex; align-items:center; justify-content:center;
-  background:linear-gradient(#2a0000,#0d0000);
+  background:linear-gradient(#300,#120);
   border:1px solid rgba(255,80,80,.35);
-  color:#ffdede;
-  cursor:pointer;
+  color:#ffdede; cursor:pointer;
 }
-.icon.active { box-shadow:0 0 12px rgba(255,60,60,.8); }
-.modal {
-  position:fixed; inset:0;
-  background:rgba(0,0,0,.85);
-  display:flex; justify-content:center; align-items:center;
-  z-index:3000;
+
+.reader-icon.active { background:linear-gradient(#700,#300); }
+
+.end-chapter {
+  text-align:center; margin-top:90px; padding:60px 20px;
+  border-top:1px solid rgba(255,80,80,.3);
 }
+
+.next-ep-btn {
+  margin-top:18px; padding:14px 34px;
+  background:linear-gradient(135deg,#ff2a2a,#7a0000);
+  border:none; color:#fff; cursor:pointer;
+  box-shadow:0 0 18px rgba(255,0,0,.6);
+}
+
+/* MODALS */
+.overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,.88);
+  display:flex; justify-content:center; align-items:center; z-index:3000;
+}
+
 .card {
-  width:90%; max-width:360px;
-  background:#120000;
+  width:92%; max-width:340px;
+  background:linear-gradient(#140000,#060000);
   border:1px solid rgba(255,80,80,.35);
-  padding:18px;
   box-shadow:0 0 40px rgba(255,0,0,.5);
+  padding:16px; position:relative;
 }
-textarea {
+
+.close {
+  position:absolute; top:8px; right:10px;
+  cursor:pointer; color:#ff6666;
+}
+
+.card textarea {
   width:100%; height:90px;
-  background:#080000;
-  color:#fff;
+  background:#0a0000; color:#fff;
   border:1px solid rgba(255,80,80,.35);
   padding:10px;
 }
-button {
-  margin-top:12px;
-  padding:12px;
-  width:100%;
-  background:linear-gradient(135deg,#ff2a2a,#7a0000);
-  border:none; color:#fff;
+
+.setting-row {
+  display:flex; justify-content:space-between; align-items:center;
+  margin:12px 0; color:#ffdede;
 }
     `),
 
     /* TOOLBAR */
-    h("div", { className: "toolbar" },
-      h("div",{className:"icon",onClick:onBack},"⬅"),
-      h("div",{className:"icon",onClick:()=>setLayoutMode(m=>m==="vertical"?"horizontal":"vertical")},"🔄"),
-      h("div",{className:`icon ${likes[chapterId]?"active":""}`,onClick:()=>onToggleLike(chapterId)},"❤️"),
-      h("div",{className:"icon",onClick:()=>setShowReview(true)},"💬"),
-      h("div",{className:"icon",onClick:()=>setShowSettings(true)},"⚙️"),
-      h("div",{className:"icon"} , `${currentPage+1}/${chapter.pages.length}`)
+    h("div", { className:"reader-toolbar" },
+      h("i",{className:"fas fa-arrow-left reader-icon",onClick:onBack}),
+      h("i",{className:`fas ${isMuted?"fa-volume-mute":"fa-volume-up"} reader-icon`,onClick:()=>setIsMuted(!isMuted)}),
+      h("i",{className:"fas fa-exchange-alt reader-icon",onClick:()=>setLayoutMode(m=>m==="vertical"?"horizontal":"vertical")}),
+      h("i",{className:"fas fa-heart reader-icon",onClick:onToggleLike}),
+      h("i",{className:`fas fa-comment reader-icon ${showComments?"active":""}`,onClick:()=>setShowComments(!showComments)}),
+      h("i",{className:"fas fa-cog reader-icon",onClick:()=>setShowSettings(true)}),
+      h("i",{className:"fas fa-envelope reader-icon",onClick:()=>setShowReview(true)})
     ),
 
     /* CONTENT */
-    chapter.pages.map((p,i)=>
-      h("div",{ref:e=>imageRefs.current[i]=e},
-        h("img",{src:p})
+    h("div",{className:"reader-content"},
+      chapter.pages.map((p,i)=>
+        h("div",{className:"reader-page",ref:e=>imageRefs.current[i]=e},
+          h("img",{src:p,className:"reader-img low"}),
+          h("img",{src:p,className:"reader-img high",onLoad:e=>e.target.classList.add("loaded")})
+        )
+      ),
+
+      nextChapter && !nextChapter.locked && h("div",{className:"end-chapter"},
+        h("div",{style:{color:"#ff4444",letterSpacing:3}},"END OF CHAPTER"),
+        h("h2",null,nextChapter.title),
+        h("p",{style:{color:"#aaa"}},nextChapter.date),
+        h("button",{className:"next-ep-btn",onClick:()=>onOpenChapter(nextChapter.id)},"▶ NEXT CHAPTER")
       )
     ),
 
-    /* END */
-    nextChapter && !nextChapter.locked && h("div",{style:{textAlign:"center",marginTop:80}},
-      h("h3",{style:{color:"#ff4444"}},"END OF CHAPTER"),
-      h("h2",{style:{color:"#fff"}},nextChapter.title),
-      h("p",{style:{color:"#aaa"}},nextChapter.date),
-      h("button",{onClick:()=>onOpenChapter(nextChapter.id)},"▶ NEXT CHAPTER")
-    ),
-
     /* REVIEW MODAL */
-    showReview && h("div",{className:"modal"},
+    showReview && h("div",{className:"overlay"},
       h("div",{className:"card"},
-        h("h3",{style:{color:"#ff6666"}},"Beta Reader Review"),
+        h("i",{className:"fas fa-times close",onClick:()=>setShowReview(false)}),
+        h("h3",{style:{color:"#ff6666"}},"Beta Review"),
         h("textarea",{value:reviewText,onInput:e=>setReviewText(e.target.value),placeholder:"Your thoughts…"}),
-        h("button",{onClick:sendReview},"Send via WhatsApp"),
-        h("button",{onClick:()=>setShowReview(false),style:{background:"#333"}},"Close")
+        h("button",{className:"next-ep-btn",onClick:sendReview},"Send to Creator")
       )
     ),
 
     /* SETTINGS MODAL */
-    showSettings && h("div",{className:"modal"},
+    showSettings && h("div",{className:"overlay"},
       h("div",{className:"card"},
+        h("i",{className:"fas fa-times close",onClick:()=>setShowSettings(false)}),
         h("h3",{style:{color:"#ff6666"}},"Reader Settings"),
-        h("button",{onClick:()=>setHideUI(h=>!h)},"Toggle Auto Hide UI"),
-        h("button",{onClick:()=>setHqImages(h=>!h)},"Toggle HQ Images"),
-        h("button",{onClick:()=>setShowSettings(false)},"Close")
+
+        h("div",{className:"setting-row"},["Auto Music", h("input",{type:"checkbox",checked:autoMusic,onChange:e=>setAutoMusic(e.target.checked)})]),
+        h("div",{className:"setting-row"},["Reduce Motion", h("input",{type:"checkbox",checked:reduceMotion,onChange:e=>setReduceMotion(e.target.checked)})]),
+        h("div",{className:"setting-row"},["High Quality Images", h("input",{type:"checkbox",checked:hqImages,onChange:e=>setHqImages(e.target.checked)})])
       )
     )
   );
