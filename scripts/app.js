@@ -938,7 +938,7 @@ const CommentsModal = ({ onClose }) => {
     );
 };
 
-// --- READER (WITH UNRESTRICTED ZOOM) ---
+// --- READER (NATIVE BROWSER ZOOM & SCROLL) ---
 const ReaderPage = ({ chapterId, onBack, initialPage, likes, onToggleLike, onFinishChapter, masterVolume }) => {
     const chapter = window.APP_CONFIG.chapters.find((c) => c.id === chapterId);
     
@@ -947,111 +947,46 @@ const ReaderPage = ({ chapterId, onBack, initialPage, likes, onToggleLike, onFin
     const [showComments, setShowComments] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
     
-    // 🤏 UNRESTRICTED ZOOM STATE
-    const [scale, setScale] = useState(1);
-    const [translateX, setTranslateX] = useState(0);
-    const [translateY, setTranslateY] = useState(0);
-    const [isPinching, setIsPinching] = useState(false);
-
     // REFS
     const audioRef = useRef(null);
     const currentTrackRef = useRef(null);
     const imageRefs = useRef([]);
     
-    // GESTURE REFS
-    const pinchStartDist = useRef(0);
-    const startScale = useRef(1);
-    const startX = useRef(0);
-    const startY = useRef(0);
-    const lastPointX = useRef(0);
-    const lastPointY = useRef(0);
-
-    // --- 🤏 UNRESTRICTED GESTURE HANDLERS ---
-    const getDistance = (touches) => {
-        return Math.hypot(
-            touches[0].pageX - touches[1].pageX,
-            touches[0].pageY - touches[1].pageY
-        );
-    };
-
-    const getMidpoint = (touches) => {
-        return {
-            x: (touches[0].pageX + touches[1].pageX) / 2,
-            y: (touches[0].pageY + touches[1].pageY) / 2
-        };
-    };
-
-    const handleTouchStart = (e) => {
-        if (e.touches.length === 2) {
-            // Start Pinching
-            setIsPinching(true);
-            pinchStartDist.current = getDistance(e.touches);
-            startScale.current = scale;
-        } else if (e.touches.length === 1 && scale > 1) {
-            // Start Panning (only if zoomed in)
-            lastPointX.current = e.touches[0].pageX;
-            lastPointY.current = e.touches[0].pageY;
-            startX.current = translateX;
-            startY.current = translateY;
+    // Enable Native Zoom on Mount
+    useEffect(() => {
+        // Ensure the viewport allows zooming for a "normal website" experience
+        const viewport = document.querySelector('meta[name="viewport"]');
+        if (viewport) {
+            viewport.content = "width=device-width, initial-scale=1.0, user-scalable=yes";
         }
-    };
+    }, []);
 
-    const handleTouchMove = (e) => {
-        if (e.touches.length === 2 && isPinching) {
-            e.preventDefault(); 
-            const dist = getDistance(e.touches);
-            const zoomFactor = dist / pinchStartDist.current;
-            
-            // UNRESTRICTED: No Max Clamp (or very high like 50x)
-            let newScale = startScale.current * zoomFactor;
-            newScale = Math.max(0.5, newScale); // Min clamp just to prevent invisibility
-            
-            setScale(newScale);
-        } else if (e.touches.length === 1 && scale > 1) {
-            // Panning logic for "Photo Zoom" feel
-            e.preventDefault(); // Stop page scroll when zoomed
-            const deltaX = e.touches[0].pageX - lastPointX.current;
-            const deltaY = e.touches[0].pageY - lastPointY.current;
-            
-            setTranslateX(prev => prev + deltaX);
-            setTranslateY(prev => prev + deltaY);
-            
-            lastPointX.current = e.touches[0].pageX;
-            lastPointY.current = e.touches[0].pageY;
-        }
-    };
-
-    const handleTouchEnd = (e) => {
-        if (e.touches.length < 2) {
-            setIsPinching(false);
-        }
-        // RESET if zoomed out too far
-        if (scale < 1) {
-             setScale(1);
-             setTranslateX(0);
-             setTranslateY(0);
-        }
-    };
-
-    // --- STANDARD LOGIC ---
+    // --- STANDARD SCROLL TRACKING ---
     useEffect(() => {
         const handleScroll = () => {
-            if (isPinching || scale > 1.1) return; // Don't track pages while zoomed
-
             imageRefs.current.forEach((img, idx) => {
                 if (!img) return;
                 const rect = img.getBoundingClientRect();
+                // Check if image is roughly in center of view
                 if (rect.top < window.innerHeight / 2 && rect.bottom > window.innerHeight / 2) {
                     if (currentPage !== idx) setCurrentPage(idx);
+                    
+                    // Simple end detection
                     if (idx === imageRefs.current.length - 1) {
-                        setTimeout(() => onFinishChapter(chapterId), 2000);
+                         // Debounce finish trigger
+                        if(!window.finishTimeout) {
+                            window.finishTimeout = setTimeout(() => {
+                                onFinishChapter(chapterId);
+                                window.finishTimeout = null;
+                            }, 2000);
+                        }
                     }
                 }
             });
         };
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    }, [currentPage, chapterId, onFinishChapter, isPinching, scale]);
+    }, [currentPage, chapterId, onFinishChapter]);
 
     useEffect(() => {
         if (initialPage > 0 && imageRefs.current[initialPage]) {
@@ -1138,31 +1073,29 @@ const ReaderPage = ({ chapterId, onBack, initialPage, likes, onToggleLike, onFin
 
     return h(
         "div",
-        { 
-            className: "reader-container fade-in",
-            onTouchStart: handleTouchStart,
-            onTouchMove: handleTouchMove,
-            onTouchEnd: handleTouchEnd
-        },
+        { className: "reader-container fade-in" },
         
         h("style", null, `
             .reader-container {
-                overflow-x: hidden; 
-                overflow-y: ${scale > 1.05 ? 'hidden' : 'auto'}; /* Disable scroll when zoomed */
                 width: 100vw;
                 min-height: 100vh;
-                touch-action: none; /* Full JS control */
+                padding-bottom: 100px; /* Space for toolbar */
+                background-color: #000;
+                /* Standard scrolling enabled by default */
             }
             .reader-content-wrapper {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                width: 100vw; 
-                transform-origin: 0 0; /* Transform from top-left for manual translation */
-                /* Apply Transform directly */
-                transform: translate(${translateX}px, ${translateY}px) scale(${scale});
-                transition: ${isPinching ? 'none' : 'transform 0.2s ease-out'};
+                width: 100%; 
                 margin: 0 auto;
+            }
+            .reader-img {
+                width: 100%;
+                max-width: 100%; /* Ensure it fits width but allows zooming via browser */
+                height: auto;
+                display: block;
+                margin: 0;
             }
             .reader-toolbar {
                 position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
@@ -1170,9 +1103,6 @@ const ReaderPage = ({ chapterId, onBack, initialPage, likes, onToggleLike, onFin
                 box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); border-radius: 50px;
                 padding: 10px 25px; display: flex; gap: 20px; z-index: 1000;
                 backdrop-filter: blur(5px);
-                opacity: ${scale > 1.2 ? 0 : 1}; /* Hide toolbar when zoomed in */
-                transition: opacity 0.3s;
-                pointer-events: ${scale > 1.2 ? 'none' : 'auto'};
             }
             .reader-icon {
                 color: #00e5ff; font-size: 1rem; cursor: pointer; transition: 0.1s;
@@ -1181,20 +1111,7 @@ const ReaderPage = ({ chapterId, onBack, initialPage, likes, onToggleLike, onFin
                 background: rgba(0, 229, 255, 0.1);
             }
             .reader-icon.liked { color: #ff0055; text-shadow: 0 0 10px #ff0055; background: rgba(255, 0, 85, 0.1); }
-            
-            .zoom-reset-btn {
-                position: fixed; top: 20px; right: 20px;
-                background: rgba(0,0,0,0.6); color: white; border: 1px solid white;
-                padding: 5px 10px; border-radius: 4px; font-size: 0.8rem;
-                z-index: 2000; display: ${scale > 1.5 ? 'block' : 'none'};
-            }
         `),
-
-        // Reset Button if lost in zoom
-        h("button", { 
-            className: "zoom-reset-btn", 
-            onClick: () => { setScale(1); setTranslateX(0); setTranslateY(0); } 
-        }, "RESET ZOOM"),
 
         h(
             "div",
@@ -1211,8 +1128,6 @@ const ReaderPage = ({ chapterId, onBack, initialPage, likes, onToggleLike, onFin
                 onClick: () => setIsMuted(!isMuted)
             }),
             
-            // REMOVED SAVE BUTTON AS REQUESTED
-
             h("i", {
                 className: `fas fa-heart reader-icon ${isLiked ? 'liked' : ''}`,
                 title: "Like",
