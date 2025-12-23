@@ -1043,7 +1043,7 @@ const CommentsModal = ({ onClose }) => {
         `)
     );
 };
-// --- READER (FINAL EPIC VERSION) ---
+// --- READER (HONEST + PREMIUM VERSION) ---
 const ReaderPage = ({
   chapterId,
   onBack,
@@ -1064,15 +1064,11 @@ const ReaderPage = ({
   const [isMuted, setIsMuted] = useState(false);
   const [layoutMode, setLayoutMode] = useState("vertical");
   const [showReview, setShowReview] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [reviewText, setReviewText] = useState("");
+  const [hideUI, setHideUI] = useState(false);
+  const [hqImages, setHqImages] = useState(true);
 
-  // 🎙️ Voice
-  const [recording, setRecording] = useState(false);
-  const mediaRecorderRef = useRef(null);
-  const audioChunksRef = useRef([]);
-
-  const audioRef = useRef(null);
-  const currentTrackRef = useRef(null);
   const imageRefs = useRef([]);
 
   /* PAGE TRACK */
@@ -1081,49 +1077,18 @@ const ReaderPage = ({
       imageRefs.current.forEach((el, i) => {
         if (!el) return;
         const r = el.getBoundingClientRect();
-        if (r.top < window.innerHeight * 0.6 && r.bottom > window.innerHeight * 0.4) {
+        if (r.top < innerHeight * 0.6 && r.bottom > innerHeight * 0.4) {
           setCurrentPage(i);
           if (i === chapter.pages.length - 1) onFinishChapter(chapterId);
         }
       });
+      setHideUI(true);
+      clearTimeout(window._uiTimer);
+      window._uiTimer = setTimeout(() => setHideUI(false), 800);
     };
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [chapterId]);
-
-  /* MUSIC */
-  useEffect(() => {
-    const rules = window.MUSIC_CONFIG?.chapters?.[chapterId] || [];
-    const rule = rules.find(r => currentPage + 1 >= r.pages[0] && currentPage + 1 <= r.pages[1]);
-    const track = rule?.track;
-    if (track !== currentTrackRef.current) {
-      audioRef.current?.pause();
-      if (track) {
-        const a = new Audio(track);
-        a.loop = true;
-        a.volume = isMuted ? 0 : masterVolume;
-        a.play().catch(() => {});
-        audioRef.current = a;
-        currentTrackRef.current = track;
-      }
-    }
-  }, [currentPage, isMuted, masterVolume]);
-
-  /* 🎙️ VOICE */
-  const toggleRecord = async () => {
-    if (!recording) {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = recorder;
-      audioChunksRef.current = [];
-      recorder.ondataavailable = e => audioChunksRef.current.push(e.data);
-      recorder.start();
-      setRecording(true);
-    } else {
-      mediaRecorderRef.current.stop();
-      setRecording(false);
-    }
-  };
+    addEventListener("scroll", onScroll);
+    return () => removeEventListener("scroll", onScroll);
+  }, []);
 
   const sendReview = () => {
     const img = chapter.pages[currentPage];
@@ -1135,134 +1100,110 @@ ${chapter.date || ""}
 Page ${currentPage + 1}
 
 ${reviewText}
-
-Image:
-${img}
-
-🎙️ Voice note recorded (please send manually in WhatsApp)
 `.trim();
 
     window.open(
       `https://wa.me/94715717171?text=${encodeURIComponent(msg)}`,
       "_blank"
     );
+
+    window.open(img, "_blank");
   };
 
-  return h("div", { className: `reader-container ${layoutMode}` },
+  return h("div", { className: "reader-root" },
 
     h("style", null, `
-.reader-container { background:#000; min-height:100vh; padding-bottom:160px; }
-.reader-content { display:flex; flex-direction:column; align-items:center; }
-
-.reader-page { width:100%; position:relative; }
-.reader-img { width:100%; display:block; pointer-events:none; }
-.reader-img.low { filter:blur(16px); transform:scale(1.05); }
-.reader-img.high { position:absolute; inset:0; opacity:0; transition:1s; }
-.reader-img.high.loaded { opacity:1; }
-
-.reader-toolbar {
-  position:fixed; bottom:18px; left:50%; transform:translateX(-50%);
+.reader-root { background:#000; min-height:100vh; padding-bottom:160px; }
+.reader-page img { width:100%; display:block; }
+.toolbar {
+  position:fixed; bottom:16px; left:50%; transform:translateX(-50%);
   display:flex; gap:12px; padding:12px 18px;
-  background:rgba(20,0,0,.95);
-  border:1px solid rgba(255,80,80,.4);
-  box-shadow:0 0 30px rgba(255,0,0,.45);
-}
-
-.reader-icon {
-  width:40px; height:40px;
-  display:flex; align-items:center; justify-content:center;
-  background:linear-gradient(#300,#120);
-  border:1px solid rgba(255,80,80,.3);
-  color:#ffdede; cursor:pointer;
-}
-
-.reader-icon:hover { background:linear-gradient(#600,#220); }
-
-.end-chapter {
-  text-align:center; margin-top:90px; padding:60px 20px;
-  border-top:1px solid rgba(255,80,80,.3);
-}
-
-.next-ep-btn {
-  margin-top:24px; padding:14px 34px;
-  background:linear-gradient(135deg,#ff2a2a,#7a0000);
-  border:none; color:#fff; cursor:pointer;
-  box-shadow:0 0 18px rgba(255,0,0,.6);
-}
-
-/* 💬 MODAL */
-.review-overlay {
-  position:fixed; inset:0; background:rgba(0,0,0,.85);
-  display:flex; justify-content:center; align-items:center; z-index:3000;
-}
-
-.review-card {
-  width:92%; max-width:360px;
-  background:linear-gradient(#140000,#050000);
+  background:rgba(10,0,0,.92);
   border:1px solid rgba(255,80,80,.35);
+  box-shadow:0 0 35px rgba(255,0,0,.45);
+  transition:.3s;
+  opacity:${hideUI ? 0 : 1};
+}
+.icon {
+  width:42px; height:42px;
+  display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(#2a0000,#0d0000);
+  border:1px solid rgba(255,80,80,.35);
+  color:#ffdede;
+  cursor:pointer;
+}
+.icon.active { box-shadow:0 0 12px rgba(255,60,60,.8); }
+.modal {
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.85);
+  display:flex; justify-content:center; align-items:center;
+  z-index:3000;
+}
+.card {
+  width:90%; max-width:360px;
+  background:#120000;
+  border:1px solid rgba(255,80,80,.35);
+  padding:18px;
   box-shadow:0 0 40px rgba(255,0,0,.5);
-  padding:18px; position:relative;
 }
-
-.review-close {
-  position:absolute; top:10px; right:10px;
-  cursor:pointer; color:#ff6666;
-}
-
-.review-img {
-  width:100%; max-height:160px; object-fit:cover;
-  border:1px solid rgba(255,80,80,.3); margin-bottom:12px;
-}
-
-.review-text {
-  width:100%; height:80px;
-  background:#0a0000; color:#fff;
+textarea {
+  width:100%; height:90px;
+  background:#080000;
+  color:#fff;
   border:1px solid rgba(255,80,80,.35);
   padding:10px;
 }
-
-.voice-btn {
-  margin-top:10px;
-  width:100%; padding:10px;
-  background:${recording ? "#660000" : "#220000"};
-  color:#fff; border:1px solid rgba(255,80,80,.4);
+button {
+  margin-top:12px;
+  padding:12px;
+  width:100%;
+  background:linear-gradient(135deg,#ff2a2a,#7a0000);
+  border:none; color:#fff;
 }
     `),
 
     /* TOOLBAR */
-    h("div", { className:"reader-toolbar" },
-      h("i",{className:"fas fa-arrow-left reader-icon",onClick:onBack}),
-      h("i",{className:`fas ${isMuted?"fa-volume-mute":"fa-volume-up"} reader-icon`,onClick:()=>setIsMuted(!isMuted)}),
-      h("i",{className:"fas fa-exchange-alt reader-icon",onClick:()=>setLayoutMode(m=>m==="vertical"?"horizontal":"vertical")}),
-      h("i",{className:"fas fa-envelope reader-icon",onClick:()=>setShowReview(true)})
+    h("div", { className: "toolbar" },
+      h("div",{className:"icon",onClick:onBack},"⬅"),
+      h("div",{className:"icon",onClick:()=>setLayoutMode(m=>m==="vertical"?"horizontal":"vertical")},"🔄"),
+      h("div",{className:`icon ${likes[chapterId]?"active":""}`,onClick:()=>onToggleLike(chapterId)},"❤️"),
+      h("div",{className:"icon",onClick:()=>setShowReview(true)},"💬"),
+      h("div",{className:"icon",onClick:()=>setShowSettings(true)},"⚙️"),
+      h("div",{className:"icon"} , `${currentPage+1}/${chapter.pages.length}`)
     ),
 
     /* CONTENT */
-    h("div",{className:"reader-content"},
-      chapter.pages.map((p,i)=>
-        h("div",{className:"reader-page",ref:e=>imageRefs.current[i]=e},
-          h("img",{src:p,className:"reader-img low"}),
-          h("img",{src:p,className:"reader-img high",onLoad:e=>e.target.classList.add("loaded")})
-        )
-      ),
-
-      nextChapter && !nextChapter.locked && h("div",{className:"end-chapter"},
-        h("div",{style:{color:"#ff4444",letterSpacing:3}},"END OF CHAPTER"),
-        h("h2",null,nextChapter.title),
-        h("p",{style:{color:"#aaa"}},nextChapter.date),
-        h("button",{className:"next-ep-btn",onClick:()=>onOpenChapter(nextChapter.id)},"▶ NEXT CHAPTER")
+    chapter.pages.map((p,i)=>
+      h("div",{ref:e=>imageRefs.current[i]=e},
+        h("img",{src:p})
       )
     ),
 
-    /* 💬 REVIEW MODAL */
-    showReview && h("div",{className:"review-overlay"},
-      h("div",{className:"review-card"},
-        h("i",{className:"fas fa-times review-close",onClick:()=>setShowReview(false)}),
+    /* END */
+    nextChapter && !nextChapter.locked && h("div",{style:{textAlign:"center",marginTop:80}},
+      h("h3",{style:{color:"#ff4444"}},"END OF CHAPTER"),
+      h("h2",{style:{color:"#fff"}},nextChapter.title),
+      h("p",{style:{color:"#aaa"}},nextChapter.date),
+      h("button",{onClick:()=>onOpenChapter(nextChapter.id)},"▶ NEXT CHAPTER")
+    ),
+
+    /* REVIEW MODAL */
+    showReview && h("div",{className:"modal"},
+      h("div",{className:"card"},
         h("h3",{style:{color:"#ff6666"}},"Beta Reader Review"),
-        h("img",{src:chapter.pages[currentPage],className:"review-img"}),
-        h("textarea",{className:"review-text",value:reviewText,onInput:e=>setReviewText(e.target.value),placeholder:"Your thoughts…"}),
-        h("button",{className:"voice-btn",onClick:toggleRecord},recording?"⏹ Stop Recording":"🎙 Record Voice"),
-        h("button",{className:"next-ep-btn",onClick:sendReview},"Send to Creator")
+        h("textarea",{value:reviewText,onInput:e=>setReviewText(e.target.value),placeholder:"Your thoughts…"}),
+        h("button",{onClick:sendReview},"Send via WhatsApp"),
+        h("button",{onClick:()=>setShowReview(false),style:{background:"#333"}},"Close")
+      )
+    ),
+
+    /* SETTINGS MODAL */
+    showSettings && h("div",{className:"modal"},
+      h("div",{className:"card"},
+        h("h3",{style:{color:"#ff6666"}},"Reader Settings"),
+        h("button",{onClick:()=>setHideUI(h=>!h)},"Toggle Auto Hide UI"),
+        h("button",{onClick:()=>setHqImages(h=>!h)},"Toggle HQ Images"),
+        h("button",{onClick:()=>setShowSettings(false)},"Close")
       )
     )
   );
