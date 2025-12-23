@@ -556,13 +556,38 @@ const LicenseBar = () => {
         return () => clearInterval(interval);
     }, [warnings]);
 
-    const modalStyles = `
+    const barAndModalStyles = `
+        .license-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 4px 12px;
+            background: rgba(0, 0, 0, 0.5);
+            min-height: 28px;
+            margin: 0 !important; /* Forces removal of any top gap */
+        }
+        .license-text {
+            text-align: left !important;
+            flex: 1;
+            padding-right: 85px; /* Ensures text never touches the AI button */
+            transition: opacity 0.5s;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .license-text.fade-out { opacity: 0; }
+
         .ai-modal-overlay {
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.9);
             backdrop-filter: blur(8px);
-            z-index: 1000;
+            z-index: 2000;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -618,13 +643,14 @@ const LicenseBar = () => {
             background: rgba(255, 0, 0, 0.1);
             border: 1px solid rgba(255, 0, 0, 0.3);
             color: #ffaaaa;
-            font-size: 0.6rem;
+            font-size: 0.55rem; /* Slightly smaller for cleaner look */
             padding: 2px 8px;
             border-radius: 4px;
             cursor: pointer;
             font-family: 'Orbitron', sans-serif;
             letter-spacing: 1px;
             transition: all 0.2s;
+            white-space: nowrap;
         }
         .ai-usage-btn:hover {
             background: rgba(255, 0, 0, 0.3);
@@ -634,18 +660,18 @@ const LicenseBar = () => {
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     `;
 
-    // Process warnings: shrink/summarize if it's the long copyright text
     const currentWarning = warnings[index];
     const isCopyright = currentWarning.toLowerCase().includes("copyright");
+    // Condensed copyright text to ensure it fits on the left
     const displayWarning = isCopyright ? "© Int. Copyright Law Protected" : currentWarning;
 
     return h(
         "div",
-        { className: "license-bar", style: { marginBottom: '0px', position: 'relative' } },
-        h("style", null, modalStyles),
+        { className: "license-bar" },
+        h("style", null, barAndModalStyles),
         h("div", { 
             className: "license-text " + (fade ? "fade-out" : ""),
-            style: { fontSize: isCopyright ? '0.7rem' : '0.8rem' } 
+            style: { fontSize: isCopyright ? '0.6rem' : '0.65rem' } 
         }, displayWarning),
         
         h("button", { 
