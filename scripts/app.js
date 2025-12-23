@@ -1043,7 +1043,7 @@ const CommentsModal = ({ onClose }) => {
         `)
     );
 };
-// --- READER (LQIP + RED RECT TOOLBAR + LAYOUT SWITCH + EOC + BETA REVIEW) ---
+// --- READER (FINAL EPIC VERSION) ---
 const ReaderPage = ({
   chapterId,
   onBack,
@@ -1060,283 +1060,214 @@ const ReaderPage = ({
   const chapter = chapters[chapterIndex];
   const nextChapter = chapters[chapterIndex + 1];
 
-  // STATE
   const [currentPage, setCurrentPage] = useState(initialPage || 0);
-  const [showComments, setShowComments] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [layoutMode, setLayoutMode] = useState("vertical");
   const [showReview, setShowReview] = useState(false);
   const [reviewText, setReviewText] = useState("");
 
-  // REFS
+  // 🎙️ Voice
+  const [recording, setRecording] = useState(false);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+
   const audioRef = useRef(null);
   const currentTrackRef = useRef(null);
   const imageRefs = useRef([]);
 
-  /* 🔍 ENABLE NATIVE ZOOM */
+  /* PAGE TRACK */
   useEffect(() => {
-    const viewport = document.querySelector('meta[name="viewport"]');
-    if (viewport) {
-      viewport.content = "width=device-width, initial-scale=1.0, user-scalable=yes";
-    }
-  }, []);
-
-  /* 📜 PAGE TRACKING */
-  useEffect(() => {
-    const handleScroll = () => {
-      imageRefs.current.forEach((el, idx) => {
+    const onScroll = () => {
+      imageRefs.current.forEach((el, i) => {
         if (!el) return;
-        const rect = el.getBoundingClientRect();
-        if (rect.top < window.innerHeight * 0.6 && rect.bottom > window.innerHeight * 0.4) {
-          setCurrentPage(idx);
-          if (idx === chapter.pages.length - 1) {
-            onFinishChapter(chapterId);
-          }
+        const r = el.getBoundingClientRect();
+        if (r.top < window.innerHeight * 0.6 && r.bottom > window.innerHeight * 0.4) {
+          setCurrentPage(i);
+          if (i === chapter.pages.length - 1) onFinishChapter(chapterId);
         }
       });
     };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
   }, [chapterId]);
 
-  /* 🎵 MUSIC */
+  /* MUSIC */
   useEffect(() => {
     const rules = window.MUSIC_CONFIG?.chapters?.[chapterId] || [];
     const rule = rules.find(r => currentPage + 1 >= r.pages[0] && currentPage + 1 <= r.pages[1]);
-    const track = rule?.track || null;
-
+    const track = rule?.track;
     if (track !== currentTrackRef.current) {
       audioRef.current?.pause();
       if (track) {
-        const audio = new Audio(track);
-        audio.loop = true;
-        audio.volume = isMuted ? 0 : masterVolume;
-        audio.play().catch(() => {});
-        audioRef.current = audio;
+        const a = new Audio(track);
+        a.loop = true;
+        a.volume = isMuted ? 0 : masterVolume;
+        a.play().catch(() => {});
+        audioRef.current = a;
         currentTrackRef.current = track;
       }
     }
-  }, [currentPage, chapterId, isMuted, masterVolume]);
+  }, [currentPage, isMuted, masterVolume]);
 
-  useEffect(() => () => audioRef.current?.pause(), []);
-
-  const isLiked = likes[chapterId];
+  /* 🎙️ VOICE */
+  const toggleRecord = async () => {
+    if (!recording) {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = recorder;
+      audioChunksRef.current = [];
+      recorder.ondataavailable = e => audioChunksRef.current.push(e.data);
+      recorder.start();
+      setRecording(true);
+    } else {
+      mediaRecorderRef.current.stop();
+      setRecording(false);
+    }
+  };
 
   const sendReview = () => {
-    const pageImg = chapter.pages[currentPage]?.high || chapter.pages[currentPage];
+    const img = chapter.pages[currentPage];
     const msg = `
 📖 Beta Reader Review
 
-Chapter ${chapter.number}: ${chapter.title}
-Page: ${currentPage + 1}
+Chapter ${chapter.id}: ${chapter.title}
+${chapter.date || ""}
+Page ${currentPage + 1}
 
 ${reviewText}
 
 Image:
-${pageImg}
-    `.trim();
+${img}
+
+🎙️ Voice note recorded (please send manually in WhatsApp)
+`.trim();
 
     window.open(
-      `https://wa.me/94714717171?text=${encodeURIComponent(msg)}`,
+      `https://wa.me/94715717171?text=${encodeURIComponent(msg)}`,
       "_blank"
     );
   };
 
-  return h(
-    "div",
-    { className: `reader-container ${layoutMode}` },
+  return h("div", { className: `reader-container ${layoutMode}` },
 
     h("style", null, `
-/* ================= BASE ================= */
-.reader-container {
-  width: 100vw;
-  min-height: 100vh;
-  background: #000;
-  padding-bottom: 140px;
-}
+.reader-container { background:#000; min-height:100vh; padding-bottom:160px; }
+.reader-content { display:flex; flex-direction:column; align-items:center; }
 
-/* ================= CONTENT ================= */
-.reader-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+.reader-page { width:100%; position:relative; }
+.reader-img { width:100%; display:block; pointer-events:none; }
+.reader-img.low { filter:blur(16px); transform:scale(1.05); }
+.reader-img.high { position:absolute; inset:0; opacity:0; transition:1s; }
+.reader-img.high.loaded { opacity:1; }
 
-/* HORIZONTAL MODE */
-.reader-container.horizontal .reader-content {
-  flex-direction: row;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  height: 100vh;
-}
-
-.reader-container.horizontal .reader-page {
-  flex: 0 0 100vw;
-  scroll-snap-align: center;
-}
-
-/* ================= IMAGE ================= */
-.reader-page {
-  position: relative;
-  width: 100%;
-}
-
-.reader-img {
-  width: 100%;
-  display: block;
-  pointer-events: none;
-}
-
-.reader-img.low {
-  filter: blur(18px);
-  transform: scale(1.05);
-}
-
-.reader-img.high {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 1s ease;
-}
-
-.reader-img.high.loaded {
-  opacity: 1;
-}
-
-/* ================= TOOLBAR ================= */
 .reader-toolbar {
-  position: fixed;
-  bottom: 18px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 14px;
-  padding: 12px 20px;
-  background: rgba(20,0,0,0.95);
-  border: 1px solid rgba(255,60,60,0.45);
-  box-shadow: 0 0 30px rgba(255,0,0,0.4);
-  z-index: 999;
+  position:fixed; bottom:18px; left:50%; transform:translateX(-50%);
+  display:flex; gap:12px; padding:12px 18px;
+  background:rgba(20,0,0,.95);
+  border:1px solid rgba(255,80,80,.4);
+  box-shadow:0 0 30px rgba(255,0,0,.45);
 }
 
 .reader-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffd0d0;
-  cursor: pointer;
-  background: linear-gradient(180deg, #300, #120000);
-  border: 1px solid rgba(255,80,80,0.3);
+  width:40px; height:40px;
+  display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(#300,#120);
+  border:1px solid rgba(255,80,80,.3);
+  color:#ffdede; cursor:pointer;
 }
 
-.reader-icon:hover {
-  background: linear-gradient(180deg, #500, #220000);
-}
+.reader-icon:hover { background:linear-gradient(#600,#220); }
 
-.reader-icon.liked {
-  color: #ff3355;
-  box-shadow: 0 0 12px rgba(255,60,80,0.7);
-}
-
-/* ================= END OF CHAPTER ================= */
 .end-chapter {
-  margin-top: 80px;
-  padding: 60px 20px;
-  text-align: center;
-  border-top: 1px solid rgba(255,80,80,0.3);
-}
-
-.end-title {
-  color: #ff4444;
-  font-size: 22px;
-  letter-spacing: 3px;
-  margin-bottom: 14px;
-}
-
-.end-chapter h2 {
-  color: #fff;
-  margin: 0;
-}
-
-.end-chapter p {
-  color: #aaa;
-  margin-top: 6px;
+  text-align:center; margin-top:90px; padding:60px 20px;
+  border-top:1px solid rgba(255,80,80,.3);
 }
 
 .next-ep-btn {
-  margin-top: 28px;
-  padding: 14px 32px;
-  font-size: 16px;
-  background: linear-gradient(135deg, #ff2a2a, #8b0000);
-  color: #fff;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 0 18px rgba(255,0,0,0.6);
+  margin-top:24px; padding:14px 34px;
+  background:linear-gradient(135deg,#ff2a2a,#7a0000);
+  border:none; color:#fff; cursor:pointer;
+  box-shadow:0 0 18px rgba(255,0,0,.6);
+}
+
+/* 💬 MODAL */
+.review-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,.85);
+  display:flex; justify-content:center; align-items:center; z-index:3000;
+}
+
+.review-card {
+  width:92%; max-width:360px;
+  background:linear-gradient(#140000,#050000);
+  border:1px solid rgba(255,80,80,.35);
+  box-shadow:0 0 40px rgba(255,0,0,.5);
+  padding:18px; position:relative;
+}
+
+.review-close {
+  position:absolute; top:10px; right:10px;
+  cursor:pointer; color:#ff6666;
+}
+
+.review-img {
+  width:100%; max-height:160px; object-fit:cover;
+  border:1px solid rgba(255,80,80,.3); margin-bottom:12px;
+}
+
+.review-text {
+  width:100%; height:80px;
+  background:#0a0000; color:#fff;
+  border:1px solid rgba(255,80,80,.35);
+  padding:10px;
+}
+
+.voice-btn {
+  margin-top:10px;
+  width:100%; padding:10px;
+  background:${recording ? "#660000" : "#220000"};
+  color:#fff; border:1px solid rgba(255,80,80,.4);
 }
     `),
 
-    /* 🔴 TOOLBAR */
-    h("div", { className: "reader-toolbar" },
-
-      h("i", { className: "fas fa-arrow-left reader-icon", onClick: onBack }),
-      h("i", { className: `fas ${isMuted ? "fa-volume-mute" : "fa-volume-up"} reader-icon`, onClick: () => setIsMuted(!isMuted) }),
-      h("i", { className: "fas fa-exchange-alt reader-icon", onClick: () => setLayoutMode(m => m === "vertical" ? "horizontal" : "vertical") }),
-      h("i", { className: `fas fa-heart reader-icon ${isLiked ? "liked" : ""}`, onClick: () => onToggleLike(chapterId) }),
-      h("i", { className: "fas fa-comment reader-icon", onClick: () => setShowComments(true) }),
-      h("i", { className: "fas fa-envelope reader-icon", onClick: () => setShowReview(true) })
+    /* TOOLBAR */
+    h("div", { className:"reader-toolbar" },
+      h("i",{className:"fas fa-arrow-left reader-icon",onClick:onBack}),
+      h("i",{className:`fas ${isMuted?"fa-volume-mute":"fa-volume-up"} reader-icon`,onClick:()=>setIsMuted(!isMuted)}),
+      h("i",{className:"fas fa-exchange-alt reader-icon",onClick:()=>setLayoutMode(m=>m==="vertical"?"horizontal":"vertical")}),
+      h("i",{className:"fas fa-envelope reader-icon",onClick:()=>setShowReview(true)})
     ),
 
-    /* 📖 CONTENT */
-    h("div", { className: "reader-content" },
+    /* CONTENT */
+    h("div",{className:"reader-content"},
+      chapter.pages.map((p,i)=>
+        h("div",{className:"reader-page",ref:e=>imageRefs.current[i]=e},
+          h("img",{src:p,className:"reader-img low"}),
+          h("img",{src:p,className:"reader-img high",onLoad:e=>e.target.classList.add("loaded")})
+        )
+      ),
 
-      chapter.pages.map((p, i) => {
-        const low = typeof p === "string" ? p : p.low;
-        const high = typeof p === "string" ? p : p.high;
-
-        return h("div", { key: i, className: "reader-page", ref: el => imageRefs.current[i] = el },
-          h("img", { src: low, className: "reader-img low" }),
-          h("img", { src: high, className: "reader-img high", onLoad: e => e.target.classList.add("loaded") })
-        );
-      }),
-
-      /* 🏁 END OF CHAPTER */
-      h("div", { className: "end-chapter" },
-        h("div", { className: "end-title" }, "END OF CHAPTER"),
-        h("h2", null, `Chapter ${chapter.number}: ${chapter.title}`),
-        h("p", null, chapter.subtitle || ""),
-        nextChapter && h("button", {
-          className: "next-ep-btn",
-          onClick: () => onOpenChapter(nextChapter.id)
-        }, "▶ NEXT EPISODE")
+      nextChapter && !nextChapter.locked && h("div",{className:"end-chapter"},
+        h("div",{style:{color:"#ff4444",letterSpacing:3}},"END OF CHAPTER"),
+        h("h2",null,nextChapter.title),
+        h("p",{style:{color:"#aaa"}},nextChapter.date),
+        h("button",{className:"next-ep-btn",onClick:()=>onOpenChapter(nextChapter.id)},"▶ NEXT CHAPTER")
       )
     ),
 
-    /* 💬 BETA REVIEW MODAL */
-    showReview && h("div", {
-      style: {
-        position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)",
-        display: "flex", justifyContent: "center", alignItems: "center", zIndex: 2000
-      }
-    },
-      h("div", { style: { width: "90%", maxWidth: 420, background: "#120000", padding: 20 } },
-        h("h3", { style: { color: "#ff5555" } }, "Beta Reader Review"),
-        h("img", { src: chapter.pages[currentPage]?.high || chapter.pages[currentPage], style: { width: "100%", marginBottom: 10 } }),
-        h("textarea", {
-          value: reviewText,
-          onInput: e => setReviewText(e.target.value),
-          placeholder: "Write your thoughts...",
-          style: { width: "100%", height: 90 }
-        }),
-        h("button", { onClick: sendReview, className: "next-ep-btn" }, "Send to Creator"),
-        h("button", { onClick: () => setShowReview(false), style: { marginLeft: 10 } }, "Close")
+    /* 💬 REVIEW MODAL */
+    showReview && h("div",{className:"review-overlay"},
+      h("div",{className:"review-card"},
+        h("i",{className:"fas fa-times review-close",onClick:()=>setShowReview(false)}),
+        h("h3",{style:{color:"#ff6666"}},"Beta Reader Review"),
+        h("img",{src:chapter.pages[currentPage],className:"review-img"}),
+        h("textarea",{className:"review-text",value:reviewText,onInput:e=>setReviewText(e.target.value),placeholder:"Your thoughts…"}),
+        h("button",{className:"voice-btn",onClick:toggleRecord},recording?"⏹ Stop Recording":"🎙 Record Voice"),
+        h("button",{className:"next-ep-btn",onClick:sendReview},"Send to Creator")
       )
-    ),
-
-    showComments && h(CommentsModal, { onClose: () => setShowComments(false) })
+    )
   );
 };
+
 
 // --- MAIN APP ---
 const App = () => {
