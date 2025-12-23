@@ -1043,7 +1043,7 @@ const CommentsModal = ({ onClose }) => {
         `)
     );
 };
-// --- READER (ULTRA MODERN EPIC VERSION) ---
+// --- READER (BLUE GLASS PREMIUM VERSION) ---
 const ReaderPage = ({
   chapterId,
   onBack,
@@ -1051,30 +1051,22 @@ const ReaderPage = ({
   likes,
   onToggleLike,
   onFinishChapter,
-  masterVolume,
-  onOpenChapter
+  masterVolume
 }) => {
 
   const chapters = window.APP_CONFIG.chapters;
-  const chapterIndex = chapters.findIndex(c => c.id === chapterId);
-  const chapter = chapters[chapterIndex];
-  const nextChapter = chapters[chapterIndex + 1];
+  const chapter = chapters.find(c => c.id === chapterId);
 
   const [currentPage, setCurrentPage] = useState(initialPage || 0);
   const [isMuted, setIsMuted] = useState(false);
-  const [layoutMode, setLayoutMode] = useState("vertical");
   const [showSettings, setShowSettings] = useState(false);
   const [showReview, setShowReview] = useState(false);
   const [reviewText, setReviewText] = useState("");
   const [likeBurst, setLikeBurst] = useState(false);
 
-  const [autoMusic, setAutoMusic] = useState(true);
-  const [reduceMotion, setReduceMotion] = useState(false);
-  const [hqImages, setHqImages] = useState(true);
-
-  const audioRef = useRef(null);
-  const currentTrackRef = useRef(null);
   const imageRefs = useRef([]);
+
+  const progress = ((currentPage + 1) / chapter.pages.length) * 100;
 
   /* PAGE TRACK */
   useEffect(() => {
@@ -1084,33 +1076,12 @@ const ReaderPage = ({
         const r = el.getBoundingClientRect();
         if (r.top < window.innerHeight * 0.6 && r.bottom > window.innerHeight * 0.4) {
           setCurrentPage(i);
-          if (i === chapter.pages.length - 1) onFinishChapter(chapterId);
         }
       });
     };
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
-  }, [chapterId]);
-
-  /* MUSIC */
-  useEffect(() => {
-    if (!autoMusic) return;
-    const rules = window.MUSIC_CONFIG?.chapters?.[chapterId] || [];
-    const rule = rules.find(r => currentPage + 1 >= r.pages[0] && currentPage + 1 <= r.pages[1]);
-    const track = rule?.track;
-
-    if (track !== currentTrackRef.current) {
-      audioRef.current?.pause();
-      if (track) {
-        const a = new Audio(track);
-        a.loop = true;
-        a.volume = isMuted ? 0 : masterVolume;
-        a.play().catch(() => {});
-        audioRef.current = a;
-        currentTrackRef.current = track;
-      }
-    }
-  }, [currentPage, isMuted, masterVolume, autoMusic]);
+  }, []);
 
   /* LIKE TSUNAMI */
   const triggerLike = () => {
@@ -1120,17 +1091,13 @@ const ReaderPage = ({
   };
 
   const sendReview = () => {
-    const img = chapter.pages[currentPage];
     const msg = `
-📖 Reader Message
+📘 Message to Creator
 
-Chapter ${chapter.id}: ${chapter.title}
-Page ${currentPage + 1}
+Chapter: ${chapter.title}
+Page: ${currentPage + 1}
 
 ${reviewText}
-
-Image:
-${img}
 `.trim();
 
     window.open(
@@ -1139,64 +1106,108 @@ ${img}
     );
   };
 
-  return h("div", { className: `reader-container ${layoutMode}` },
+  return h("div", { className:"reader-container" },
 
     h("style", null, `
-.reader-container { background:#000; min-height:100vh; padding-bottom:160px; overflow-x:hidden; }
-.reader-content { display:flex; flex-direction:column; align-items:center; }
+.reader-container {
+  background:#050b1a;
+  min-height:100vh;
+  padding-bottom:140px;
+  overflow-x:hidden;
+}
+
+/* IMAGES */
 .reader-page { width:100%; position:relative; }
 .reader-img { width:100%; display:block; pointer-events:none; }
-.reader-img.low { filter:blur(20px); transform:scale(1.08); }
+.reader-img.low { filter:blur(18px); transform:scale(1.06); }
 .reader-img.high { position:absolute; inset:0; opacity:0; transition:1.2s; }
 .reader-img.high.loaded { opacity:1; }
 
 /* TOOLBAR */
 .reader-toolbar {
   position:fixed;
-  bottom:20px;
-  width:100%;
+  bottom:18px;
+  left:50%;
+  transform:translateX(-50%);
+  width:94%;
+  max-width:720px;
+  background:linear-gradient(180deg,#0b1d3a,#081326);
+  border-radius:22px;
+  padding:10px 14px;
+  box-shadow:0 10px 40px rgba(0,120,255,.35);
   display:flex;
+  align-items:center;
   justify-content:space-between;
-  padding:0 22px;
-  z-index:2000;
+  z-index:3000;
 }
 
-.toolbar-group {
-  display:flex;
-  gap:14px;
-}
+/* BUTTONS */
+.toolbar-group { display:flex; gap:10px; }
 
 .reader-icon {
-  width:48px;
-  height:48px;
+  width:34px;
+  height:34px;
   border-radius:50%;
   display:flex;
   align-items:center;
   justify-content:center;
-  background:linear-gradient(145deg,#3a0000,#120000);
-  border:1px solid rgba(255,90,90,.4);
-  color:#ffd6d6;
+  background:linear-gradient(145deg,#1a4cff,#0b2a66);
+  color:#e8f2ff;
   cursor:pointer;
-  box-shadow:0 0 20px rgba(255,0,0,.35);
+  font-size:14px;
+  box-shadow:0 0 14px rgba(80,160,255,.6);
   transition:.25s;
 }
 
-.reader-icon:hover {
-  transform:scale(1.1);
-  box-shadow:0 0 28px rgba(255,60,60,.8);
+.reader-icon:hover { transform:scale(1.12); }
+
+/* CENTER INFO */
+.toolbar-center {
+  flex:1;
+  text-align:center;
+  padding:0 10px;
 }
 
-/* LIKE TSUNAMI */
+.chapter-title {
+  font-size:14px;
+  font-weight:600;
+  color:#eaf3ff;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.chapter-sub {
+  font-size:11px;
+  color:#9fc3ff;
+}
+
+/* PROGRESS BAR */
+.progress-wrap {
+  margin-top:6px;
+  height:4px;
+  background:#0a1b3a;
+  border-radius:6px;
+  overflow:hidden;
+}
+
+.progress-bar {
+  height:100%;
+  width:${progress}%;
+  background:linear-gradient(90deg,#4fd1ff,#2b6cff);
+  transition:.3s;
+}
+
+/* LIKE RAIN */
 .like-rain {
   position:fixed;
   inset:0;
   pointer-events:none;
-  z-index:3000;
+  z-index:4000;
 }
 
 .like {
   position:absolute;
-  color:hotpink;
   animation:fall 2s linear forwards;
 }
 
@@ -1209,21 +1220,21 @@ ${img}
 .overlay {
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.7);
+  background:rgba(0,0,0,.55);
   display:flex;
-  justify-content:center;
   align-items:center;
-  z-index:4000;
+  justify-content:center;
+  z-index:5000;
 }
 
 .card {
   width:92%;
   max-width:380px;
-  background:linear-gradient(180deg,#1a0000,#070000);
-  border-radius:18px;
+  background:linear-gradient(180deg,#0b1f3f,#06122a);
+  border-radius:20px;
   padding:20px;
-  box-shadow:0 0 40px rgba(255,0,0,.4);
   color:#fff;
+  box-shadow:0 0 40px rgba(80,160,255,.5);
   position:relative;
 }
 
@@ -1232,54 +1243,41 @@ ${img}
   top:12px;
   right:14px;
   cursor:pointer;
-  color:#ff7777;
+  color:#9fc3ff;
 }
 
 .card textarea {
   width:100%;
   height:100px;
   margin-top:12px;
-  border-radius:12px;
-  background:#120000;
+  border-radius:14px;
+  background:#07152e;
   color:#fff;
-  border:1px solid rgba(255,80,80,.3);
+  border:1px solid #2b6cff;
   padding:10px;
 }
 
-.setting-row {
-  display:flex;
-  justify-content:space-between;
-  margin:14px 0;
-}
-
-.end-chapter {
-  text-align:center;
-  margin:100px 0;
-}
-
-.next-ep-btn {
-  margin-top:20px;
-  padding:14px 36px;
-  border-radius:30px;
+.action-btn {
+  margin-top:16px;
+  width:100%;
+  padding:12px;
   border:none;
-  background:linear-gradient(135deg,#ff3b3b,#7a0000);
+  border-radius:30px;
+  background:linear-gradient(135deg,#4fd1ff,#2b6cff);
   color:#fff;
-  font-size:16px;
   cursor:pointer;
-  box-shadow:0 0 20px rgba(255,0,0,.7);
 }
     `),
 
-    /* LIKE TSUNAMI */
+    /* LIKE EFFECT */
     likeBurst && h("div",{className:"like-rain"},
-      Array.from({length:45}).map((_,i)=>
+      Array.from({length:36}).map(() =>
         h("i",{
           className:"fas fa-heart like",
           style:{
             left:Math.random()*100+"%",
-            fontSize:12+Math.random()*26+"px",
-            color:`hsl(${330+Math.random()*20},90%,60%)`,
-            animationDelay:Math.random()*0.3+"s"
+            fontSize:12+Math.random()*24+"px",
+            color:`hsl(200,90%,70%)`
           }
         })
       )
@@ -1291,6 +1289,15 @@ ${img}
         h("i",{className:"fas fa-arrow-left reader-icon",onClick:onBack}),
         h("i",{className:"fas fa-heart reader-icon",onClick:triggerLike})
       ),
+
+      h("div",{className:"toolbar-center"},
+        h("div",{className:"chapter-title"},chapter.title),
+        h("div",{className:"chapter-sub"},`Page ${currentPage+1} / ${chapter.pages.length}`),
+        h("div",{className:"progress-wrap"},
+          h("div",{className:"progress-bar"})
+        )
+      ),
+
       h("div",{className:"toolbar-group"},
         h("i",{className:"fas fa-cog reader-icon",onClick:()=>setShowSettings(true)}),
         h("i",{className:"fas fa-envelope reader-icon",onClick:()=>setShowReview(true)})
@@ -1298,17 +1305,10 @@ ${img}
     ),
 
     /* CONTENT */
-    h("div",{className:"reader-content"},
-      chapter.pages.map((p,i)=>
-        h("div",{className:"reader-page",ref:e=>imageRefs.current[i]=e},
-          h("img",{src:p,className:"reader-img low"}),
-          h("img",{src:p,className:"reader-img high",onLoad:e=>e.target.classList.add("loaded")})
-        )
-      ),
-
-      nextChapter && !nextChapter.locked && h("div",{className:"end-chapter"},
-        h("h2",null,nextChapter.title),
-        h("button",{className:"next-ep-btn",onClick:()=>onOpenChapter(nextChapter.id)},"▶ NEXT CHAPTER")
+    chapter.pages.map((p,i)=>
+      h("div",{className:"reader-page",ref:e=>imageRefs.current[i]=e},
+        h("img",{src:p,className:"reader-img low"}),
+        h("img",{src:p,className:"reader-img high",onLoad:e=>e.target.classList.add("loaded")})
       )
     ),
 
@@ -1317,9 +1317,7 @@ ${img}
       h("div",{className:"card"},
         h("i",{className:"fas fa-times close",onClick:()=>setShowSettings(false)}),
         h("h3",null,"Reader Settings"),
-        h("div",{className:"setting-row"},["Auto Music",h("input",{type:"checkbox",checked:autoMusic,onChange:e=>setAutoMusic(e.target.checked)})]),
-        h("div",{className:"setting-row"},["Reduce Motion",h("input",{type:"checkbox",checked:reduceMotion,onChange:e=>setReduceMotion(e.target.checked)})]),
-        h("div",{className:"setting-row"},["HQ Images",h("input",{type:"checkbox",checked:hqImages,onChange:e=>setHqImages(e.target.checked)})])
+        h("p",{style:{opacity:.7}},"More options coming soon 💙")
       )
     ),
 
@@ -1329,7 +1327,7 @@ ${img}
         h("i",{className:"fas fa-times close",onClick:()=>setShowReview(false)}),
         h("h3",null,"Message to Creator"),
         h("textarea",{value:reviewText,onInput:e=>setReviewText(e.target.value)}),
-        h("button",{className:"next-ep-btn",onClick:sendReview},"Send")
+        h("button",{className:"action-btn",onClick:sendReview},"Send Message")
       )
     )
   );
