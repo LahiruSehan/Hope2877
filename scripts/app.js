@@ -1043,7 +1043,7 @@ const CommentsModal = ({ onClose }) => {
         `)
     );
 };
-// --- READER (LQIP + RED RECT TOOLBAR + LAYOUT SWITCH) ---
+// --- READER (LQIP + RED RECT TOOLBAR + LAYOUT SWITCH + EOC + BETA REVIEW) ---
 const ReaderPage = ({
   chapterId,
   onBack,
@@ -1051,16 +1051,22 @@ const ReaderPage = ({
   likes,
   onToggleLike,
   onFinishChapter,
-  masterVolume
+  masterVolume,
+  onOpenChapter
 }) => {
 
-  const chapter = window.APP_CONFIG.chapters.find(c => c.id === chapterId);
+  const chapters = window.APP_CONFIG.chapters;
+  const chapterIndex = chapters.findIndex(c => c.id === chapterId);
+  const chapter = chapters[chapterIndex];
+  const nextChapter = chapters[chapterIndex + 1];
 
   // STATE
   const [currentPage, setCurrentPage] = useState(initialPage || 0);
   const [showComments, setShowComments] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [layoutMode, setLayoutMode] = useState("vertical");
+  const [showReview, setShowReview] = useState(false);
+  const [reviewText, setReviewText] = useState("");
 
   // REFS
   const audioRef = useRef(null);
@@ -1081,9 +1087,9 @@ const ReaderPage = ({
       imageRefs.current.forEach((el, idx) => {
         if (!el) return;
         const rect = el.getBoundingClientRect();
-        if (rect.left < window.innerWidth / 2 && rect.right > window.innerWidth / 2) {
+        if (rect.top < window.innerHeight * 0.6 && rect.bottom > window.innerHeight * 0.4) {
           setCurrentPage(idx);
-          if (idx === imageRefs.current.length - 1) {
+          if (idx === chapter.pages.length - 1) {
             onFinishChapter(chapterId);
           }
         }
@@ -1116,6 +1122,26 @@ const ReaderPage = ({
 
   const isLiked = likes[chapterId];
 
+  const sendReview = () => {
+    const pageImg = chapter.pages[currentPage]?.high || chapter.pages[currentPage];
+    const msg = `
+📖 Beta Reader Review
+
+Chapter ${chapter.number}: ${chapter.title}
+Page: ${currentPage + 1}
+
+${reviewText}
+
+Image:
+${pageImg}
+    `.trim();
+
+    window.open(
+      `https://wa.me/94714717171?text=${encodeURIComponent(msg)}`,
+      "_blank"
+    );
+  };
+
   return h(
     "div",
     { className: `reader-container ${layoutMode}` },
@@ -1126,7 +1152,7 @@ const ReaderPage = ({
   width: 100vw;
   min-height: 100vh;
   background: #000;
-  padding-bottom: 90px;
+  padding-bottom: 140px;
 }
 
 /* ================= CONTENT ================= */
@@ -1161,7 +1187,6 @@ const ReaderPage = ({
   pointer-events: none;
 }
 
-/* LQ BLUR */
 .reader-img.low {
   filter: blur(18px);
   transform: scale(1.05);
@@ -1178,76 +1203,89 @@ const ReaderPage = ({
   opacity: 1;
 }
 
-/* ================= TOOLBAR (RECTANGLE) ================= */
+/* ================= TOOLBAR ================= */
 .reader-toolbar {
   position: fixed;
-  bottom: 16px;
+  bottom: 18px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 18px;
-  padding: 10px 22px;
-  background: rgba(25,0,0,0.9);
+  gap: 14px;
+  padding: 12px 20px;
+  background: rgba(20,0,0,0.95);
   border: 1px solid rgba(255,60,60,0.45);
-  box-shadow: 0 0 28px rgba(255,0,0,0.35);
-  backdrop-filter: blur(6px);
+  box-shadow: 0 0 30px rgba(255,0,0,0.4);
   z-index: 999;
 }
 
 .reader-icon {
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffb3b3;
+  color: #ffd0d0;
   cursor: pointer;
-  background: rgba(255,0,0,0.08);
+  background: linear-gradient(180deg, #300, #120000);
+  border: 1px solid rgba(255,80,80,0.3);
 }
 
 .reader-icon:hover {
-  background: rgba(255,0,0,0.18);
+  background: linear-gradient(180deg, #500, #220000);
 }
 
 .reader-icon.liked {
   color: #ff3355;
-  box-shadow: 0 0 10px rgba(255,50,80,0.6);
+  box-shadow: 0 0 12px rgba(255,60,80,0.7);
+}
+
+/* ================= END OF CHAPTER ================= */
+.end-chapter {
+  margin-top: 80px;
+  padding: 60px 20px;
+  text-align: center;
+  border-top: 1px solid rgba(255,80,80,0.3);
+}
+
+.end-title {
+  color: #ff4444;
+  font-size: 22px;
+  letter-spacing: 3px;
+  margin-bottom: 14px;
+}
+
+.end-chapter h2 {
+  color: #fff;
+  margin: 0;
+}
+
+.end-chapter p {
+  color: #aaa;
+  margin-top: 6px;
+}
+
+.next-ep-btn {
+  margin-top: 28px;
+  padding: 14px 32px;
+  font-size: 16px;
+  background: linear-gradient(135deg, #ff2a2a, #8b0000);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 0 18px rgba(255,0,0,0.6);
 }
     `),
 
     /* 🔴 TOOLBAR */
     h("div", { className: "reader-toolbar" },
 
-      h("i", {
-        className: "fas fa-arrow-left reader-icon",
-        title: "Back",
-        onClick: onBack
-      }),
-
-      h("i", {
-        className: `fas ${isMuted ? "fa-volume-mute" : "fa-volume-up"} reader-icon`,
-        title: "Mute",
-        onClick: () => setIsMuted(!isMuted)
-      }),
-
-      h("i", {
-        className: "fas fa-exchange-alt reader-icon",
-        title: "Switch Layout",
-        onClick: () =>
-          setLayoutMode(m => m === "vertical" ? "horizontal" : "vertical")
-      }),
-
-      h("i", {
-        className: `fas fa-heart reader-icon ${isLiked ? "liked" : ""}`,
-        title: "Like",
-        onClick: () => onToggleLike(chapterId)
-      }),
-
-      h("i", {
-        className: "fas fa-comment reader-icon",
-        title: "Comments",
-        onClick: () => setShowComments(true)
-      })
+      h("i", { className: "fas fa-arrow-left reader-icon", onClick: onBack }),
+      h("i", { className: `fas ${isMuted ? "fa-volume-mute" : "fa-volume-up"} reader-icon`, onClick: () => setIsMuted(!isMuted) }),
+      h("i", { className: "fas fa-exchange-alt reader-icon", onClick: () => setLayoutMode(m => m === "vertical" ? "horizontal" : "vertical") }),
+      h("i", { className: `fas fa-heart reader-icon ${isLiked ? "liked" : ""}`, onClick: () => onToggleLike(chapterId) }),
+      h("i", { className: "fas fa-comment reader-icon", onClick: () => setShowComments(true) }),
+      h("i", { className: "fas fa-envelope reader-icon", onClick: () => setShowReview(true) })
     ),
 
     /* 📖 CONTENT */
@@ -1257,24 +1295,43 @@ const ReaderPage = ({
         const low = typeof p === "string" ? p : p.low;
         const high = typeof p === "string" ? p : p.high;
 
-        return h(
-          "div",
-          { key: i, className: "reader-page", ref: el => imageRefs.current[i] = el },
-
-          h("img", {
-            src: low,
-            className: "reader-img low",
-            draggable: false
-          }),
-
-          h("img", {
-            src: high,
-            className: "reader-img high",
-            draggable: false,
-            onLoad: e => e.target.classList.add("loaded")
-          })
+        return h("div", { key: i, className: "reader-page", ref: el => imageRefs.current[i] = el },
+          h("img", { src: low, className: "reader-img low" }),
+          h("img", { src: high, className: "reader-img high", onLoad: e => e.target.classList.add("loaded") })
         );
-      })
+      }),
+
+      /* 🏁 END OF CHAPTER */
+      h("div", { className: "end-chapter" },
+        h("div", { className: "end-title" }, "END OF CHAPTER"),
+        h("h2", null, `Chapter ${chapter.number}: ${chapter.title}`),
+        h("p", null, chapter.subtitle || ""),
+        nextChapter && h("button", {
+          className: "next-ep-btn",
+          onClick: () => onOpenChapter(nextChapter.id)
+        }, "▶ NEXT EPISODE")
+      )
+    ),
+
+    /* 💬 BETA REVIEW MODAL */
+    showReview && h("div", {
+      style: {
+        position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)",
+        display: "flex", justifyContent: "center", alignItems: "center", zIndex: 2000
+      }
+    },
+      h("div", { style: { width: "90%", maxWidth: 420, background: "#120000", padding: 20 } },
+        h("h3", { style: { color: "#ff5555" } }, "Beta Reader Review"),
+        h("img", { src: chapter.pages[currentPage]?.high || chapter.pages[currentPage], style: { width: "100%", marginBottom: 10 } }),
+        h("textarea", {
+          value: reviewText,
+          onInput: e => setReviewText(e.target.value),
+          placeholder: "Write your thoughts...",
+          style: { width: "100%", height: 90 }
+        }),
+        h("button", { onClick: sendReview, className: "next-ep-btn" }, "Send to Creator"),
+        h("button", { onClick: () => setShowReview(false), style: { marginLeft: 10 } }, "Close")
+      )
     ),
 
     showComments && h(CommentsModal, { onClose: () => setShowComments(false) })

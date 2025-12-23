@@ -9,7 +9,7 @@ window.APP_CONFIG = {
     // Set the chapter ID and page number (starts at 0) for the "NEW" button
     latest: {
         chapterId: 14, 
-        pageIndex: 0
+        pageIndex: 19
     },
 
     // 🌍 Language Dictionary (English Only Active)
@@ -174,6 +174,62 @@ window.APP_CONFIG = {
             date: "Life is a Disaster",
             locked: false,
             pages: Array.from({ length: 21 }, (_, i) => `imageschapter14/${i + 1}.png`)
-        }
+        },
+
+                {
+            id: 15,
+            title: "A Disturbance",
+            date: "Something is coming",
+            locked: false,
+            pages: Array.from({ length: 4 }, (_, i) => `imageschapter15/${i + 1}.png`)
+        },
+
+                {
+            id: 16,
+            title: "Discovery",
+            date: "Not a regular day",
+            locked: false,
+            pages: Array.from({ length: 4 }, (_, i) => `imageschapter16/${i + 1}.png`)
+        },
+
+                {
+            id: 17,
+            title: "HandShake",
+            date: "We found them.. or They found us?",
+            locked: false,
+            pages: Array.from({ length: 8 }, (_, i) => `imageschapter17/${i + 1}.png`)
+        },
+
+                {
+            id: 18,
+            title: "CREATORS",
+            date: "Secret of the Universe",
+            locked: false,
+            pages: Array.from({ length: 21 }, (_, i) => `imageschapter18/${i + 1}.png`)
+        },
+
+                {
+            id: 19,
+            title: "Plan",
+            date: "Get away",
+            locked: false,
+            pages: Array.from({ length: 21 }, (_, i) => `imageschapter14/${i + 1}.png`)
+        },
+
+                {
+            id: 20,
+            title: "-",
+            date: "-",
+            locked: true,
+            pages: Array.from({ length: 21 }, (_, i) => `imageschapter14/${i + 1}.png`)
+        },
+
+                {
+            id: 21,
+            title: "-",
+            date: "-",
+            locked: true,
+            pages: Array.from({ length: 21 }, (_, i) => `imageschapter14/${i + 1}.png`)
+        },
     ]
 };
