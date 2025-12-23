@@ -560,249 +560,276 @@ const SettingsModal = ({ onClose, settings, updateSetting, deferredPrompt }) => 
     );
 };
 
-// --- HOME PAGE (WITH 3D GYRO EFFECT & SPLIT BUTTONS) ---
+// --- HOME PAGE (MAGICAL RED EDITION – NO 3D TILT) ---
 const HomePage = ({ onStartChapters, onStartNew, onViewCredits }) => {
-    
-    // 🧊 3D TILT LOGIC
-    const cardRef = useRef(null);
-    useEffect(() => {
-        const el = cardRef.current;
-        if(!el) return;
 
-        const handleMove = (e) => {
-            const { clientX, clientY } = e;
-            const { left, top, width, height } = el.getBoundingClientRect();
-            const centerX = left + width / 2;
-            const centerY = top + height / 2;
-            
-            // Calc rotation (-15 to 15 degrees)
-            const rotateX = ((clientY - centerY) / (height/2)) * -10;
-            const rotateY = ((clientX - centerX) / (width/2)) * 10;
-            
-            el.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
-        };
+  const styles = `
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Orbitron:wght@400;600;800&display=swap');
 
-        const reset = () => {
-            el.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)`;
-        };
+  * { box-sizing: border-box; }
 
-        // Gyro for Mobile
-        const handleOrientation = (e) => {
-            const beta = e.beta;  // X-axis tilt (-180 to 180)
-            const gamma = e.gamma; // Y-axis tilt (-90 to 90)
-            // Limit and dampen
-            if (beta === null || gamma === null) return;
-            const rotateX = Math.max(-20, Math.min(20, (beta - 45))) * -0.5; // Assuming holding phone at 45deg
-            const rotateY = Math.max(-20, Math.min(20, gamma)) * 0.5;
-            
-            el.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-        };
+  .home-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(circle at top, #1a0000 0%, #000 60%);
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    padding-top: 30px;
+    font-family: 'Orbitron', sans-serif;
+    color: #fff;
+  }
 
-        window.addEventListener('mousemove', handleMove);
-        window.addEventListener('mouseleave', reset);
-        if (window.DeviceOrientationEvent) {
-            window.addEventListener('deviceorientation', handleOrientation);
-        }
+  /* 🔥 RED ENERGY FOG */
+  .energy-overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 30% 20%, rgba(255,0,0,0.12), transparent 40%),
+      radial-gradient(circle at 70% 80%, rgba(255,40,0,0.1), transparent 45%);
+    z-index: 1;
+    mix-blend-mode: screen;
+  }
 
-        return () => {
-            window.removeEventListener('mousemove', handleMove);
-            window.removeEventListener('mouseleave', reset);
-            window.removeEventListener('deviceorientation', handleOrientation);
-        };
-    }, []);
+  /* 🔥 FLOATING EMBERS */
+  .ember {
+    position: absolute;
+    bottom: -20px;
+    width: 4px;
+    height: 4px;
+    background: #ff3b1a;
+    border-radius: 50%;
+    box-shadow: 0 0 12px #ff2200;
+    animation: rise linear infinite;
+    opacity: 0;
+    z-index: 2;
+  }
 
-    const styles = `
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Rajdhani:wght@300;400;500;600;700&display=swap');
-        * { box-sizing: border-box; }
-        .home-container { position: relative; width: 100vw; height: 100vh; background-color: #000000; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 30px; font-family: 'Rajdhani', sans-serif; color: #fff; padding-left: 20px; padding-right: 20px; }
-        .home-container.fade-in { animation: fadeIn 1.5s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .energy-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, rgba(255,50,0,0.05), transparent 70%); mix-blend-mode: screen; z-index: 1; }
-        .enhanced-ember { width: 5px; height: 5px; background: #ff5533; box-shadow: 0 0 15px #ff3300; animation: rise 5s linear infinite; z-index: 2; }
-        .ember { position: absolute; bottom: -10px; width: 4px; height: 4px; background: #ff4500; border-radius: 50%; box-shadow: 0 0 10px #ff4500; animation: rise 4s linear infinite; z-index: 2; opacity: 0; }
-        @keyframes rise { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-80vh) scale(0); opacity: 0; } }
-        .content-layer { z-index: 10; width: 100%; max-width: 800px; display: flex; flex-direction: column; align-items: center; text-align: center; overflow-y: auto; max-height: 100vh; scrollbar-width: none; }
-        .content-layer::-webkit-scrollbar { display: none; }
-        
-        /* 🧊 3D CONTAINER */
-        .hero-img-container { width: 100%; max-width: 500px; position: relative; margin: 10px auto 10px auto; display: flex; justify-content: center; transition: transform 0.1s ease-out; transform-style: preserve-3d; will-change: transform; }
-        .hero-image { width: 100%; height: auto; object-fit: cover; mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%); -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%); pointer-events: none; }
+  @keyframes rise {
+    0% { transform: translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateY(-90vh) scale(0); opacity: 0; }
+  }
 
-        .top-title { font-family: 'Cinzel', serif; font-size: clamp(1rem, 2.5vw, 1.4rem); color: #a0a0a0; letter-spacing: 2px; margin-bottom: 5px; }
-        .sub-title-clean { font-family: 'Cinzel', serif; font-size: clamp(1rem, 2.5vw, 1.4rem); color: #fff; letter-spacing: 3px; margin-bottom: 5px; font-weight: 700; text-shadow: 0 2px 5px rgba(0,0,0,0.5); }
-        .main-title-electric { font-family: 'Cinzel', serif; font-size: 1.8rem; font-weight: 700; text-transform: uppercase; color: #ff0000; letter-spacing: 2px; margin-bottom: 25px; position: relative; text-shadow: 0 0 5px #ff0000; animation: electric-glitch 2.5s infinite alternate; }
-        @keyframes electric-glitch { 0% { text-shadow: 0 0 5px #ff0000; opacity: 1; transform: skewX(0); } 5% { text-shadow: 0 0 20px #ff0000, 2px 2px 0px #880000; opacity: 0.8; transform: skewX(-5deg); } 10% { text-shadow: 0 0 5px #ff0000; opacity: 1; transform: skewX(0); } 50% { text-shadow: 0 0 5px #ff0000; opacity: 1; } 55% { text-shadow: 0 0 15px #ff0000; opacity: 0.9; transform: skewX(3deg); } 60% { text-shadow: 0 0 5px #ff0000; opacity: 1; transform: skewX(0); } 100% { text-shadow: 0 0 5px #ff0000; opacity: 1; } }
-        .tags-row { display: flex; flex-wrap: nowrap; overflow: hidden; gap: 5px; width: 100%; justify-content: center; margin-bottom: 30px; padding: 15px 0; }
-        .tag-pill { padding: 4px 10px; border-radius: 50px; font-size: clamp(0.6rem, 2vw, 0.75rem); font-weight: 600; letter-spacing: 0.5px; background: rgba(0,0,0,0.6); border: 1px solid; backdrop-filter: blur(4px); text-transform: capitalize; white-space: nowrap; flex-shrink: 1; min-width: 0; animation: wave 2.5s ease-in-out infinite; }
-        @keyframes wave { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-        .tag-scifi { border-color: #2de2e6; color: #2de2e6; box-shadow: 0 0 8px rgba(45, 226, 230, 0.3); }
-        .tag-romance { border-color: #ff99cc; color: #ff99cc; box-shadow: 0 0 8px rgba(255, 153, 204, 0.3); }
-        .tag-action { border-color: #ff9933; color: #ff9933; box-shadow: 0 0 8px rgba(255, 153, 51, 0.3); }
-        .tag-mystery { border-color: #9933ff; color: #9933ff; box-shadow: 0 0 8px rgba(153, 51, 255, 0.3); }
-        .tag-horror { border-color: #ff0000; color: #ff0000; box-shadow: 0 0 8px rgba(255, 0, 0, 0.4); }
-        .desc-container { position: relative; width: 100%; display: flex; align-items: center; justify-content: center; margin-bottom: 40px; }
-        .desc-text { max-width: 550px; font-size: 0.95rem; line-height: 1.5; color: #ccc; text-align: center; padding: 0 10px; font-weight: 700; }
-        .circuit-line { height: 1px; background: #552222; flex-grow: 1; position: relative; opacity: 0.6; margin: 0 15px; display: none; }
-        .circuit-line::before { content: ''; position: absolute; top: -2px; width: 4px; height: 4px; background: #ff4444; border-radius: 50%; }
-        .circuit-line.left::before { right: 0; }
-        .circuit-line.right::before { left: 0; }
-        @media (min-width: 600px) { .circuit-line { display: block; } }
-        
-        /* NEW SPLIT BUTTON STYLES */
-        .btn-split-container { display: flex; gap: 20px; width: 100%; justify-content: center; margin-bottom: 50px; }
-        .btn-wrapper-outer { position: relative; padding: 3px; border-radius: 8px; background: linear-gradient(90deg, transparent, rgba(255, 60, 0, 0.5), transparent); box-shadow: 0 0 15px rgba(255, 60, 0, 0.2); transition: transform 0.3s; flex: 1; max-width: 200px; }
-        .btn-wrapper-outer:hover { transform: scale(1.03); }
-        .btn-frame { position: relative; padding: 4px; border: 2px solid #ff5555; border-radius: 8px; background: rgba(40, 0, 0, 0.6); box-shadow: 0 0 10px rgba(255, 0, 0, 0.4), inset 0 0 20px rgba(255, 0, 0, 0.2); display: flex; align-items: center; justify-content: center; height: 100%; }
-        .start-btn-inner { width: 100%; background: linear-gradient(180deg, #aa0000 0%, #440000 100%); color: #fff; font-family: 'Cinzel', serif; font-size: 0.9rem; font-weight: 700; padding: 12px 10px; border: 1px solid rgba(255, 150, 150, 0.4); border-radius: 4px; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; text-shadow: 0 2px 2px rgba(0,0,0,0.5); box-shadow: inset 0 1px 0 rgba(255,255,255,0.2); position: relative; overflow: hidden; }
-        .start-btn-inner.new-btn { background: linear-gradient(180deg, #0055aa 0%, #001144 100%); border-color: rgba(150, 200, 255, 0.4); }
-        .start-btn-inner::after { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); animation: btnShine 3s infinite; }
-        @keyframes btnShine { 0% { left: -100%; } 20% { left: 100%; } 100% { left: 100%; } }
-        
-        .rec-section { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; margin-bottom: 20px; }
-        .rec-title { font-family: 'Cinzel', serif; color: #666; font-size: 0.8rem; letter-spacing: 1px; text-transform: uppercase; }
-        .rec-btn-container { display: flex; gap: 20px; }
-        .rec-btn { position: relative; background: linear-gradient(180deg, #500000 0%, #200000 100%); border: 1px solid #ff3333; color: #ffcccc; font-family: 'Cinzel', serif; font-weight: 700; font-size: 0.8rem; padding: 8px 20px; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); cursor: pointer; box-shadow: 0 0 10px rgba(255, 0, 0, 0.2); transition: 0.2s; text-transform: uppercase; display: flex; align-items: center; justify-content: center; }
-        .rec-btn:hover { background: #700000; box-shadow: 0 0 20px rgba(255, 0, 0, 0.5); transform: translateY(-2px); }
-        .rec-icon { font-size: 0.8rem; margin-left: 8px; opacity: 0.9; }
-    `;
+  .content-layer {
+    z-index: 10;
+    width: 100%;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .content-layer::-webkit-scrollbar { display: none; }
 
-    // Generate embers for background
-    const [embers, setEmbers] = React.useState([]);
-    React.useEffect(() => {
-        const e = [];
-        for (let i = 0; i < 30; i++) {
-            e.push({
-                left: Math.random() * 100 + "%",
-                delay: Math.random() * 5 + "s",
-                duration: Math.random() * 3 + 3 + "s"
-            });
-        }
-        setEmbers(e);
-    }, []);
+  /* 🌌 HERO IMAGE + SHIMMER */
+  .hero-img-container {
+    width: 100%;
+    max-width: 500px;
+    position: relative;
+    margin-bottom: 15px;
+  }
 
-    const getCredit = (name) => {
-        return window.APP_CONFIG.credits.find(c => c.name.toUpperCase().includes(name)) || window.APP_CONFIG.credits[0];
-    };
+  .hero-image {
+    width: 100%;
+    display: block;
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0));
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0));
+  }
 
-    const handleAction = (action) => {
-        vibrate([80, 50, 100, 50, 400]);
-        action();
-    };
+  .hero-img-container::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(120deg,
+        transparent 30%,
+        rgba(255,80,80,0.25),
+        transparent 70%);
+    animation: shimmer 4s infinite;
+    mix-blend-mode: screen;
+    pointer-events: none;
+  }
 
-    return h(
-        "div",
-        { className: "home-container fade-in" },
-        h("style", null, styles),
+  @keyframes shimmer {
+    0% { transform: translateX(-120%); }
+    100% { transform: translateX(120%); }
+  }
 
-        h("div", { className: "energy-overlay" }),
+  /* ✨ TITLES */
+  .sub-title-clean {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    letter-spacing: 4px;
+    color: #ffffff;
+    font-weight: 700;
+    margin-top: 10px;
+  }
 
-        embers.map((emb, i) =>
-            h("div", {
-                key: i,
-                className: "ember enhanced-ember",
-                style: {
-                    left: emb.left,
-                    animationDelay: emb.delay,
-                    animationDuration: emb.duration
-                }
-            })
-        ),
+  .main-title-electric {
+    font-family: 'Cinzel', serif;
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: 3px;
+    color: #ff1a1a;
+    text-shadow:
+      0 0 10px #ff0000,
+      0 0 30px rgba(255,0,0,0.6);
+    margin-bottom: 25px;
+  }
 
-        h(
-            "div",
-            { className: "content-layer" },
+  /* 🏷 TAGS – NO ANIMATION */
+  .tags-row {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+  }
 
-            h(
-                "div",
-                { className: "hero-img-container", ref: cardRef },
-                h("img", {
-                    src: "/images/Cover.png",
-                    className: "hero-image",
-                    alt: "Cover Art"
-                })
-            ),
+  .tag-pill {
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    border: 1px solid #ff4444;
+    color: #ffaaaa;
+    background: rgba(0,0,0,0.6);
+  }
 
-            h("div", { className: "sub-title-clean" }, "BENEATH THE LIGHT"),
-            h("div", { className: "main-title-electric" }, "OF A DYING SKY"),
+  /* 📜 DESC */
+  .desc-text {
+    max-width: 560px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #ddd;
+    font-weight: 600;
+    margin-bottom: 45px;
+  }
 
-            h(
-                "div",
-                { className: "tags-row" },
-                h("span", { className: "tag-pill tag-scifi", style: { animationDelay: '0s' } }, "Sci-Fi"),
-                h("span", { className: "tag-pill tag-romance", style: { animationDelay: '0.2s' } }, "Romance"),
-                h("span", { className: "tag-pill tag-action", style: { animationDelay: '0.4s' } }, "Action"),
-                h("span", { className: "tag-pill tag-mystery", style: { animationDelay: '0.6s' } }, "Mystery"),
-                h("span", { className: "tag-pill tag-horror", style: { animationDelay: '0.8s' } }, "Horror")
-            ),
+  /* 🧙‍♂️ ULTRA MAGICAL BUTTONS */
+  .btn-split-container {
+    display: flex;
+    gap: 25px;
+    margin-bottom: 50px;
+  }
 
-            h(
-                "div",
-                { className: "desc-container" },
-                h("div", { className: "circuit-line left" }),
-                h(
-                    "p",
-                    { className: "desc-text" },
-                    "As humanity faces its final hours, a hidden conspiracy awakens — forcing Jake and Viyona to choose between the world they know and the truth that could rewrite everything."
-                ),
-                h("div", { className: "circuit-line right" })
-            ),
+  .magic-btn {
+    position: relative;
+    width: 180px;
+    height: 55px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: #fff;
+    background: radial-gradient(circle at top, #ff2a2a, #550000 70%);
+    box-shadow:
+      0 0 20px rgba(255,0,0,0.6),
+      inset 0 0 20px rgba(255,120,120,0.3);
+    overflow: hidden;
+    border-radius: 10px;
+  }
 
-            // SPLIT BUTTONS
-            h(
-                "div",
-                { className: "btn-split-container" },
-                h(
-                    "div",
-                    { className: "btn-wrapper-outer" },
-                    h(
-                        "div",
-                        { className: "btn-frame" },
-                        h(
-                            "button",
-                            { className: "start-btn-inner", onClick: () => handleAction(onStartChapters) },
-                            "CHAPTERS"
-                        )
-                    )
-                ),
-                 h(
-                    "div",
-                    { className: "btn-wrapper-outer" },
-                    h(
-                        "div",
-                        { className: "btn-frame" },
-                        h(
-                            "button",
-                            { className: "start-btn-inner new-btn", onClick: () => handleAction(onStartNew) },
-                            "NEW"
-                        )
-                    )
-                )
-            ),
-
-            h(
-                "div",
-                { className: "rec-section" },
-                h("div", { className: "rec-title" }, "SPECIAL RECOGNITION"),
-                h(
-                    "div",
-                    { className: "rec-btn-container" },
-                    h(
-                        "div",
-                        { className: "rec-btn", onClick: () => onViewCredits(getCredit('MINASHA')) },
-                        "MINASHA",
-                        h("i", { className: "fas fa-heart rec-icon" })
-                    ),
-                    h(
-                        "div",
-                        { className: "rec-btn", onClick: () => onViewCredits(getCredit('AROSHA')) },
-                        "AROSHA",
-                        h("i", { className: "fas fa-fire rec-icon" })
-                    )
-                )
-            )
-        )
+  .magic-btn::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 12px;
+    background: conic-gradient(
+      from 0deg,
+      transparent,
+      #ff4444,
+      transparent,
+      #ff0000,
+      transparent
     );
+    animation: rotate 3s linear infinite;
+    z-index: -1;
+  }
+
+  .magic-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, rgba(255,255,255,0.35), transparent 60%);
+    opacity: 0;
+    transition: 0.3s;
+  }
+
+  .magic-btn:hover::after {
+    opacity: 1;
+  }
+
+  .magic-btn:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 40px rgba(255,0,0,0.9);
+  }
+
+  @keyframes rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  `;
+
+  const [embers, setEmbers] = React.useState([]);
+
+  React.useEffect(() => {
+    const e = [];
+    for (let i = 0; i < 35; i++) {
+      e.push({
+        left: Math.random() * 100 + "%",
+        duration: Math.random() * 3 + 3 + "s",
+        delay: Math.random() * 5 + "s"
+      });
+    }
+    setEmbers(e);
+  }, []);
+
+  return h(
+    "div",
+    { className: "home-container" },
+    h("style", null, styles),
+    h("div", { className: "energy-overlay" }),
+
+    embers.map((e, i) =>
+      h("div", {
+        key: i,
+        className: "ember",
+        style: { left: e.left, animationDuration: e.duration, animationDelay: e.delay }
+      })
+    ),
+
+    h("div", { className: "content-layer" },
+
+      h("div", { className: "hero-img-container" },
+        h("img", { src: "/images/Cover.png", className: "hero-image" })
+      ),
+
+      h("div", { className: "sub-title-clean" }, "BENEATH THE LIGHT"),
+      h("div", { className: "main-title-electric" }, "OF A DYING SKY"),
+
+      h("div", { className: "tags-row" },
+        ["Sci-Fi", "Romance", "Action", "Mystery", "Horror"].map(t =>
+          h("span", { className: "tag-pill" }, t)
+        )
+      ),
+
+      h("p", { className: "desc-text" },
+        "As humanity faces its final hours, a hidden conspiracy awakens — forcing Jake and Viyona to choose between the world they know and the truth that could rewrite everything."
+      ),
+
+      h("div", { className: "btn-split-container" },
+        h("button", { className: "magic-btn", onClick: onStartChapters }, "CHAPTERS"),
+        h("button", { className: "magic-btn", onClick: onStartNew }, "NEW")
+      )
+    )
+  );
 };
+
 
 // --- MANGA LIST ---
 const MangaPage = ({ onRead, onBack, onOpenSettings, likes, onToggleLike }) => {
