@@ -213,14 +213,14 @@ window.APP_CONFIG = {
             title: "Plan",
             date: "Get away",
             locked: false,
-            pages: Array.from({ length: 21 }, (_, i) => `imageschapter19/${i + 1}.png`)
+            pages: Array.from({ length: 30 }, (_, i) => `imageschapter19/${i + 1}.png`)
         },
 
                 {
             id: 20,
             title: "-",
             date: "-",
-            locked: true,
+            locked: false,
             pages: Array.from({ length: 21 }, (_, i) => `imageschapter20/${i + 1}.png`)
         },
 
@@ -228,7 +228,7 @@ window.APP_CONFIG = {
             id: 21,
             title: "-",
             date: "-",
-            locked: true,
+            locked: false,
             pages: Array.from({ length: 21 }, (_, i) => `imageschapter21/${i + 1}.png`)
         },
     ]
