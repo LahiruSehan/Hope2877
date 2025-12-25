@@ -218,10 +218,10 @@ window.APP_CONFIG = {
 
                 {
             id: 20,
-            title: "-",
-            date: "-",
+            title: "Beyond the Scope",
+            date: "Once Again.. Squuare 1",
             locked: false,
-            pages: Array.from({ length: 21 }, (_, i) => `imageschapter20/${i + 1}.png`)
+            pages: Array.from({ length: 25 }, (_, i) => `imageschapter20/${i + 1}.png`)
         },
 
                 {
