@@ -585,16 +585,16 @@ const LicenseBar = () => {
 
 
 
-// --- HOME PAGE (ULTIMATE IMMERSIVE EDITION) ---
+// --- HOME PAGE (ULTIMATE IMMERSIVE EDITION - V2) ---
 const HomePage = ({ onStartChapters, onViewCredits }) => {
 
   // --- 1. STATE MANAGEMENT ---
   const [isLoading, setIsLoading] = React.useState(true);
   const [showSettings, setShowSettings] = React.useState(false);
-  const [showChapters, setShowChapters] = React.useState(false);
   const [mousePos, setMousePos] = React.useState({ x: 0, y: 0 });
   const [resumeChapter, setResumeChapter] = React.useState(null);
   const [descText, setDescText] = React.useState("");
+  const [isTypingDone, setIsTypingDone] = React.useState(false); // New state for cursor
   const [isTransitioning, setIsTransitioning] = React.useState(false);
   const [settings, setSettings] = React.useState({ reducedMotion: false, muted: false });
   const [embers, setEmbers] = React.useState([]);
@@ -602,46 +602,36 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
   // Audio Ref
   const audioRef = React.useRef(null);
 
-  // Full Description for Typewriter
+  // Full Description
   const fullDescription = "As humanity faces its final hours, a hidden conspiracy awakens — forcing Jake and Viyona to choose between the world they know and the truth that could rewrite everything.";
 
   // --- 2. CSS STYLES ---
   const styles = `
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Orbitron:wght@400;600;800&display=swap');
+    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
     * { box-sizing: border-box; }
 
-    /* 🌌 CONTAINER & GLOBAL FX */
+    /* 🌌 CONTAINER */
     .home-container {
       position: relative;
       width: 100vw;
       height: 100vh;
-      background: radial-gradient(circle at top, #1a0000 0%, #000 60%);
+      background: radial-gradient(circle at top, #1a0000 0%, #050505 80%);
       overflow: hidden;
       display: flex;
       justify-content: center;
       padding-top: 0px; 
       font-family: 'Orbitron', sans-serif;
       color: #fff;
-      perspective: 1000px; /* For 3D Parallax */
+      perspective: 1000px;
     }
 
-    /* 📺 CRT SCANLINES */
-    .crt-scanline {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
-      background-size: 100% 4px;
-      z-index: 50;
-      pointer-events: none;
-      opacity: 0.6;
-    }
-
-    /* 🎞️ VIGNETTE & NOISE */
+    /* 📺 GLOBAL OVERLAYS (Atmosphere) */
     .vignette {
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8) 100%);
+      background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.9) 100%);
       z-index: 40;
       pointer-events: none;
     }
@@ -649,45 +639,25 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
       position: absolute;
       inset: 0;
       background: url('https://grainy-gradients.vercel.app/noise.svg');
-      opacity: 0.05;
+      opacity: 0.04;
       z-index: 41;
       pointer-events: none;
-    }
-
-    /* 🔥 RED ENERGY FOG (MOVING) */
-    .energy-overlay {
-      position: absolute;
-      inset: -50%;
-      width: 200%;
-      height: 200%;
-      background:
-        radial-gradient(circle at 30% 20%, rgba(255,0,0,0.12), transparent 40%),
-        radial-gradient(circle at 70% 80%, rgba(255,40,0,0.1), transparent 45%);
-      z-index: 1;
-      mix-blend-mode: screen;
-      animation: fogDrift 60s linear infinite;
-    }
-    @keyframes fogDrift {
-      0% { transform: translate(0, 0); }
-      50% { transform: translate(-5%, -5%); }
-      100% { transform: translate(0, 0); }
     }
 
     /* 🔥 EMBERS */
     .ember {
       position: absolute;
       bottom: -20px;
-      width: 4px;
-      height: 4px;
+      width: 3px;
+      height: 3px;
       background: #ff3b1a;
       border-radius: 50%;
-      box-shadow: 0 0 12px #ff2200;
+      box-shadow: 0 0 10px #ff2200;
       animation: rise linear infinite;
       z-index: 2;
-      transition: transform 0.2s ease-out; /* For interaction */
     }
     @keyframes rise {
-      0% { transform: translateY(0) scale(1); opacity: 1; }
+      0% { transform: translateY(0) scale(1); opacity: 0.8; }
       100% { transform: translateY(-100vh) scale(0); opacity: 0; }
     }
 
@@ -701,55 +671,68 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
       text-align: center;
       overflow-y: auto;
       scrollbar-width: none;
-      transition: transform 0.1s ease-out; /* Smooth Parallax */
+      transition: transform 0.1s ease-out;
     }
-    .content-layer::-webkit-scrollbar { display: none; }
 
-    /* 💀 LOADING SKELETON */
-    .skeleton-box {
-      background: #222;
-      border-radius: 8px;
-      position: relative;
-      overflow: hidden;
-    }
-    .skeleton-box::after {
-      position: absolute;
-      top: 0; right: 0; bottom: 0; left: 0;
-      transform: translateX(-100%);
-      background-image: linear-gradient(90deg, rgba(255, 255, 255, 0) 0, rgba(255, 255, 255, 0.1) 20%, rgba(255, 255, 255, 0.2) 60%, rgba(255, 255, 255, 0));
-      animation: shimmer 2s infinite;
-      content: '';
-    }
-    .skeleton-hero { width: 300px; height: 400px; margin-bottom: 20px; }
-    .skeleton-text { width: 80%; height: 20px; margin-bottom: 10px; }
-
-    /* 🌌 HERO IMAGE */
+    /* 🌌 HERO IMAGE & EFFECTS */
     .hero-img-container {
       width: 100%;
       max-width: 480px;
       position: relative;
       margin-bottom: 15px;
       transition: transform 0.3s;
+      overflow: visible; /* Allow share button to overflow */
     }
+    
     .hero-image {
       width: 100%;
       display: block;
-      mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 70%, rgba(0,0,0,0));
-      -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 70%, rgba(0,0,0,0));
+      /* LOW COLOR EFFECT */
+      filter: grayscale(100%) contrast(1.2) brightness(0.9);
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 80%, rgba(0,0,0,0));
+      -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 80%, rgba(0,0,0,0));
     }
-    
-    /* GLITCH EFFECT ON HOVER */
-    .hero-img-container:hover .hero-image {
-      animation: glitch-anim 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
+
+    /* RANDOM COLOR SPOTS ANIMATION */
+    .color-spot {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle, rgba(255, 50, 50, 0.4) 0%, transparent 70%);
+      mix-blend-mode: overlay;
+      opacity: 0;
+      animation: flashSpot 4s infinite;
+      border-radius: 50%;
+      pointer-events: none;
     }
-    @keyframes glitch-anim {
-      0% { transform: translate(0); }
-      20% { transform: translate(-2px, 2px); filter: hue-rotate(90deg); }
-      40% { transform: translate(-2px, -2px); }
-      60% { transform: translate(2px, 2px); filter: hue-rotate(-90deg); }
-      80% { transform: translate(2px, -2px); }
-      100% { transform: translate(0); }
+    .spot-1 { top: 20%; left: 30%; animation-delay: 0s; }
+    .spot-2 { top: 60%; right: 20%; animation-delay: 2.3s; background: radial-gradient(circle, rgba(255, 100, 0, 0.3) 0%, transparent 70%); }
+    .spot-3 { top: 40%; left: 50%; animation-delay: 1.5s; width: 150px; height: 150px; }
+
+    @keyframes flashSpot {
+      0% { opacity: 0; transform: scale(0.8); }
+      10% { opacity: 1; transform: scale(1.1); }
+      20% { opacity: 0; transform: scale(1); }
+      100% { opacity: 0; }
     }
+
+    /* 🔗 FLOATING SHARE BUTTON */
+    .share-btn-floating {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 35px; height: 35px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.6);
+      border: 1px solid #444;
+      color: #fff;
+      display: flex; justify-content: center; align-items: center;
+      cursor: pointer;
+      z-index: 20;
+      backdrop-filter: blur(2px);
+      transition: all 0.3s ease;
+    }
+    .share-btn-floating:hover { background: #fff; color: #000; transform: rotate(15deg); }
 
     /* ✨ TITLES */
     .sub-title-clean {
@@ -758,9 +741,9 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
       letter-spacing: 4px;
       font-weight: 700;
       margin-top: 10px;
-      background: linear-gradient(to right, #ffffff, #999999);
+      background: linear-gradient(to right, #ffffff, #888);
       -webkit-background-clip: text;
-      color: transparent; /* Gradient Text */
+      color: transparent;
     }
 
     .main-title-electric {
@@ -769,17 +752,13 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
       font-weight: 900;
       letter-spacing: 3px;
       color: #ff1a1a;
-      text-shadow: 0 0 10px #ff0000;
+      text-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
       margin-bottom: 20px;
     }
-    
-    /* NEON FLICKER ANIMATION */
-    .flicker-text {
-      animation: neonFlicker 4s infinite alternate;
-    }
+    .flicker-text { animation: neonFlicker 4s infinite alternate; }
     @keyframes neonFlicker {
-      0%, 18%, 22%, 25%, 53%, 57%, 100% { opacity: 1; text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000; }
-      20%, 24%, 55% { opacity: 0.4; text-shadow: none; }
+      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+      20%, 24%, 55% { opacity: 0.5; }
     }
 
     /* 🏷 TAGS */
@@ -795,171 +774,160 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
       border-radius: 4px;
       font-size: 0.7rem;
       font-weight: 600;
-      border: 1px solid #ff4444;
-      color: #ffaaaa;
-      background: rgba(20,0,0,0.8);
-      position: relative;
+      border: 1px solid #333;
+      color: #999;
+      background: rgba(0,0,0,0.5);
     }
-    .read-time { font-size: 0.65rem; color: #888; margin-left: 5px; margin-top: 5px;}
 
-    /* 📜 DESC (Typewriter container) */
+    /* 📜 TYPEWRITER */
     .desc-text {
       max-width: 560px;
-      min-height: 60px; /* Prevent layout jump */
+      min-height: 60px;
       font-size: 0.82rem; 
       line-height: 1.6;
       color: #ccc;
-      font-family: 'Courier New', monospace; /* Terminal feel */
+      font-family: 'Courier New', monospace;
       font-weight: 500;
       margin-bottom: 30px;
       text-shadow: 0 0 2px black;
     }
-    .cursor-blink { animation: blink 1s step-end infinite; border-right: 2px solid #ff4444; }
-    @keyframes blink { 50% { border-color: transparent; } }
+    .cursor-blink { 
+      display: inline-block; 
+      width: 8px; height: 15px; 
+      background: #ff4444; 
+      animation: blink 1s step-end infinite; 
+      vertical-align: middle;
+      margin-left: 5px;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
 
-    /* 🌑 CINEMATIC BUTTONS */
-    .btn-split-container {
+    /* 🔴 EPIC BUTTON ANIMATION */
+    .epic-btn-wrapper {
+      position: relative;
       display: flex;
-      gap: 15px;
       justify-content: center;
       margin-bottom: 25px;
-      align-items: center;
+      padding: 4px; /* Space for the gradient border */
+      border-radius: 50px;
+      background: transparent;
+      overflow: visible; /* CRITICAL: Allows Badge to pop out */
+    }
+
+    /* The Moving Gradient Border */
+    .epic-btn-wrapper::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50px;
+      padding: 2px;
+      background: conic-gradient(from 0deg, #550000, #ff0000, #ff8800, #ff0000, #550000);
+      -webkit-mask: 
+         linear-gradient(#fff 0 0) content-box, 
+         linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      animation: spinBorder 3s linear infinite;
+    }
+    @keyframes spinBorder {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
 
     .cine-btn {
       position: relative;
-      width: 200px; 
-      height: 50px;
+      width: 240px; 
+      height: 55px;
       cursor: pointer;
-      background: #1a0505;
-      border-radius: 2px;
-      border: 1px solid #ff3333;
-      overflow: hidden;
-      transition: all 0.3s;
-      box-shadow: 0 0 10px rgba(255,0,0,0.2);
+      background: #110202;
+      border-radius: 50px; /* Soft Edge */
+      border: none;
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: all 0.3s;
+      box-shadow: 0 0 15px rgba(255, 0, 0, 0.1);
+      z-index: 2;
     }
-    .cine-btn:hover { background: #330000; box-shadow: 0 0 20px rgba(255,0,0,0.6); }
+    .cine-btn:hover { background: #2a0404; box-shadow: 0 0 30px rgba(255, 0, 0, 0.4); }
 
     .cine-btn-text {
       font-family: 'Cinzel', serif;
-      font-size: 0.9rem;
+      font-size: 1rem;
       font-weight: 800;
       color: #fff;
       letter-spacing: 2px;
     }
-    
-    .share-btn {
-      width: 40px; height: 40px;
-      border-radius: 50%;
-      border: 1px solid #444;
-      background: rgba(0,0,0,0.5);
-      color: #fff;
-      display: flex; justify-content: center; align-items: center;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .share-btn:hover { background: #fff; color: #000; }
 
-    /* NEW BADGE */
+    /* BADGE FIXED */
     .badge-new {
       position: absolute;
-      top: -8px; right: -8px;
+      top: -10px; right: 0px;
       background: #ff0000;
       color: #fff;
       font-size: 0.6rem;
-      padding: 2px 6px;
-      border-radius: 4px;
+      padding: 3px 8px;
+      border-radius: 10px;
       font-weight: bold;
-      animation: pulse 1s infinite;
+      border: 1px solid #fff;
+      box-shadow: 0 0 5px #ff0000;
+      z-index: 10;
+      animation: pulseBadge 2s infinite;
     }
+    @keyframes pulseBadge { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
-    /* ⭐ RECOGNITION AVATARS */
+    /* ⭐ RECOGNITION ICONS */
     .rec-section { transform: scale(0.9); margin-top: 10px; }
-    .rec-title { font-family: 'Cinzel', serif; font-size: 0.7rem; color: #777; margin-bottom: 10px; }
-    .rec-btn-container { display: flex; gap: 16px; }
-    .rec-btn {
-      padding: 6px 12px 6px 8px;
-      font-size: 0.75rem;
-      font-family: 'Cinzel', serif;
-      color: #ffcccc;
-      border: 1px solid #333;
-      background: rgba(0,0,0,0.6);
-      border-radius: 20px;
-      cursor: pointer;
-      display: flex; align-items: center; gap: 8px;
-      transition: all 0.2s;
+    .rec-title { font-family: 'Cinzel', serif; font-size: 0.7rem; color: #555; margin-bottom: 12px; }
+    .rec-btn-container { display: flex; gap: 20px; }
+    .rec-item {
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      cursor: pointer; opacity: 0.7; transition: 0.3s;
     }
-    .rec-btn:hover { border-color: #ff3333; background: rgba(50,0,0,0.5); }
-    .avatar-circle {
-      width: 24px; height: 24px; background: #444; border-radius: 50%;
-      background-size: cover; background-position: center;
-    }
+    .rec-item:hover { opacity: 1; transform: translateY(-2px); }
+    
+    .icon-box { font-size: 1.2rem; margin-bottom: 2px; }
+    .minasha-icon { color: #ff6b81; text-shadow: 0 0 10px #ff6b81; } /* Heart Color */
+    .arosha-icon { color: #ff9f43; text-shadow: 0 0 10px #ff9f43; } /* Fire Color */
+    
+    .rec-name { font-size: 0.7rem; font-family: 'Cinzel', serif; color: #ccc; letter-spacing: 1px; }
 
-    /* ⚙️ MODALS & DRAWERS */
+    /* FOOTER & MODAL */
+    .system-footer {
+      position: absolute; bottom: 10px; width: 100%;
+      display: flex; justify-content: space-between; padding: 0 20px;
+      font-size: 0.6rem; color: #444; pointer-events: none; z-index: 60;
+    }
+    .settings-icon { pointer-events: auto; cursor: pointer; transition: color 0.3s; }
+    .settings-icon:hover { color: #fff; }
+
     .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100;
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100;
       display: flex; justify-content: center; align-items: center;
       backdrop-filter: blur(5px);
     }
     .modal-box {
-      background: #111; border: 1px solid #444; padding: 20px;
-      width: 300px; border-radius: 8px;
-      box-shadow: 0 0 30px rgba(0,0,0,0.9);
+      background: #111; border: 1px solid #333; padding: 25px;
+      width: 300px; border-radius: 12px;
+      box-shadow: 0 0 30px rgba(0,0,0,1);
     }
-    .drawer-bottom {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      background: #0f0f0f; border-top: 2px solid #ff3333;
-      padding: 20px; z-index: 101;
-      transform: translateY(100%); transition: transform 0.3s ease-out;
-      height: 50vh; overflow-y: auto;
-    }
-    .drawer-open { transform: translateY(0); }
-    .chapter-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; margin-top: 15px; }
-    .chapter-box { 
-      background: #222; padding: 10px; border: 1px solid #444; 
-      text-align: center; cursor: pointer; border-radius: 4px; font-size: 0.8rem;
-    }
-    .chapter-box:hover { border-color: #ff3333; color: #ff3333; }
 
-    /* FOOTER & SETTINGS */
-    .system-footer {
-      position: absolute; bottom: 10px; width: 100%;
-      display: flex; justify-content: space-between; padding: 0 20px;
-      font-size: 0.6rem; color: #555; pointer-events: none; z-index: 60;
-    }
-    .settings-icon { pointer-events: auto; cursor: pointer; transition: color 0.3s; pointer-events: all; }
-    .settings-icon:hover { color: #fff; }
-    
-    .setting-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.9rem; }
-    .toggle { cursor: pointer; color: #ff3333; }
-
-    /* CINEMATIC ZOOM TRANSITION */
-    .zooming-out {
-      animation: camZoom 1.5s forwards;
-    }
+    /* ZOOM OUT */
+    .zooming-out { animation: camZoom 1.5s forwards; }
     @keyframes camZoom {
       0% { transform: scale(1); filter: brightness(1); }
-      100% { transform: scale(3); filter: brightness(0); }
+      100% { transform: scale(4); filter: brightness(0); opacity: 0; }
     }
   `;
 
-  // --- 3. EFFECTS & LOGIC ---
+  // --- 3. LOGIC ---
 
-  // Initialization (Skeleton & LocalStorage)
   React.useEffect(() => {
-    // Simulate image load
     setTimeout(() => setIsLoading(false), 2000);
-
-    // Check resume state
     const savedCh = localStorage.getItem('lastReadChapter');
     if (savedCh && parseInt(savedCh) > 1) {
       setResumeChapter(parseInt(savedCh));
     }
 
-    // Initialize Embers
     const e = [];
     for (let i = 0; i < 40; i++) {
       e.push({
@@ -972,62 +940,46 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
     setEmbers(e);
   }, []);
 
-  // Typewriter Effect
+  // Typewriter Logic with Cursor Removal
   React.useEffect(() => {
     if (isLoading) return;
     let i = 0;
     const interval = setInterval(() => {
       setDescText(fullDescription.slice(0, i));
       i++;
-      if (i > fullDescription.length) clearInterval(interval);
-    }, 30); // Speed of typing
+      if (i > fullDescription.length) {
+        clearInterval(interval);
+        setTimeout(() => setIsTypingDone(true), 1000); // Remove cursor 1s after typing
+      }
+    }, 30);
     return () => clearInterval(interval);
   }, [isLoading]);
 
-  // Mouse Parallax Logic
   const handleMouseMove = (e) => {
     if (settings.reducedMotion) return;
     const { clientX, clientY } = e;
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
-    
-    // Calculate slight offset (max 15px)
-    const moveX = ((clientX - centerX) / centerX) * 15;
-    const moveY = ((clientY - centerY) / centerY) * 15;
-    setMousePos({ x: moveX * -1, y: moveY * -1 }); // Invert for depth
-  };
-
-  // Interaction Handlers
-  const handleInteraction = () => {
-    // Attempt to play audio on first click
-    if (audioRef.current && !settings.muted) {
-      audioRef.current.play().catch(e => console.log("Audio play prevented", e));
-    }
+    const moveX = ((clientX - centerX) / centerX) * 10;
+    const moveY = ((clientY - centerY) / centerY) * 10;
+    setMousePos({ x: moveX * -1, y: moveY * -1 });
   };
 
   const handleStart = () => {
-    handleInteraction();
-    setIsTransitioning(true); // Trigger Zoom CSS
-    setTimeout(() => {
-      onStartChapters();
-    }, 1400); // Wait for animation
+    if (audioRef.current && !settings.muted) audioRef.current.play().catch(() => {});
+    setIsTransitioning(true);
+    setTimeout(() => onStartChapters(), 1400);
   };
 
   const handleShare = () => {
-    const text = "Read 'Beneath the Light of a Dying Sky' - A Sci-Fi Thriller.";
+    const text = "Read 'Beneath the Light of a Dying Sky'";
     if (navigator.share) {
       navigator.share({ title: 'Dying Sky', text: text, url: window.location.href });
     } else {
-      navigator.clipboard.writeText(window.location.href);
-      alert("Link copied to clipboard!");
+      alert("Link copied!");
     }
   };
 
-  const toggleSetting = (key) => {
-    setSettings(prev => ({ ...prev, [key]: !prev[key] }));
-  };
-
-  // Helper for recognition credits
   const getCredit = (name) => 
     window.APP_CONFIG.credits.find(c => c.name.toUpperCase().includes(name)) 
     || window.APP_CONFIG.credits[0];
@@ -1039,30 +991,14 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
     { 
       className: "home-container", 
       onMouseMove: handleMouseMove,
-      onClick: handleInteraction
     },
     h("style", null, styles),
 
-    // Hidden Audio
-    h("audio", { 
-      ref: audioRef, 
-      src: "https://cdn.pixabay.com/audio/2022/10/05/audio_686377755b.mp3", // Placeholder Drone Sound
-      loop: true, 
-      volume: 0.4 
-    }),
+    h("audio", { ref: audioRef, src: "https://cdn.pixabay.com/audio/2022/10/05/audio_686377755b.mp3", loop: true, volume: 0.4 }),
 
-    // Overlays
-    h("div", { className: "crt-scanline" }),
     h("div", { className: "vignette" }),
     h("div", { className: "noise" }),
-    h("div", { 
-      className: "energy-overlay",
-      style: { 
-        transform: !settings.reducedMotion ? `translate(${mousePos.x * 0.5}px, ${mousePos.y * 0.5}px)` : 'none' 
-      }
-    }),
 
-    // Embers
     !settings.reducedMotion && embers.map((e) =>
       h("div", {
         key: e.id,
@@ -1071,23 +1007,27 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
       })
     ),
 
-    // MAIN CONTENT LAYER
+    // MAIN CONTENT
     h("div", { 
       className: `content-layer ${isTransitioning ? 'zooming-out' : ''}`,
       style: { transform: `translate(${mousePos.x}px, ${mousePos.y}px)` }
     },
 
-      // LOADING SKELETON
-      isLoading ? h("div", null,
-        h("div", { className: "skeleton-box skeleton-hero" }),
-        h("div", { className: "skeleton-box skeleton-text" }),
-        h("div", { className: "skeleton-box skeleton-text", style: { width: '60%' } })
-      ) : 
+      isLoading ? h("div", { style: {color: '#333'} }, "INITIALIZING...") : 
       
-      // REAL CONTENT
       h(React.Fragment, null,
+        
+        // HERO IMAGE WRAPPER
         h("div", { className: "hero-img-container" },
-          h("img", { src: "/images/Cover.png", className: "hero-image" })
+          h("img", { src: "/images/Cover.png", className: "hero-image" }),
+          // Random Color Spots
+          h("div", { className: "color-spot spot-1" }),
+          h("div", { className: "color-spot spot-2" }),
+          h("div", { className: "color-spot spot-3" }),
+          // Floating Share Button
+          h("div", { className: "share-btn-floating", onClick: handleShare },
+            h("i", { className: "fas fa-share-alt" })
+          )
         ),
 
         h("div", { className: "sub-title-clean" }, "BENEATH THE LIGHT"),
@@ -1098,87 +1038,59 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
         h("div", { className: "tags-row" },
           ["Sci-Fi", "Romance", "Mystery", "Horror"].map(t =>
             h("span", { key: t, className: "tag-pill" }, t)
-          ),
-          h("span", { className: "read-time" }, "⏱ 2hr Read")
+          )
+          // Removed 2hr read time here
         ),
 
         h("div", { className: "desc-text" }, 
           descText,
-          h("span", { className: "cursor-blink" })
+          !isTypingDone && h("span", { className: "cursor-blink" })
         ),
 
-        h("div", { className: "btn-split-container" },
-          // READ BUTTON
+        // READ BUTTON WITH EPIC GRADIENT
+        h("div", { className: "epic-btn-wrapper" },
           h("div", { className: "cine-btn", onClick: handleStart },
             h("div", { className: "cine-btn-text" }, 
               resumeChapter ? `RESUME (CH ${resumeChapter})` : "READ STORY"
             ),
-            // New Badge (only if not resuming)
             !resumeChapter && h("div", { className: "badge-new" }, "NEW")
-          ),
-          // SHARE BUTTON
-          h("div", { className: "share-btn", onClick: handleShare },
-            h("i", { className: "fas fa-share-alt" })
-          ),
-          // CHAPTERS BUTTON
-          h("div", { className: "share-btn", onClick: () => setShowChapters(true) },
-            h("i", { className: "fas fa-list" })
           )
         ),
 
-        // RECOGNITION SECTION
+        // RECOGNITION (ICONS ADDED)
         h("div", { className: "rec-section" },
           h("div", { className: "rec-title" }, "SPECIAL RECOGNITION"),
           h("div", { className: "rec-btn-container" },
-            h("div", { className: "rec-btn", onClick: () => onViewCredits(getCredit('MINASHA')) },
-              h("div", { className: "avatar-circle", style: { backgroundImage: 'url(https://ui-avatars.com/api/?name=Minasha&background=ffcccc&color=000)' } }),
-              "MINASHA"
+            // Minasha
+            h("div", { className: "rec-item", onClick: () => onViewCredits(getCredit('MINASHA')) },
+              h("i", { className: "fas fa-heart icon-box minasha-icon" }),
+              h("span", { className: "rec-name" }, "MINASHA")
             ),
-            h("div", { className: "rec-btn", onClick: () => onViewCredits(getCredit('AROSHA')) },
-              h("div", { className: "avatar-circle", style: { backgroundImage: 'url(https://ui-avatars.com/api/?name=Arosha&background=ffcccc&color=000)' } }),
-              "AROSHA"
+            // Arosha
+            h("div", { className: "rec-item", onClick: () => onViewCredits(getCredit('AROSHA')) },
+              h("i", { className: "fas fa-fire icon-box arosha-icon" }),
+              h("span", { className: "rec-name" }, "AROSHA")
             )
           )
         )
       )
     ),
 
-    // SYSTEM FOOTER
+    // FOOTER
     h("div", { className: "system-footer" },
-      h("span", null, "v1.0.4 • SYSTEM ONLINE"),
+      h("span", null, "v2.0.0 • SYSTEM ONLINE"),
       h("i", { className: "fas fa-cog settings-icon", onClick: () => setShowSettings(true) })
     ),
 
     // SETTINGS MODAL
     showSettings && h("div", { className: "modal-overlay", onClick: () => setShowSettings(false) },
       h("div", { className: "modal-box", onClick: e => e.stopPropagation() },
-        h("h3", { style: { color: '#ff3333', marginTop: 0 } }, "SYSTEM SETTINGS"),
-        h("div", { className: "setting-row" },
+        h("h3", { style: { color: '#ff3333', marginTop: 0 } }, "SETTINGS"),
+        h("div", { style: {display:'flex', justifyContent:'space-between', marginBottom:'15px'} },
           "Reduced Motion",
-          h("div", { className: "toggle", onClick: () => toggleSetting('reducedMotion') }, settings.reducedMotion ? "[ON]" : "[OFF]")
+          h("span", { onClick: () => setSettings({...settings, reducedMotion: !settings.reducedMotion}), style: {color: '#ff3333', cursor:'pointer'} }, settings.reducedMotion ? "ON" : "OFF")
         ),
-        h("div", { className: "setting-row" },
-          "Mute Audio",
-          h("div", { className: "toggle", onClick: () => toggleSetting('muted') }, settings.muted ? "[ON]" : "[OFF]")
-        ),
-        h("div", { 
-          className: "cine-btn", 
-          style: { width: '100%', height: '35px', marginTop: '20px' },
-          onClick: () => setShowSettings(false)
-        }, h("span", { className: "cine-btn-text" }, "CLOSE"))
-      )
-    ),
-
-    // CHAPTER DRAWER
-    h("div", { className: `drawer-bottom ${showChapters ? 'drawer-open' : ''}` },
-      h("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
-        h("h3", { style: { margin: 0, color: '#ff3333' } }, "SELECT DATA LOG"),
-        h("i", { className: "fas fa-times", style: { cursor: 'pointer' }, onClick: () => setShowChapters(false) })
-      ),
-      h("div", { className: "chapter-grid" },
-        [1, 2, 3, 4, 5].map(num => 
-          h("div", { key: num, className: "chapter-box", onClick: () => alert(`Load Ch ${num}`) }, `CH ${num}`)
-        )
+        h("div", { style: {textAlign: 'center', color: '#666', fontSize:'0.8rem', marginTop:'20px'} }, "CLICK OUTSIDE TO CLOSE")
       )
     )
   );
