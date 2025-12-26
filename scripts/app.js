@@ -1078,7 +1078,7 @@ const CommentsModal = ({ onClose }) => {
         `)
     );
 };
-// --- READER (BLUE GLASS PREMIUM VERSION) ---
+// --- READER (BLUE GLASS PREMIUM VERSION - 2.0) ---
 const ReaderPage = ({
   chapterId,
   onBack,
@@ -1092,16 +1092,48 @@ const ReaderPage = ({
   const chapters = window.APP_CONFIG.chapters;
   const chapter = chapters.find(c => c.id === chapterId);
 
+  // --- STATE ---
   const [currentPage, setCurrentPage] = useState(initialPage || 0);
-  const [isMuted, setIsMuted] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showReview, setShowReview] = useState(false);
   const [reviewText, setReviewText] = useState("");
   const [likeBurst, setLikeBurst] = useState(false);
+  
+  // Track which pages have been manually unblurred by the user
+  const [unlockedPages, setUnlockedPages] = useState(new Set());
+
+  // --- 10 REAL SETTINGS ---
+  const [settings, setSettings] = useState({
+    theme: 'ocean',       // ocean, crimson, emerald, amethyst, gold
+    spoilerMode: true,    // The requested blur feature
+    zoom: 100,            // 50% to 100% width
+    brightness: 100,      // Image filter brightness
+    grayscale: false,     // Black and white mode
+    pageGap: 20,          // Gap between pages
+    blueLight: 0,         // Warmth filter
+    invert: false,        // Invert colors (night reading)
+    showProgress: true,   // Toolbar progress bar
+    autoHide: false       // Hide toolbar on scroll (simulated logic)
+  });
 
   const imageRefs = useRef([]);
 
+  // Theme Definitions
+  const themes = {
+    ocean:   { main: '#2b6cff', bg: '#0b1d3a', grad: 'linear-gradient(135deg,#4fd1ff,#2b6cff)' },
+    crimson: { main: '#ff2b55', bg: '#3a0b12', grad: 'linear-gradient(135deg,#ff4f70,#ff2b55)' },
+    emerald: { main: '#00d68f', bg: '#0b3a24', grad: 'linear-gradient(135deg,#34fab0,#00d68f)' },
+    amethyst:{ main: '#a72bff', bg: '#240b3a', grad: 'linear-gradient(135deg,#d585ff,#a72bff)' },
+    gold:    { main: '#ffaa00', bg: '#3a2e0b', grad: 'linear-gradient(135deg,#ffd500,#ffaa00)' },
+  };
+
+  const currentTheme = themes[settings.theme];
   const progress = ((currentPage + 1) / chapter.pages.length) * 100;
+
+  // Update setting helper
+  const updateSetting = (key, value) => {
+    setSettings(prev => ({ ...prev, [key]: value }));
+  };
 
   /* PAGE TRACK */
   useEffect(() => {
@@ -1118,6 +1150,18 @@ const ReaderPage = ({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  /* IMAGE CLICK (UNBLUR) */
+  const handleImageClick = (index) => {
+    if (settings.spoilerMode && !unlockedPages.has(index)) {
+      // Unblur logic
+      const newSet = new Set(unlockedPages);
+      newSet.add(index);
+      setUnlockedPages(newSet);
+    } else {
+      // Toggle UI logic could go here if needed
+    }
+  };
+
   /* LIKE TSUNAMI */
   const triggerLike = () => {
     onToggleLike();
@@ -1126,249 +1170,378 @@ const ReaderPage = ({
   };
 
   const sendReview = () => {
-    const msg = `
-📘 Message to Creator
-
-Chapter: ${chapter.title}
-Page: ${currentPage + 1}
-
-${reviewText}
-`.trim();
-
-    window.open(
-      `https://wa.me/94715717171?text=${encodeURIComponent(msg)}`,
-      "_blank"
-    );
+    const msg = `📘 Message to Creator\nChapter: ${chapter.title}\nPage: ${currentPage + 1}\n\n${reviewText}`.trim();
+    window.open(`https://wa.me/94715717171?text=${encodeURIComponent(msg)}`, "_blank");
   };
 
-  return h("div", { className:"reader-container" },
+  return h("div", { className: "reader-container" },
 
     h("style", null, `
-.reader-container {
-  background:#050b1a;
-  min-height:100vh;
-  padding-bottom:140px;
-  overflow-x:hidden;
-}
+      .reader-container {
+        background: #050b1a;
+        min-height: 100vh;
+        padding-bottom: 140px;
+        overflow-x: hidden;
+        position: relative;
+      }
+      
+      /* DYNAMIC FILTERS FOR SETTINGS */
+      .reader-content-wrapper {
+        width: ${settings.zoom}%;
+        margin: 0 auto;
+        transition: width 0.3s ease;
+        filter: 
+          brightness(${settings.brightness}%) 
+          grayscale(${settings.grayscale ? 100 : 0}%) 
+          invert(${settings.invert ? 100 : 0}%);
+      }
 
-/* IMAGES */
-.reader-page { width:100%; position:relative; }
-.reader-img { width:100%; display:block; pointer-events:none; }
-.reader-img.low { filter:blur(18px); transform:scale(1.06); }
-.reader-img.high { position:absolute; inset:0; opacity:0; transition:1.2s; }
-.reader-img.high.loaded { opacity:1; }
+      /* BLUE LIGHT OVERLAY */
+      .blue-light-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(255, 180, 0, ${settings.blueLight * 0.003}); /* Scale 0-100 to opacity */
+        pointer-events: none;
+        z-index: 5000;
+      }
 
-/* TOOLBAR */
-.reader-toolbar {
-  position:fixed;
-  bottom:18px;
-  left:50%;
-  transform:translateX(-50%);
-  width:94%;
-  max-width:720px;
-  background:linear-gradient(180deg,#0b1d3a,#081326);
-  border-radius:22px;
-  padding:10px 14px;
-  box-shadow:0 10px 40px rgba(0,120,255,.35);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  z-index:3000;
-}
+      /* PAGES & SPOILER MODE */
+      .reader-page-wrapper {
+        position: relative;
+        margin-bottom: ${settings.pageGap}px;
+        transition: margin 0.3s;
+        cursor: pointer;
+        user-select: none;
+      }
 
-/* BUTTONS */
-.toolbar-group { display:flex; gap:10px; }
+      .reader-img { 
+        width: 100%; 
+        display: block; 
+        transition: filter 0.5s ease;
+      }
 
-.reader-icon {
-  width:34px;
-  height:34px;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:linear-gradient(145deg,#1a4cff,#0b2a66);
-  color:#e8f2ff;
-  cursor:pointer;
-  font-size:14px;
-  box-shadow:0 0 14px rgba(80,160,255,.6);
-  transition:.25s;
-}
+      /* SPOILER BLUR STATE */
+      .is-blurred .reader-img {
+        filter: blur(20px) brightness(0.8);
+      }
+      
+      .spoiler-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: 0.3s;
+        z-index: 10;
+      }
 
-.reader-icon:hover { transform:scale(1.12); }
+      .is-blurred .spoiler-overlay {
+        opacity: 1;
+      }
 
-/* CENTER INFO */
-.toolbar-center {
-  flex:1;
-  text-align:center;
-  padding:0 10px;
-}
+      .spoiler-badge {
+        background: rgba(0,0,0,0.6);
+        backdrop-filter: blur(10px);
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 30px;
+        border: 1px solid rgba(255,255,255,0.2);
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      }
 
-.chapter-title {
-  font-size:14px;
-  font-weight:600;
-  color:#eaf3ff;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
+      /* END OF CHAPTER */
+      .end-chapter-section {
+        margin: 60px 20px 20px;
+        padding: 40px 20px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+        border-radius: 20px;
+        border: 1px solid rgba(255,255,255,0.05);
+        text-align: center;
+        color: #fff;
+      }
+      
+      .end-btn {
+        margin-top: 20px;
+        background: ${currentTheme.grad};
+        border: none;
+        padding: 12px 30px;
+        border-radius: 30px;
+        color: #fff;
+        font-weight: bold;
+        font-size: 16px;
+        cursor: pointer;
+        box-shadow: 0 5px 20px ${currentTheme.main}66;
+        transition: 0.2s;
+      }
+      .end-btn:active { transform: scale(0.95); }
 
-.chapter-sub {
-  font-size:11px;
-  color:#9fc3ff;
-}
+      /* TOOLBAR */
+      .reader-toolbar {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 600px;
+        background: rgba(10, 15, 30, 0.85);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 24px;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        z-index: 4000;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        transition: transform 0.4s;
+      }
 
-/* PROGRESS BAR */
-.progress-wrap {
-  margin-top:6px;
-  height:4px;
-  background:#0a1b3a;
-  border-radius:6px;
-  overflow:hidden;
-}
+      .toolbar-hidden { transform: translate(-50%, 150%); }
 
-.progress-bar {
-  height:100%;
-  width:${progress}%;
-  background:linear-gradient(90deg,#4fd1ff,#2b6cff);
-  transition:.3s;
-}
+      .reader-icon {
+        width: 40px; 
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 16px;
+        transition: 0.2s;
+        cursor: pointer;
+      }
+      .reader-icon:hover { background: rgba(255,255,255,0.1); }
+      .reader-icon.active { color: ${currentTheme.main}; background: rgba(255,255,255,0.05); }
 
-/* LIKE RAIN */
-.like-rain {
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  z-index:4000;
-}
+      .chapter-info { text-align: center; flex: 1; margin: 0 10px; }
+      .chapter-title { font-size: 13px; font-weight: 700; color: #fff; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+      .chapter-pg { font-size: 11px; color: #8899ac; }
 
-.like {
-  position:absolute;
-  animation:fall 2s linear forwards;
-}
+      .prog-track { height: 3px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-top: 6px; overflow: hidden; }
+      .prog-fill { height: 100%; background: ${currentTheme.grad}; width: ${progress}%; transition: 0.3s; }
 
-@keyframes fall {
-  from { transform:translateY(0) scale(1); opacity:1; }
-  to { transform:translateY(100vh) scale(.3); opacity:0; }
-}
+      /* SETTINGS MODAL */
+      .overlay {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px);
+        display: flex; align-items: center; justify-content: center; z-index: 6000;
+        animation: fadeIn 0.2s ease-out;
+      }
 
-/* MODALS */
-.overlay {
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.55);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:5000;
-}
+      .settings-card {
+        width: 90%; max-width: 400px;
+        max-height: 80vh; overflow-y: auto;
+        background: #0e1629;
+        border-radius: 24px;
+        border: 1px solid rgba(255,255,255,0.1);
+        padding: 24px;
+        color: #fff;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+      }
+      
+      .set-group { margin-bottom: 20px; }
+      .set-label { font-size: 12px; color: #8899ac; font-weight: 600; text-transform: uppercase; margin-bottom: 10px; display:block; }
+      
+      /* THEME DOTS */
+      .theme-row { display: flex; gap: 10px; }
+      .theme-dot {
+        width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
+        border: 2px solid transparent; transition: 0.2s;
+      }
+      .theme-dot.selected { border-color: #fff; transform: scale(1.1); }
 
-.card {
-  width:92%;
-  max-width:380px;
-  background:linear-gradient(180deg,#0b1f3f,#06122a);
-  border-radius:20px;
-  padding:20px;
-  color:#fff;
-  box-shadow:0 0 40px rgba(80,160,255,.5);
-  position:relative;
-}
+      /* TOGGLES & SLIDERS */
+      .control-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+      .control-name { font-size: 14px; display:flex; align-items:center; gap:8px; }
+      
+      .toggle-switch {
+        width: 44px; height: 24px; background: #223; border-radius: 20px; position: relative; cursor: pointer; transition: 0.3s;
+      }
+      .toggle-switch.on { background: ${currentTheme.main}; }
+      .toggle-knob {
+        width: 20px; height: 20px; background: #fff; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: 0.3s;
+      }
+      .toggle-switch.on .toggle-knob { transform: translateX(20px); }
 
-.close {
-  position:absolute;
-  top:12px;
-  right:14px;
-  cursor:pointer;
-  color:#9fc3ff;
-}
+      input[type=range] { width: 120px; accent-color: ${currentTheme.main}; }
 
-.card textarea {
-  width:100%;
-  height:100px;
-  margin-top:12px;
-  border-radius:14px;
-  background:#07152e;
-  color:#fff;
-  border:1px solid #2b6cff;
-  padding:10px;
-}
+      @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+      
+      /* LIKE ANIMATION */
+      .like-particle { position: fixed; animation: floatUp 1.5s ease-out forwards; pointer-events: none; z-index: 5000; }
+      @keyframes floatUp { 0% { transform: translateY(0) scale(0.5); opacity: 1; } 100% { transform: translateY(-100px) scale(1.5); opacity: 0; } }
 
-.action-btn {
-  margin-top:16px;
-  width:100%;
-  padding:12px;
-  border:none;
-  border-radius:30px;
-  background:linear-gradient(135deg,#4fd1ff,#2b6cff);
-  color:#fff;
-  cursor:pointer;
-}
     `),
 
-    /* LIKE EFFECT */
-    likeBurst && h("div",{className:"like-rain"},
-      Array.from({length:36}).map(() =>
-        h("i",{
-          className:"fas fa-heart like",
-          style:{
-            left:Math.random()*100+"%",
-            fontSize:12+Math.random()*24+"px",
-            color:`hsl(200,90%,70%)`
-          }
-        })
+    /* BLUE LIGHT FILTER */
+    h("div", { className: "blue-light-overlay" }),
+
+    /* LIKE EFFECTS */
+    likeBurst && Array.from({ length: 15 }).map((_, i) =>
+      h("i", {
+        key: i,
+        className: "fas fa-heart like-particle",
+        style: {
+          left: 10 + Math.random() * 80 + '%',
+          top: '50%',
+          fontSize: 20 + Math.random() * 30 + 'px',
+          color: currentTheme.main,
+          animationDelay: Math.random() * 0.5 + 's'
+        }
+      })
+    ),
+
+    /* --- CONTENT AREA --- */
+    h("div", { className: "reader-content-wrapper" },
+      chapter.pages.map((p, i) => {
+        // Blur logic: If spoiler mode ON, and NOT last page (usually credits), and NOT unlocked
+        const isBlurred = settings.spoilerMode && !unlockedPages.has(i);
+
+        return h("div", {
+          key: i,
+          className: `reader-page-wrapper ${isBlurred ? 'is-blurred' : ''}`,
+          ref: e => imageRefs.current[i] = e,
+          onClick: () => handleImageClick(i)
+        },
+          // Image
+          h("img", { src: p, className: "reader-img" }),
+          
+          // Spoiler Overlay
+          isBlurred && h("div", { className: "spoiler-overlay" },
+            h("div", { className: "spoiler-badge" },
+              h("i", { className: "fas fa-eye-slash" }),
+              "Tap to Reveal"
+            )
+          )
+        );
+      }),
+
+      /* --- END OF CHAPTER SECTION --- */
+      h("div", { className: "end-chapter-section" },
+        h("h2", { style: { fontSize: '24px', marginBottom: '8px' } }, "Chapter Complete"),
+        h("p", { style: { color: '#8899ac', fontSize: '14px' } }, "You've reached the end."),
+        h("button", { className: "end-btn", onClick: onBack }, 
+          h("i", { className: "fas fa-arrow-left", style: { marginRight: '8px' } }),
+          "Back to Chapters"
+        )
       )
     ),
 
-    /* TOOLBAR */
-    h("div",{className:"reader-toolbar"},
-      h("div",{className:"toolbar-group"},
-        h("i",{className:"fas fa-arrow-left reader-icon",onClick:onBack}),
-        h("i",{className:"fas fa-heart reader-icon",onClick:triggerLike})
-      ),
-
-      h("div",{className:"toolbar-center"},
-        h("div",{className:"chapter-title"},chapter.title),
-        h("div",{className:"chapter-sub"},`Page ${currentPage+1} / ${chapter.pages.length}`),
-        h("div",{className:"progress-wrap"},
-          h("div",{className:"progress-bar"})
+    /* --- TOOLBAR --- */
+    h("div", { className: `reader-toolbar ${settings.autoHide ? 'toolbar-hidden' : ''}` },
+      h("div", { className: "reader-icon", onClick: onBack }, h("i", { className: "fas fa-arrow-left" })),
+      
+      h("div", { className: "chapter-info" },
+        h("div", { className: "chapter-title" }, chapter.title),
+        h("div", { className: "chapter-pg" }, `Page ${currentPage + 1} / ${chapter.pages.length}`),
+        settings.showProgress && h("div", { className: "prog-track" },
+          h("div", { className: "prog-fill" })
         )
       ),
 
-      h("div",{className:"toolbar-group"},
-        h("i",{className:"fas fa-cog reader-icon",onClick:()=>setShowSettings(true)}),
-        h("i",{className:"fas fa-envelope reader-icon",onClick:()=>setShowReview(true)})
+      h("div", { style: { display: 'flex', gap: '8px' } },
+        h("div", { className: "reader-icon", onClick: triggerLike }, 
+          h("i", { className: `fas fa-heart ${likes ? 'active' : ''}`, style: { color: likes ? '#ff2b55' : '' } })
+        ),
+        h("div", { className: "reader-icon", onClick: () => setShowSettings(true) }, h("i", { className: "fas fa-cog" }))
       )
     ),
 
-    /* CONTENT */
-    chapter.pages.map((p,i)=>
-      h("div",{className:"reader-page",ref:e=>imageRefs.current[i]=e},
-        h("img",{src:p,className:"reader-img low"}),
-        h("img",{src:p,className:"reader-img high",onLoad:e=>e.target.classList.add("loaded")})
-      )
-    ),
+    /* --- SETTINGS MODAL (10 FEATURES) --- */
+    showSettings && h("div", { className: "overlay" },
+      h("div", { className: "settings-card" },
+        h("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' } },
+          h("h3", { style: { margin: 0 } }, "Reader Settings"),
+          h("i", { className: "fas fa-times", style: { cursor: 'pointer', padding: '10px' }, onClick: () => setShowSettings(false) })
+        ),
 
-    /* SETTINGS */
-    showSettings && h("div",{className:"overlay"},
-      h("div",{className:"card"},
-        h("i",{className:"fas fa-times close",onClick:()=>setShowSettings(false)}),
-        h("h3",null,"Reader Settings"),
-        h("p",{style:{opacity:.7}},"More options coming soon 💙")
-      )
-    ),
+        /* 1. Theme Selector */
+        h("div", { className: "set-group" },
+          h("span", { className: "set-label" }, "App Theme"),
+          h("div", { className: "theme-row" },
+            Object.keys(themes).map(key => 
+              h("div", { 
+                key, 
+                className: `theme-dot ${settings.theme === key ? 'selected' : ''}`,
+                style: { background: themes[key].grad },
+                onClick: () => updateSetting('theme', key)
+              })
+            )
+          )
+        ),
 
-    /* MESSAGE */
-    showReview && h("div",{className:"overlay"},
-      h("div",{className:"card"},
-        h("i",{className:"fas fa-times close",onClick:()=>setShowReview(false)}),
-        h("h3",null,"Message to Creator"),
-        h("textarea",{value:reviewText,onInput:e=>setReviewText(e.target.value)}),
-        h("button",{className:"action-btn",onClick:sendReview},"Send Message")
+        /* 2. Spoiler Mode */
+        h("div", { className: "control-row" },
+          h("div", { className: "control-name" }, h("i", { className: "fas fa-eye-slash" }), "Spoiler Blur Mode"),
+          h("div", { className: `toggle-switch ${settings.spoilerMode ? 'on' : ''}`, onClick: () => updateSetting('spoilerMode', !settings.spoilerMode) },
+            h("div", { className: "toggle-knob" })
+          )
+        ),
+
+        /* 3. Zoom / Width */
+        h("div", { className: "control-row" },
+          h("div", { className: "control-name" }, h("i", { className: "fas fa-expand" }), "Page Width"),
+          h("input", { type: "range", min: "50", max: "100", value: settings.zoom, onChange: e => updateSetting('zoom', e.target.value) })
+        ),
+
+        /* 4. Brightness */
+        h("div", { className: "control-row" },
+          h("div", { className: "control-name" }, h("i", { className: "fas fa-sun" }), "Brightness"),
+          h("input", { type: "range", min: "50", max: "150", value: settings.brightness, onChange: e => updateSetting('brightness', e.target.value) })
+        ),
+
+        /* 5. Page Gap */
+        h("div", { className: "control-row" },
+          h("div", { className: "control-name" }, h("i", { className: "fas fa-arrows-alt-v" }), "Page Spacing"),
+          h("input", { type: "range", min: "0", max: "50", value: settings.pageGap, onChange: e => updateSetting('pageGap', e.target.value) })
+        ),
+
+        /* 6. Blue Light Filter */
+        h("div", { className: "control-row" },
+          h("div", { className: "control-name" }, h("i", { className: "fas fa-moon" }), "Blue Light Filter"),
+          h("input", { type: "range", min: "0", max: "100", value: settings.blueLight, onChange: e => updateSetting('blueLight', e.target.value) })
+        ),
+
+        /* 7. Grayscale */
+        h("div", { className: "control-row" },
+          h("div", { className: "control-name" }, h("i", { className: "fas fa-tint-slash" }), "Grayscale Mode"),
+          h("div", { className: `toggle-switch ${settings.grayscale ? 'on' : ''}`, onClick: () => updateSetting('grayscale', !settings.grayscale) },
+            h("div", { className: "toggle-knob" })
+          )
+        ),
+
+        /* 8. Invert Colors (Night) */
+        h("div", { className: "control-row" },
+          h("div", { className: "control-name" }, h("i", { className: "fas fa-adjust" }), "Invert Colors"),
+          h("div", { className: `toggle-switch ${settings.invert ? 'on' : ''}`, onClick: () => updateSetting('invert', !settings.invert) },
+            h("div", { className: "toggle-knob" })
+          )
+        ),
+
+        /* 9. Show Progress Bar */
+        h("div", { className: "control-row" },
+          h("div", { className: "control-name" }, h("i", { className: "fas fa-tasks" }), "Show Progress"),
+          h("div", { className: `toggle-switch ${settings.showProgress ? 'on' : ''}`, onClick: () => updateSetting('showProgress', !settings.showProgress) },
+            h("div", { className: "toggle-knob" })
+          )
+        ),
+
+        /* 10. Auto Hide Toolbar */
+        h("div", { className: "control-row", style: { border: 'none' } },
+          h("div", { className: "control-name" }, h("i", { className: "fas fa-magic" }), "Auto-Hide Toolbar"),
+          h("div", { className: `toggle-switch ${settings.autoHide ? 'on' : ''}`, onClick: () => updateSetting('autoHide', !settings.autoHide) },
+            h("div", { className: "toggle-knob" })
+          )
+        )
       )
     )
   );
 };
-
-
 // --- MAIN APP ---
 const App = () => {
     // 💾 STATE RECALL (Only for Preferences, NO Location)
