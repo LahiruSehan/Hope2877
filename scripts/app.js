@@ -585,358 +585,599 @@ const LicenseBar = () => {
 
 
 
-// --- HOME PAGE (MAGICAL RED EDITION) ---
+// --- HOME PAGE (ULTIMATE IMMERSIVE EDITION) ---
 const HomePage = ({ onStartChapters, onViewCredits }) => {
 
-  const styles = `
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Orbitron:wght@400;600;800&display=swap');
-
-* { box-sizing: border-box; }
-
-.home-container {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  background: radial-gradient(circle at top, #1a0000 0%, #000 60%);
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  padding-top: 0px; 
-  font-family: 'Orbitron', sans-serif;
-  color: #fff;
-}
-
-/* 🔥 RED ENERGY FOG */
-.energy-overlay {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 30% 20%, rgba(255,0,0,0.12), transparent 40%),
-    radial-gradient(circle at 70% 80%, rgba(255,40,0,0.1), transparent 45%);
-  z-index: 1;
-  mix-blend-mode: screen;
-}
-
-/* 🔥 FLOATING EMBERS */
-.ember {
-  position: absolute;
-  bottom: -20px;
-  width: 4px;
-  height: 4px;
-  background: #ff3b1a;
-  border-radius: 50%;
-  box-shadow: 0 0 12px #ff2200;
-  animation: rise linear infinite;
-  opacity: 0;
-  z-index: 2;
-}
-
-@keyframes rise {
-  0% { transform: translateY(0) scale(1); opacity: 1; }
-  100% { transform: translateY(-90vh) scale(0); opacity: 0; }
-}
-
-.content-layer {
-  z-index: 10;
-  width: 100%;
-  max-width: 800px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  overflow-y: auto;
-  scrollbar-width: none;
-}
-.content-layer::-webkit-scrollbar { display: none; }
-
-/* 🌌 HERO IMAGE + SHIMMER */
-.hero-img-container {
-  width: 100%;
-  max-width: 500px;
-  position: relative;
-  margin-bottom: 15px;
-}
-
-.hero-image {
-  width: 100%;
-  display: block;
-  mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0));
-  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0));
-}
-
-.hero-img-container::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    120deg,
-    transparent 30%,
-    rgba(255,80,80,0.25),
-    transparent 70%
-  );
-  animation: shimmer 4s infinite;
-  mix-blend-mode: screen;
-  pointer-events: none;
-}
-
-@keyframes shimmer {
-  0% { transform: translateX(-120%); }
-  100% { transform: translateX(120%); }
-}
-
-/* ✨ TITLES */
-.sub-title-clean {
-  font-family: 'Cinzel', serif;
-  font-size: 1.1rem;
-  letter-spacing: 4px;
-  color: #ffffff;
-  font-weight: 700;
-  margin-top: 10px;
-}
-
-.main-title-electric {
-  font-family: 'Cinzel', serif;
-  font-size: 2rem;
-  font-weight: 900;
-  letter-spacing: 3px;
-  color: #ff1a1a;
-  text-shadow: 0 0 10px #ff0000, 0 0 30px rgba(255,0,0,0.6);
-  margin-bottom: 25px;
-}
-
-/* 🏷 TAGS */
-.tags-row {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  margin-bottom: 30px;
-  flex-wrap: wrap;
-}
-
-.tag-pill {
-  padding: 5px 12px;
-  border-radius: 999px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  border: 1px solid #ff4444;
-  color: #ffaaaa;
-  background: rgba(0,0,0,0.6);
-}
-
-/* 📜 DESC - MADE SMALLER */
-.desc-text {
-  max-width: 560px;
-  font-size: 0.82rem; 
-  line-height: 1.5;
-  color: #ccc;
-  font-weight: 500;
-  margin-bottom: 40px;
-}
-
-/* 🌑 CINEMATIC BUTTONS - ROUNDER & ANIMATED */
-.btn-split-container {
-  display: flex;
-  gap: 22px;
-  justify-content: center;
-  margin-bottom: 25px;
-}
-
-.cine-btn {
-  position: relative;
-  width: 200px; 
-  height: 50px;
-  cursor: pointer;
-  background: radial-gradient(circle at top, rgba(255,80,80,0.35), rgba(20,0,0,0.9) 60%);
-  border-radius: 25px; 
-  overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 0 15px rgba(255,0,0,0.2);
-  animation: pulseGlow 3s infinite alternate;
-}
-
-@keyframes pulseGlow {
-  0% { box-shadow: 0 0 10px rgba(255,0,0,0.2); }
-  100% { box-shadow: 0 0 25px rgba(255,50,50,0.5); transform: translateY(-2px); }
-}
-
-.cine-btn::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  padding: 2px;
-  border-radius: 25px; 
-  background: linear-gradient(120deg, #ff3b3b, #ff9999, #ff3b3b, #ff0000);
-  background-size: 300% 300%;
-  animation: strokeFlow 3s linear infinite;
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-}
-
-@keyframes strokeFlow {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 300% 50%; }
-}
-
-.cine-btn-inner {
-  position: absolute;
-  inset: 2px;
-  background: linear-gradient(180deg, rgba(30,0,0,0.98), rgba(60,0,0,0.9));
-  border-radius: 23px; 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.3s;
-}
-
-.cine-btn-text {
-  font-family: 'Cinzel', serif;
-  font-size: 0.85rem;
-  letter-spacing: 2px;
-  font-weight: 800;
-  color: #fff;
-  text-shadow: 0 0 8px rgba(255,255,255,0.3);
-  animation: textDrift 3s ease-in-out infinite;
-}
-
-@keyframes textDrift {
-  0%,100% { opacity: 0.9; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.05); }
-}
-
-.cine-btn:hover {
-  transform: scale(1.1);
-  box-shadow: 0 0 35px rgba(255,0,0,0.6);
-}
-
-.cine-btn:hover .cine-btn-inner {
-  background: linear-gradient(180deg, rgba(60,0,0,0.95), rgba(20,0,0,0.9));
-}
-
-/* ⭐ RECOGNITION */
-.rec-section {
-  transform: scale(0.9);
-  margin-top: 5px;
-}
-
-.rec-title {
-  font-family: 'Cinzel', serif;
-  font-size: 0.7rem;
-  letter-spacing: 2px;
-  color: #777;
-  margin-bottom: 10px;
-}
-
-.rec-btn-container {
-  display: flex;
-  gap: 16px;
-}
-
-.rec-btn {
-  padding: 6px 18px;
-  font-size: 0.75rem;
-  font-family: 'Cinzel', serif;
-  color: #ffcccc;
-  border: 1px solid #ff3333;
-  background: rgba(40,0,0,0.6);
-  border-radius: 999px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.rec-btn:hover {
-  background: rgba(100,0,0,0.4);
-  transform: translateY(-2px);
-}
-
-.rec-icon {
-  margin-left: 6px;
-}
-`;
-
+  // --- 1. STATE MANAGEMENT ---
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [showSettings, setShowSettings] = React.useState(false);
+  const [showChapters, setShowChapters] = React.useState(false);
+  const [mousePos, setMousePos] = React.useState({ x: 0, y: 0 });
+  const [resumeChapter, setResumeChapter] = React.useState(null);
+  const [descText, setDescText] = React.useState("");
+  const [isTransitioning, setIsTransitioning] = React.useState(false);
+  const [settings, setSettings] = React.useState({ reducedMotion: false, muted: false });
   const [embers, setEmbers] = React.useState([]);
 
+  // Audio Ref
+  const audioRef = React.useRef(null);
+
+  // Full Description for Typewriter
+  const fullDescription = "As humanity faces its final hours, a hidden conspiracy awakens — forcing Jake and Viyona to choose between the world they know and the truth that could rewrite everything.";
+
+  // --- 2. CSS STYLES ---
+  const styles = `
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Orbitron:wght@400;600;800&display=swap');
+
+    * { box-sizing: border-box; }
+
+    /* 🌌 CONTAINER & GLOBAL FX */
+    .home-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(circle at top, #1a0000 0%, #000 60%);
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      padding-top: 0px; 
+      font-family: 'Orbitron', sans-serif;
+      color: #fff;
+      perspective: 1000px; /* For 3D Parallax */
+    }
+
+    /* 📺 CRT SCANLINES */
+    .crt-scanline {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+      background-size: 100% 4px;
+      z-index: 50;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    /* 🎞️ VIGNETTE & NOISE */
+    .vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8) 100%);
+      z-index: 40;
+      pointer-events: none;
+    }
+    .noise {
+      position: absolute;
+      inset: 0;
+      background: url('https://grainy-gradients.vercel.app/noise.svg');
+      opacity: 0.05;
+      z-index: 41;
+      pointer-events: none;
+    }
+
+    /* 🔥 RED ENERGY FOG (MOVING) */
+    .energy-overlay {
+      position: absolute;
+      inset: -50%;
+      width: 200%;
+      height: 200%;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(255,0,0,0.12), transparent 40%),
+        radial-gradient(circle at 70% 80%, rgba(255,40,0,0.1), transparent 45%);
+      z-index: 1;
+      mix-blend-mode: screen;
+      animation: fogDrift 60s linear infinite;
+    }
+    @keyframes fogDrift {
+      0% { transform: translate(0, 0); }
+      50% { transform: translate(-5%, -5%); }
+      100% { transform: translate(0, 0); }
+    }
+
+    /* 🔥 EMBERS */
+    .ember {
+      position: absolute;
+      bottom: -20px;
+      width: 4px;
+      height: 4px;
+      background: #ff3b1a;
+      border-radius: 50%;
+      box-shadow: 0 0 12px #ff2200;
+      animation: rise linear infinite;
+      z-index: 2;
+      transition: transform 0.2s ease-out; /* For interaction */
+    }
+    @keyframes rise {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-100vh) scale(0); opacity: 0; }
+    }
+
+    .content-layer {
+      z-index: 10;
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      overflow-y: auto;
+      scrollbar-width: none;
+      transition: transform 0.1s ease-out; /* Smooth Parallax */
+    }
+    .content-layer::-webkit-scrollbar { display: none; }
+
+    /* 💀 LOADING SKELETON */
+    .skeleton-box {
+      background: #222;
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+    .skeleton-box::after {
+      position: absolute;
+      top: 0; right: 0; bottom: 0; left: 0;
+      transform: translateX(-100%);
+      background-image: linear-gradient(90deg, rgba(255, 255, 255, 0) 0, rgba(255, 255, 255, 0.1) 20%, rgba(255, 255, 255, 0.2) 60%, rgba(255, 255, 255, 0));
+      animation: shimmer 2s infinite;
+      content: '';
+    }
+    .skeleton-hero { width: 300px; height: 400px; margin-bottom: 20px; }
+    .skeleton-text { width: 80%; height: 20px; margin-bottom: 10px; }
+
+    /* 🌌 HERO IMAGE */
+    .hero-img-container {
+      width: 100%;
+      max-width: 480px;
+      position: relative;
+      margin-bottom: 15px;
+      transition: transform 0.3s;
+    }
+    .hero-image {
+      width: 100%;
+      display: block;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 70%, rgba(0,0,0,0));
+      -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 70%, rgba(0,0,0,0));
+    }
+    
+    /* GLITCH EFFECT ON HOVER */
+    .hero-img-container:hover .hero-image {
+      animation: glitch-anim 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
+    }
+    @keyframes glitch-anim {
+      0% { transform: translate(0); }
+      20% { transform: translate(-2px, 2px); filter: hue-rotate(90deg); }
+      40% { transform: translate(-2px, -2px); }
+      60% { transform: translate(2px, 2px); filter: hue-rotate(-90deg); }
+      80% { transform: translate(2px, -2px); }
+      100% { transform: translate(0); }
+    }
+
+    /* ✨ TITLES */
+    .sub-title-clean {
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
+      letter-spacing: 4px;
+      font-weight: 700;
+      margin-top: 10px;
+      background: linear-gradient(to right, #ffffff, #999999);
+      -webkit-background-clip: text;
+      color: transparent; /* Gradient Text */
+    }
+
+    .main-title-electric {
+      font-family: 'Cinzel', serif;
+      font-size: 2.2rem;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: #ff1a1a;
+      text-shadow: 0 0 10px #ff0000;
+      margin-bottom: 20px;
+    }
+    
+    /* NEON FLICKER ANIMATION */
+    .flicker-text {
+      animation: neonFlicker 4s infinite alternate;
+    }
+    @keyframes neonFlicker {
+      0%, 18%, 22%, 25%, 53%, 57%, 100% { opacity: 1; text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000; }
+      20%, 24%, 55% { opacity: 0.4; text-shadow: none; }
+    }
+
+    /* 🏷 TAGS */
+    .tags-row {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .tag-pill {
+      padding: 5px 12px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      border: 1px solid #ff4444;
+      color: #ffaaaa;
+      background: rgba(20,0,0,0.8);
+      position: relative;
+    }
+    .read-time { font-size: 0.65rem; color: #888; margin-left: 5px; margin-top: 5px;}
+
+    /* 📜 DESC (Typewriter container) */
+    .desc-text {
+      max-width: 560px;
+      min-height: 60px; /* Prevent layout jump */
+      font-size: 0.82rem; 
+      line-height: 1.6;
+      color: #ccc;
+      font-family: 'Courier New', monospace; /* Terminal feel */
+      font-weight: 500;
+      margin-bottom: 30px;
+      text-shadow: 0 0 2px black;
+    }
+    .cursor-blink { animation: blink 1s step-end infinite; border-right: 2px solid #ff4444; }
+    @keyframes blink { 50% { border-color: transparent; } }
+
+    /* 🌑 CINEMATIC BUTTONS */
+    .btn-split-container {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-bottom: 25px;
+      align-items: center;
+    }
+
+    .cine-btn {
+      position: relative;
+      width: 200px; 
+      height: 50px;
+      cursor: pointer;
+      background: #1a0505;
+      border-radius: 2px;
+      border: 1px solid #ff3333;
+      overflow: hidden;
+      transition: all 0.3s;
+      box-shadow: 0 0 10px rgba(255,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .cine-btn:hover { background: #330000; box-shadow: 0 0 20px rgba(255,0,0,0.6); }
+
+    .cine-btn-text {
+      font-family: 'Cinzel', serif;
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 2px;
+    }
+    
+    .share-btn {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      border: 1px solid #444;
+      background: rgba(0,0,0,0.5);
+      color: #fff;
+      display: flex; justify-content: center; align-items: center;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .share-btn:hover { background: #fff; color: #000; }
+
+    /* NEW BADGE */
+    .badge-new {
+      position: absolute;
+      top: -8px; right: -8px;
+      background: #ff0000;
+      color: #fff;
+      font-size: 0.6rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: bold;
+      animation: pulse 1s infinite;
+    }
+
+    /* ⭐ RECOGNITION AVATARS */
+    .rec-section { transform: scale(0.9); margin-top: 10px; }
+    .rec-title { font-family: 'Cinzel', serif; font-size: 0.7rem; color: #777; margin-bottom: 10px; }
+    .rec-btn-container { display: flex; gap: 16px; }
+    .rec-btn {
+      padding: 6px 12px 6px 8px;
+      font-size: 0.75rem;
+      font-family: 'Cinzel', serif;
+      color: #ffcccc;
+      border: 1px solid #333;
+      background: rgba(0,0,0,0.6);
+      border-radius: 20px;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 8px;
+      transition: all 0.2s;
+    }
+    .rec-btn:hover { border-color: #ff3333; background: rgba(50,0,0,0.5); }
+    .avatar-circle {
+      width: 24px; height: 24px; background: #444; border-radius: 50%;
+      background-size: cover; background-position: center;
+    }
+
+    /* ⚙️ MODALS & DRAWERS */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100;
+      display: flex; justify-content: center; align-items: center;
+      backdrop-filter: blur(5px);
+    }
+    .modal-box {
+      background: #111; border: 1px solid #444; padding: 20px;
+      width: 300px; border-radius: 8px;
+      box-shadow: 0 0 30px rgba(0,0,0,0.9);
+    }
+    .drawer-bottom {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #0f0f0f; border-top: 2px solid #ff3333;
+      padding: 20px; z-index: 101;
+      transform: translateY(100%); transition: transform 0.3s ease-out;
+      height: 50vh; overflow-y: auto;
+    }
+    .drawer-open { transform: translateY(0); }
+    .chapter-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; margin-top: 15px; }
+    .chapter-box { 
+      background: #222; padding: 10px; border: 1px solid #444; 
+      text-align: center; cursor: pointer; border-radius: 4px; font-size: 0.8rem;
+    }
+    .chapter-box:hover { border-color: #ff3333; color: #ff3333; }
+
+    /* FOOTER & SETTINGS */
+    .system-footer {
+      position: absolute; bottom: 10px; width: 100%;
+      display: flex; justify-content: space-between; padding: 0 20px;
+      font-size: 0.6rem; color: #555; pointer-events: none; z-index: 60;
+    }
+    .settings-icon { pointer-events: auto; cursor: pointer; transition: color 0.3s; pointer-events: all; }
+    .settings-icon:hover { color: #fff; }
+    
+    .setting-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.9rem; }
+    .toggle { cursor: pointer; color: #ff3333; }
+
+    /* CINEMATIC ZOOM TRANSITION */
+    .zooming-out {
+      animation: camZoom 1.5s forwards;
+    }
+    @keyframes camZoom {
+      0% { transform: scale(1); filter: brightness(1); }
+      100% { transform: scale(3); filter: brightness(0); }
+    }
+  `;
+
+  // --- 3. EFFECTS & LOGIC ---
+
+  // Initialization (Skeleton & LocalStorage)
   React.useEffect(() => {
+    // Simulate image load
+    setTimeout(() => setIsLoading(false), 2000);
+
+    // Check resume state
+    const savedCh = localStorage.getItem('lastReadChapter');
+    if (savedCh && parseInt(savedCh) > 1) {
+      setResumeChapter(parseInt(savedCh));
+    }
+
+    // Initialize Embers
     const e = [];
-    for (let i = 0; i < 35; i++) {
+    for (let i = 0; i < 40; i++) {
       e.push({
         left: Math.random() * 100 + "%",
-        duration: Math.random() * 3 + 3 + "s",
-        delay: Math.random() * 5 + "s"
+        duration: Math.random() * 4 + 4 + "s",
+        delay: Math.random() * 5 + "s",
+        id: i
       });
     }
     setEmbers(e);
   }, []);
 
-  const getCredit = (name) =>
-    window.APP_CONFIG.credits.find(c => c.name.toUpperCase().includes(name))
+  // Typewriter Effect
+  React.useEffect(() => {
+    if (isLoading) return;
+    let i = 0;
+    const interval = setInterval(() => {
+      setDescText(fullDescription.slice(0, i));
+      i++;
+      if (i > fullDescription.length) clearInterval(interval);
+    }, 30); // Speed of typing
+    return () => clearInterval(interval);
+  }, [isLoading]);
+
+  // Mouse Parallax Logic
+  const handleMouseMove = (e) => {
+    if (settings.reducedMotion) return;
+    const { clientX, clientY } = e;
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    
+    // Calculate slight offset (max 15px)
+    const moveX = ((clientX - centerX) / centerX) * 15;
+    const moveY = ((clientY - centerY) / centerY) * 15;
+    setMousePos({ x: moveX * -1, y: moveY * -1 }); // Invert for depth
+  };
+
+  // Interaction Handlers
+  const handleInteraction = () => {
+    // Attempt to play audio on first click
+    if (audioRef.current && !settings.muted) {
+      audioRef.current.play().catch(e => console.log("Audio play prevented", e));
+    }
+  };
+
+  const handleStart = () => {
+    handleInteraction();
+    setIsTransitioning(true); // Trigger Zoom CSS
+    setTimeout(() => {
+      onStartChapters();
+    }, 1400); // Wait for animation
+  };
+
+  const handleShare = () => {
+    const text = "Read 'Beneath the Light of a Dying Sky' - A Sci-Fi Thriller.";
+    if (navigator.share) {
+      navigator.share({ title: 'Dying Sky', text: text, url: window.location.href });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert("Link copied to clipboard!");
+    }
+  };
+
+  const toggleSetting = (key) => {
+    setSettings(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  // Helper for recognition credits
+  const getCredit = (name) => 
+    window.APP_CONFIG.credits.find(c => c.name.toUpperCase().includes(name)) 
     || window.APP_CONFIG.credits[0];
 
-  const handleAction = (action) => {
-    if (navigator.vibrate) navigator.vibrate([60, 40, 80]);
-    action();
-  };
+  // --- 4. RENDER ---
 
   return h(
     "div",
-    { className: "home-container" },
+    { 
+      className: "home-container", 
+      onMouseMove: handleMouseMove,
+      onClick: handleInteraction
+    },
     h("style", null, styles),
-    h("div", { className: "energy-overlay" }),
 
-    embers.map((e, i) =>
+    // Hidden Audio
+    h("audio", { 
+      ref: audioRef, 
+      src: "https://cdn.pixabay.com/audio/2022/10/05/audio_686377755b.mp3", // Placeholder Drone Sound
+      loop: true, 
+      volume: 0.4 
+    }),
+
+    // Overlays
+    h("div", { className: "crt-scanline" }),
+    h("div", { className: "vignette" }),
+    h("div", { className: "noise" }),
+    h("div", { 
+      className: "energy-overlay",
+      style: { 
+        transform: !settings.reducedMotion ? `translate(${mousePos.x * 0.5}px, ${mousePos.y * 0.5}px)` : 'none' 
+      }
+    }),
+
+    // Embers
+    !settings.reducedMotion && embers.map((e) =>
       h("div", {
-        key: i,
+        key: e.id,
         className: "ember",
         style: { left: e.left, animationDuration: e.duration, animationDelay: e.delay }
       })
     ),
 
-    h("div", { className: "content-layer" },
+    // MAIN CONTENT LAYER
+    h("div", { 
+      className: `content-layer ${isTransitioning ? 'zooming-out' : ''}`,
+      style: { transform: `translate(${mousePos.x}px, ${mousePos.y}px)` }
+    },
 
-      h("div", { className: "hero-img-container" },
-        h("img", { src: "/images/Cover.png", className: "hero-image" })
-      ),
+      // LOADING SKELETON
+      isLoading ? h("div", null,
+        h("div", { className: "skeleton-box skeleton-hero" }),
+        h("div", { className: "skeleton-box skeleton-text" }),
+        h("div", { className: "skeleton-box skeleton-text", style: { width: '60%' } })
+      ) : 
+      
+      // REAL CONTENT
+      h(React.Fragment, null,
+        h("div", { className: "hero-img-container" },
+          h("img", { src: "/images/Cover.png", className: "hero-image" })
+        ),
 
-      h("div", { className: "sub-title-clean" }, "BENEATH THE LIGHT"),
-      h("div", { className: "main-title-electric" }, "OF A DYING SKY"),
+        h("div", { className: "sub-title-clean" }, "BENEATH THE LIGHT"),
+        h("div", { className: "main-title-electric" }, 
+          "OF A ", h("span", { className: "flicker-text" }, "DYING SKY")
+        ),
 
-      h("div", { className: "tags-row" },
-        ["Sci-Fi", "Romance", "Action", "Mystery", "Horror"].map(t =>
-          h("span", { className: "tag-pill" }, t)
-        )
-      ),
-
-      h("p", { className: "desc-text" },
-        "As humanity faces its final hours, a hidden conspiracy awakens — forcing Jake and Viyona to choose between the world they know and the truth that could rewrite everything."
-      ),
-
-      h("div", { className: "btn-split-container" },
-        h("div", { className: "cine-btn", onClick: () => handleAction(onStartChapters) },
-          h("div", { className: "cine-btn-inner" },
-            h("span", { className: "cine-btn-text" }, "READ STORY")
-          )
-        )
-      ),
-
-      h(
-        "div",
-        { className: "rec-section" },
-        h("div", { className: "rec-title" }, "SPECIAL RECOGNITION"),
-        h(
-          "div",
-          { className: "rec-btn-container" },
-          h(
-            "div",
-            { className: "rec-btn", onClick: () => onViewCredits(getCredit('MINASHA')) },
-            "MINASHA",
-            h("i", { className: "fas fa-heart rec-icon" })
+        h("div", { className: "tags-row" },
+          ["Sci-Fi", "Romance", "Mystery", "Horror"].map(t =>
+            h("span", { key: t, className: "tag-pill" }, t)
           ),
-          h(
-            "div",
-            { className: "rec-btn", onClick: () => onViewCredits(getCredit('AROSHA')) },
-            "AROSHA",
-            h("i", { className: "fas fa-fire rec-icon" })
+          h("span", { className: "read-time" }, "⏱ 2hr Read")
+        ),
+
+        h("div", { className: "desc-text" }, 
+          descText,
+          h("span", { className: "cursor-blink" })
+        ),
+
+        h("div", { className: "btn-split-container" },
+          // READ BUTTON
+          h("div", { className: "cine-btn", onClick: handleStart },
+            h("div", { className: "cine-btn-text" }, 
+              resumeChapter ? `RESUME (CH ${resumeChapter})` : "READ STORY"
+            ),
+            // New Badge (only if not resuming)
+            !resumeChapter && h("div", { className: "badge-new" }, "NEW")
+          ),
+          // SHARE BUTTON
+          h("div", { className: "share-btn", onClick: handleShare },
+            h("i", { className: "fas fa-share-alt" })
+          ),
+          // CHAPTERS BUTTON
+          h("div", { className: "share-btn", onClick: () => setShowChapters(true) },
+            h("i", { className: "fas fa-list" })
           )
+        ),
+
+        // RECOGNITION SECTION
+        h("div", { className: "rec-section" },
+          h("div", { className: "rec-title" }, "SPECIAL RECOGNITION"),
+          h("div", { className: "rec-btn-container" },
+            h("div", { className: "rec-btn", onClick: () => onViewCredits(getCredit('MINASHA')) },
+              h("div", { className: "avatar-circle", style: { backgroundImage: 'url(https://ui-avatars.com/api/?name=Minasha&background=ffcccc&color=000)' } }),
+              "MINASHA"
+            ),
+            h("div", { className: "rec-btn", onClick: () => onViewCredits(getCredit('AROSHA')) },
+              h("div", { className: "avatar-circle", style: { backgroundImage: 'url(https://ui-avatars.com/api/?name=Arosha&background=ffcccc&color=000)' } }),
+              "AROSHA"
+            )
+          )
+        )
+      )
+    ),
+
+    // SYSTEM FOOTER
+    h("div", { className: "system-footer" },
+      h("span", null, "v1.0.4 • SYSTEM ONLINE"),
+      h("i", { className: "fas fa-cog settings-icon", onClick: () => setShowSettings(true) })
+    ),
+
+    // SETTINGS MODAL
+    showSettings && h("div", { className: "modal-overlay", onClick: () => setShowSettings(false) },
+      h("div", { className: "modal-box", onClick: e => e.stopPropagation() },
+        h("h3", { style: { color: '#ff3333', marginTop: 0 } }, "SYSTEM SETTINGS"),
+        h("div", { className: "setting-row" },
+          "Reduced Motion",
+          h("div", { className: "toggle", onClick: () => toggleSetting('reducedMotion') }, settings.reducedMotion ? "[ON]" : "[OFF]")
+        ),
+        h("div", { className: "setting-row" },
+          "Mute Audio",
+          h("div", { className: "toggle", onClick: () => toggleSetting('muted') }, settings.muted ? "[ON]" : "[OFF]")
+        ),
+        h("div", { 
+          className: "cine-btn", 
+          style: { width: '100%', height: '35px', marginTop: '20px' },
+          onClick: () => setShowSettings(false)
+        }, h("span", { className: "cine-btn-text" }, "CLOSE"))
+      )
+    ),
+
+    // CHAPTER DRAWER
+    h("div", { className: `drawer-bottom ${showChapters ? 'drawer-open' : ''}` },
+      h("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
+        h("h3", { style: { margin: 0, color: '#ff3333' } }, "SELECT DATA LOG"),
+        h("i", { className: "fas fa-times", style: { cursor: 'pointer' }, onClick: () => setShowChapters(false) })
+      ),
+      h("div", { className: "chapter-grid" },
+        [1, 2, 3, 4, 5].map(num => 
+          h("div", { key: num, className: "chapter-box", onClick: () => alert(`Load Ch ${num}`) }, `CH ${num}`)
         )
       )
     )
