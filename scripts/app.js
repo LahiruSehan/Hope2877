@@ -1694,7 +1694,11 @@ const ReaderPage = ({
 // --- MAIN APP ---
 const App = () => {
     // 💾 STATE RECALL (Only for Preferences, NO Location)
-    const savedView = "intro"; // ALWAYS START AT INTRO/NORMAL
+    // Detect if the visitor is a Google bot, Bing bot, or social crawler
+    const isBot = /bot|googlebot|crawler|spider|robot|crawling/i.test(navigator.userAgent);
+
+// If it is a bot, SKIP the intro. If it is a human, show the 'intro'.
+    const savedView = isBot ? "home" : "intro"; // ALWAYS START AT INTRO/NORMAL
     const [view, setView] = useState(savedView);
     const [activePerson, setActivePerson] = useState(null);
     const [showSettings, setShowSettings] = useState(false);
