@@ -585,12 +585,13 @@ const LicenseBar = () => {
 
 
 
-// --- HOME PAGE (ULTIMATE IMMERSIVE EDITION - V3) ---
+/// --- HOME PAGE (ULTIMATE IMMERSIVE EDITION - V4) ---
 const HomePage = ({ onStartChapters, onViewCredits }) => {
 
   // --- 1. STATE MANAGEMENT ---
   const [isLoading, setIsLoading] = React.useState(true);
   const [showSettings, setShowSettings] = React.useState(false);
+  const [showAIModal, setShowAIModal] = React.useState(false); // New AI Modal State
   const [mousePos, setMousePos] = React.useState({ x: 0, y: 0 });
   const [resumeChapter, setResumeChapter] = React.useState(null);
   const [descText, setDescText] = React.useState("");
@@ -617,7 +618,6 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
       position: relative;
       width: 100vw;
       height: 100vh;
-      /* Deep dark background */
       background: #050505; 
       overflow: hidden;
       display: flex;
@@ -628,7 +628,7 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
       perspective: 1000px;
     }
 
-    /* 🔴 AMBIENT GLOW (BACKGROUND) */
+    /* 🔴 AMBIENT GLOW */
     .bg-glow {
       position: absolute;
       width: 800px;
@@ -642,7 +642,7 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
     .glow-top-left { top: -300px; left: -200px; }
     .glow-bottom-right { bottom: -300px; right: -200px; background: radial-gradient(circle, rgba(255, 60, 0, 0.06) 0%, transparent 70%); }
 
-    /* 📺 GLOBAL OVERLAYS */
+    /* 📺 OVERLAYS */
     .vignette {
       position: absolute;
       inset: 0;
@@ -689,50 +689,46 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
       transition: transform 0.1s ease-out;
     }
 
-    /* 🌌 HERO IMAGE & SHIMMER */
+    /* 🌌 HERO IMAGE */
     .hero-img-container {
       width: 100%;
       max-width: 480px;
       position: relative;
       margin-bottom: 15px;
       transition: transform 0.3s;
-      overflow: hidden; /* Clips the shimmer */
+      overflow: hidden; 
       border-radius: 4px;
     }
     
     .hero-image {
       width: 100%;
       display: block;
-      /* COLORS RESTORED */
       filter: contrast(1.1) brightness(0.95); 
       mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 80%, rgba(0,0,0,0));
       -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 80%, rgba(0,0,0,0));
     }
 
-    /* ✨ LIGHT SWEEP EFFECT */
+    /* ✨ SHIMMER EFFECTS */
     .shimmer-effect {
       position: absolute;
       top: 0; left: 0;
       width: 100%; height: 100%;
       background: linear-gradient(120deg, transparent 40%, rgba(255, 255, 255, 0.2) 50%, transparent 60%);
       transform: translateX(-100%);
-      /* Long duration + specific keyframes = Random feel */
       animation: sweep 7s ease-in-out infinite; 
       pointer-events: none;
       mix-blend-mode: overlay;
       z-index: 5;
     }
-
     @keyframes sweep {
       0% { transform: translateX(-150%); }
-      20% { transform: translateX(150%); } /* Fast sweep */
-      100% { transform: translateX(150%); } /* Wait */
+      20% { transform: translateX(150%); } 
+      100% { transform: translateX(150%); } 
     }
 
-    /* 🔗 SHARE BUTTON (ON IMAGE) */
-    .share-btn-floating {
+    /* 🔗 BUTTONS ON COVER */
+    .cover-btn {
       position: absolute;
-      top: 15px;
       right: 15px;
       width: 35px; height: 35px;
       border-radius: 50%;
@@ -745,7 +741,11 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
       backdrop-filter: blur(4px);
       transition: all 0.3s ease;
     }
-    .share-btn-floating:hover { background: #fff; color: #000; }
+    .cover-btn:hover { background: #fff; color: #000; border-color: #fff; }
+
+    .share-btn-pos { top: 15px; }
+    .ai-btn-pos { top: 60px; font-size: 0.7rem; font-weight: bold; color: #aaa; border-color: #444; }
+    .ai-btn-pos:hover { color: #ff3333; border-color: #ff3333; background: #220000; }
 
     /* ✨ TITLES */
     .sub-title-clean {
@@ -810,7 +810,7 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
     }
     @keyframes blink { 50% { opacity: 0; } }
 
-    /* 🔴 READ BUTTON (STATIC BORDER) */
+    /* 🔴 READ BUTTON (RAPID FIRE ANIMATION) */
     .epic-btn-wrapper {
       position: relative;
       display: flex;
@@ -822,18 +822,25 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
       overflow: visible;
     }
 
-    /* STATIC GRADIENT BORDER */
+    /* ANIMATED GRADIENT BORDER */
     .epic-btn-wrapper::before {
       content: '';
       position: absolute;
       inset: 0;
       border-radius: 50px;
-      padding: 2px;
-      /* Linear Gradient = Still, No Animation */
-      background: linear-gradient(90deg, #550000, #ff0000, #ff8800, #ff0000, #550000);
+      padding: 3px; /* Thickness of fire border */
+      /* Rapidly changing Red/Orange Gradient */
+      background: linear-gradient(90deg, #ff0000, #ff8800, #ff3300, #ffaa00, #cc0000, #ff0000);
+      background-size: 200% 100%;
       -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
       -webkit-mask-composite: xor;
       mask-composite: exclude;
+      animation: fireFlow 0.5s linear infinite; /* FAST speed */
+    }
+    
+    @keyframes fireFlow {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
     }
 
     .cine-btn {
@@ -861,7 +868,6 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
       letter-spacing: 2px;
     }
 
-    /* BADGE */
     .badge-new {
       position: absolute;
       top: -10px; right: 0px;
@@ -878,16 +884,15 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
     }
     @keyframes pulseBadge { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
-    /* ⭐ RECOGNITION (BUTTONS STYLE) */
+    /* ⭐ RECOGNITION (WITH SWEEP) */
     .rec-section { 
       transform: scale(0.95); 
-      margin-top: 40px; /* Moved Down */
+      margin-top: 40px; 
       display: flex;
       flex-direction: column;
       align-items: center;
     }
     .rec-title { font-family: 'Cinzel', serif; font-size: 0.7rem; color: #555; margin-bottom: 15px; letter-spacing: 2px;}
-    
     .rec-buttons-row { display: flex; gap: 15px; }
 
     .rec-pill-btn {
@@ -898,11 +903,28 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
       cursor: pointer;
       display: flex; align-items: center; gap: 8px;
       transition: all 0.3s;
+      position: relative;
+      overflow: hidden; /* For shimmer */
     }
     .rec-pill-btn:hover { 
       background: rgba(255, 0, 0, 0.15); 
       border-color: #ff4444; 
       transform: translateY(-2px);
+    }
+    
+    /* Small shimmer for buttons */
+    .rec-pill-btn::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: linear-gradient(120deg, transparent 20%, rgba(255, 255, 255, 0.4) 50%, transparent 80%);
+      transform: translateX(-100%);
+      animation: btnSweep 4s ease-in-out infinite;
+    }
+    @keyframes btnSweep {
+      0%, 50% { transform: translateX(-150%); }
+      100% { transform: translateX(200%); }
     }
 
     .icon-box { font-size: 0.9rem; }
@@ -926,9 +948,17 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
     }
     .modal-box {
       background: #111; border: 1px solid #333; padding: 25px;
-      width: 300px; border-radius: 12px;
+      width: 320px; border-radius: 12px;
       box-shadow: 0 0 30px rgba(0,0,0,1);
     }
+    .modal-text-content {
+      font-size: 0.8rem;
+      color: #ccc;
+      line-height: 1.5;
+      text-align: left;
+      margin-top: 10px;
+    }
+    .modal-text-content p { margin-bottom: 15px; }
 
     /* ZOOM OUT */
     .zooming-out { animation: camZoom 1.5s forwards; }
@@ -1014,10 +1044,8 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
 
     h("audio", { ref: audioRef, src: "https://cdn.pixabay.com/audio/2022/10/05/audio_686377755b.mp3", loop: true, volume: 0.4 }),
 
-    // AMBIENT BACKGROUND GLOWS
     h("div", { className: "bg-glow glow-top-left" }),
     h("div", { className: "bg-glow glow-bottom-right" }),
-
     h("div", { className: "vignette" }),
     h("div", { className: "noise" }),
 
@@ -1042,11 +1070,16 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
         // HERO IMAGE
         h("div", { className: "hero-img-container" },
           h("img", { src: "/images/Cover.png", className: "hero-image" }),
-          // Light Sweep Effect
           h("div", { className: "shimmer-effect" }),
+          
           // Share Button
-          h("div", { className: "share-btn-floating", onClick: handleShare },
+          h("div", { className: "cover-btn share-btn-pos", onClick: handleShare },
             h("i", { className: "fas fa-share-alt" })
+          ),
+          
+          // AI Transparency Button
+          h("div", { className: "cover-btn ai-btn-pos", onClick: () => setShowAIModal(true) },
+            "AI"
           )
         ),
 
@@ -1066,7 +1099,7 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
           !isTypingDone && h("span", { className: "cursor-blink" })
         ),
 
-        // READ BUTTON (No Rotation, just static gradient)
+        // READ BUTTON (RAPID FIRE ANIMATION)
         h("div", { className: "epic-btn-wrapper" },
           h("div", { className: "cine-btn", onClick: handleStart },
             h("div", { className: "cine-btn-text" }, 
@@ -1076,16 +1109,16 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
           )
         ),
 
-        // RECOGNITION (Now Small Buttons & Moved Down)
+        // RECOGNITION (WITH SWEEP ANIMATION)
         h("div", { className: "rec-section" },
           h("div", { className: "rec-title" }, "SPECIAL RECOGNITION"),
           h("div", { className: "rec-buttons-row" },
-            // Minasha Button
+            // Minasha
             h("div", { className: "rec-pill-btn", onClick: () => onViewCredits(getCredit('MINASHA')) },
               h("i", { className: "fas fa-heart icon-box minasha-icon" }),
               h("span", { className: "rec-name" }, "MINASHA")
             ),
-            // Arosha Button
+            // Arosha
             h("div", { className: "rec-pill-btn", onClick: () => onViewCredits(getCredit('AROSHA')) },
               h("i", { className: "fas fa-fire icon-box arosha-icon" }),
               h("span", { className: "rec-name" }, "AROSHA")
@@ -1097,7 +1130,7 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
 
     // FOOTER
     h("div", { className: "system-footer" },
-      h("span", null, "v3.1.0 • SYSTEM ONLINE"),
+      h("span", null, "v4.0.1 • SYSTEM ONLINE"),
       h("i", { className: "fas fa-cog settings-icon", onClick: () => setShowSettings(true) })
     ),
 
@@ -1109,12 +1142,27 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
           "Reduced Motion",
           h("span", { onClick: () => setSettings({...settings, reducedMotion: !settings.reducedMotion}), style: {color: '#ff3333', cursor:'pointer'} }, settings.reducedMotion ? "ON" : "OFF")
         ),
-        h("div", { style: {textAlign: 'center', color: '#666', fontSize:'0.8rem', marginTop:'20px'} }, "CLICK OUTSIDE TO CLOSE")
+        h("div", { style: {textAlign: 'center', color: '#666', fontSize:'0.8rem', marginTop:'20px'} }, "CLOSE")
+      )
+    ),
+
+    // AI TRANSPARENCY MODAL
+    showAIModal && h("div", { className: "modal-overlay", onClick: () => setShowAIModal(false) },
+      h("div", { className: "modal-box", style: { width: '350px' }, onClick: e => e.stopPropagation() },
+        h("h3", { style: { color: '#ff3333', marginTop: 0, marginBottom: '15px' } }, "AI USAGE STATEMENT"),
+        h("div", { className: "modal-text-content" },
+          h("p", null, "The foundational manuscript of the beta novel, \"Hope 2877 - Human Extinction,\" conceived and authored between 2015 and 2021 and subsequently inaugurated in 2022, was crafted entirely without the intervention of generative artificial intelligence."),
+          h("p", null, "Advanced computational models were leveraged exclusively to augment and validate the scientific rigour of celestial mechanics and space travel postulates, as well as to conduct exhaustive architectural research regarding the linguistic-to-visual transposition of the narrative into a serialized manga format."),
+          h("p", null, "In the production of the manga's visual landscape, while the primary conceptual drafts and structural outlines remain the product of artisanal hand-drawn artistry, the sophisticated processes of chrominance calibration, tonal refinement, and digital editing have been facilitated through specialized AI-driven visual suites.")
+        ),
+        h("div", { 
+          style: {textAlign: 'center', color: '#666', fontSize:'0.7rem', marginTop:'20px', cursor:'pointer', borderTop:'1px solid #333', paddingTop:'10px'},
+          onClick: () => setShowAIModal(false)
+        }, "CLOSE STATEMENT")
       )
     )
   );
 };
-
 
 
 // --- MANGA LIST ---
