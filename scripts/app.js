@@ -585,7 +585,7 @@ const LicenseBar = () => {
 
 
 
-// --- HOME PAGE (ULTIMATE IMMERSIVE EDITION - V2) ---
+// --- HOME PAGE (ULTIMATE IMMERSIVE EDITION - V3) ---
 const HomePage = ({ onStartChapters, onViewCredits }) => {
 
   // --- 1. STATE MANAGEMENT ---
@@ -594,7 +594,7 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
   const [mousePos, setMousePos] = React.useState({ x: 0, y: 0 });
   const [resumeChapter, setResumeChapter] = React.useState(null);
   const [descText, setDescText] = React.useState("");
-  const [isTypingDone, setIsTypingDone] = React.useState(false); // New state for cursor
+  const [isTypingDone, setIsTypingDone] = React.useState(false); 
   const [isTransitioning, setIsTransitioning] = React.useState(false);
   const [settings, setSettings] = React.useState({ reducedMotion: false, muted: false });
   const [embers, setEmbers] = React.useState([]);
@@ -617,7 +617,8 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
       position: relative;
       width: 100vw;
       height: 100vh;
-      background: radial-gradient(circle at top, #1a0000 0%, #050505 80%);
+      /* Deep dark background */
+      background: #050505; 
       overflow: hidden;
       display: flex;
       justify-content: center;
@@ -627,7 +628,21 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
       perspective: 1000px;
     }
 
-    /* 📺 GLOBAL OVERLAYS (Atmosphere) */
+    /* 🔴 AMBIENT GLOW (BACKGROUND) */
+    .bg-glow {
+      position: absolute;
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, rgba(220, 20, 20, 0.08) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+      filter: blur(60px);
+    }
+    .glow-top-left { top: -300px; left: -200px; }
+    .glow-bottom-right { bottom: -300px; right: -200px; background: radial-gradient(circle, rgba(255, 60, 0, 0.06) 0%, transparent 70%); }
+
+    /* 📺 GLOBAL OVERLAYS */
     .vignette {
       position: absolute;
       inset: 0;
@@ -674,65 +689,63 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
       transition: transform 0.1s ease-out;
     }
 
-    /* 🌌 HERO IMAGE & EFFECTS */
+    /* 🌌 HERO IMAGE & SHIMMER */
     .hero-img-container {
       width: 100%;
       max-width: 480px;
       position: relative;
       margin-bottom: 15px;
       transition: transform 0.3s;
-      overflow: visible; /* Allow share button to overflow */
+      overflow: hidden; /* Clips the shimmer */
+      border-radius: 4px;
     }
     
     .hero-image {
       width: 100%;
       display: block;
-      /* LOW COLOR EFFECT */
-      filter: grayscale(100%) contrast(1.2) brightness(0.9);
+      /* COLORS RESTORED */
+      filter: contrast(1.1) brightness(0.95); 
       mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 80%, rgba(0,0,0,0));
       -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 80%, rgba(0,0,0,0));
     }
 
-    /* RANDOM COLOR SPOTS ANIMATION */
-    .color-spot {
+    /* ✨ LIGHT SWEEP EFFECT */
+    .shimmer-effect {
       position: absolute;
-      width: 100px;
-      height: 100px;
-      background: radial-gradient(circle, rgba(255, 50, 50, 0.4) 0%, transparent 70%);
-      mix-blend-mode: overlay;
-      opacity: 0;
-      animation: flashSpot 4s infinite;
-      border-radius: 50%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: linear-gradient(120deg, transparent 40%, rgba(255, 255, 255, 0.2) 50%, transparent 60%);
+      transform: translateX(-100%);
+      /* Long duration + specific keyframes = Random feel */
+      animation: sweep 7s ease-in-out infinite; 
       pointer-events: none;
-    }
-    .spot-1 { top: 20%; left: 30%; animation-delay: 0s; }
-    .spot-2 { top: 60%; right: 20%; animation-delay: 2.3s; background: radial-gradient(circle, rgba(255, 100, 0, 0.3) 0%, transparent 70%); }
-    .spot-3 { top: 40%; left: 50%; animation-delay: 1.5s; width: 150px; height: 150px; }
-
-    @keyframes flashSpot {
-      0% { opacity: 0; transform: scale(0.8); }
-      10% { opacity: 1; transform: scale(1.1); }
-      20% { opacity: 0; transform: scale(1); }
-      100% { opacity: 0; }
+      mix-blend-mode: overlay;
+      z-index: 5;
     }
 
-    /* 🔗 FLOATING SHARE BUTTON */
+    @keyframes sweep {
+      0% { transform: translateX(-150%); }
+      20% { transform: translateX(150%); } /* Fast sweep */
+      100% { transform: translateX(150%); } /* Wait */
+    }
+
+    /* 🔗 SHARE BUTTON (ON IMAGE) */
     .share-btn-floating {
       position: absolute;
-      top: 10px;
-      right: 10px;
+      top: 15px;
+      right: 15px;
       width: 35px; height: 35px;
       border-radius: 50%;
       background: rgba(0,0,0,0.6);
-      border: 1px solid #444;
+      border: 1px solid #555;
       color: #fff;
       display: flex; justify-content: center; align-items: center;
       cursor: pointer;
       z-index: 20;
-      backdrop-filter: blur(2px);
+      backdrop-filter: blur(4px);
       transition: all 0.3s ease;
     }
-    .share-btn-floating:hover { background: #fff; color: #000; transform: rotate(15deg); }
+    .share-btn-floating:hover { background: #fff; color: #000; }
 
     /* ✨ TITLES */
     .sub-title-clean {
@@ -792,45 +805,35 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
       text-shadow: 0 0 2px black;
     }
     .cursor-blink { 
-      display: inline-block; 
-      width: 8px; height: 15px; 
-      background: #ff4444; 
-      animation: blink 1s step-end infinite; 
-      vertical-align: middle;
-      margin-left: 5px;
+      display: inline-block; width: 8px; height: 15px; background: #ff4444; 
+      animation: blink 1s step-end infinite; vertical-align: middle; margin-left: 5px;
     }
     @keyframes blink { 50% { opacity: 0; } }
 
-    /* 🔴 EPIC BUTTON ANIMATION */
+    /* 🔴 READ BUTTON (STATIC BORDER) */
     .epic-btn-wrapper {
       position: relative;
       display: flex;
       justify-content: center;
       margin-bottom: 25px;
-      padding: 4px; /* Space for the gradient border */
+      padding: 3px;
       border-radius: 50px;
       background: transparent;
-      overflow: visible; /* CRITICAL: Allows Badge to pop out */
+      overflow: visible;
     }
 
-    /* The Moving Gradient Border */
+    /* STATIC GRADIENT BORDER */
     .epic-btn-wrapper::before {
       content: '';
       position: absolute;
       inset: 0;
       border-radius: 50px;
       padding: 2px;
-      background: conic-gradient(from 0deg, #550000, #ff0000, #ff8800, #ff0000, #550000);
-      -webkit-mask: 
-         linear-gradient(#fff 0 0) content-box, 
-         linear-gradient(#fff 0 0);
+      /* Linear Gradient = Still, No Animation */
+      background: linear-gradient(90deg, #550000, #ff0000, #ff8800, #ff0000, #550000);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
       -webkit-mask-composite: xor;
       mask-composite: exclude;
-      animation: spinBorder 3s linear infinite;
-    }
-    @keyframes spinBorder {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
     }
 
     .cine-btn {
@@ -839,7 +842,7 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
       height: 55px;
       cursor: pointer;
       background: #110202;
-      border-radius: 50px; /* Soft Edge */
+      border-radius: 50px;
       border: none;
       display: flex;
       align-items: center;
@@ -858,7 +861,7 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
       letter-spacing: 2px;
     }
 
-    /* BADGE FIXED */
+    /* BADGE */
     .badge-new {
       position: absolute;
       top: -10px; right: 0px;
@@ -875,21 +878,37 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
     }
     @keyframes pulseBadge { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
-    /* ⭐ RECOGNITION ICONS */
-    .rec-section { transform: scale(0.9); margin-top: 10px; }
-    .rec-title { font-family: 'Cinzel', serif; font-size: 0.7rem; color: #555; margin-bottom: 12px; }
-    .rec-btn-container { display: flex; gap: 20px; }
-    .rec-item {
-      display: flex; flex-direction: column; align-items: center; gap: 5px;
-      cursor: pointer; opacity: 0.7; transition: 0.3s;
+    /* ⭐ RECOGNITION (BUTTONS STYLE) */
+    .rec-section { 
+      transform: scale(0.95); 
+      margin-top: 40px; /* Moved Down */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-    .rec-item:hover { opacity: 1; transform: translateY(-2px); }
+    .rec-title { font-family: 'Cinzel', serif; font-size: 0.7rem; color: #555; margin-bottom: 15px; letter-spacing: 2px;}
     
-    .icon-box { font-size: 1.2rem; margin-bottom: 2px; }
-    .minasha-icon { color: #ff6b81; text-shadow: 0 0 10px #ff6b81; } /* Heart Color */
-    .arosha-icon { color: #ff9f43; text-shadow: 0 0 10px #ff9f43; } /* Fire Color */
-    
-    .rec-name { font-size: 0.7rem; font-family: 'Cinzel', serif; color: #ccc; letter-spacing: 1px; }
+    .rec-buttons-row { display: flex; gap: 15px; }
+
+    .rec-pill-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid #333;
+      padding: 8px 18px;
+      border-radius: 25px;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 8px;
+      transition: all 0.3s;
+    }
+    .rec-pill-btn:hover { 
+      background: rgba(255, 0, 0, 0.15); 
+      border-color: #ff4444; 
+      transform: translateY(-2px);
+    }
+
+    .icon-box { font-size: 0.9rem; }
+    .minasha-icon { color: #ff6b81; } 
+    .arosha-icon { color: #ff9f43; } 
+    .rec-name { font-size: 0.75rem; font-family: 'Cinzel', serif; color: #ddd; font-weight: 600; }
 
     /* FOOTER & MODAL */
     .system-footer {
@@ -940,7 +959,6 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
     setEmbers(e);
   }, []);
 
-  // Typewriter Logic with Cursor Removal
   React.useEffect(() => {
     if (isLoading) return;
     let i = 0;
@@ -949,7 +967,7 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
       i++;
       if (i > fullDescription.length) {
         clearInterval(interval);
-        setTimeout(() => setIsTypingDone(true), 1000); // Remove cursor 1s after typing
+        setTimeout(() => setIsTypingDone(true), 1000);
       }
     }, 30);
     return () => clearInterval(interval);
@@ -996,6 +1014,10 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
 
     h("audio", { ref: audioRef, src: "https://cdn.pixabay.com/audio/2022/10/05/audio_686377755b.mp3", loop: true, volume: 0.4 }),
 
+    // AMBIENT BACKGROUND GLOWS
+    h("div", { className: "bg-glow glow-top-left" }),
+    h("div", { className: "bg-glow glow-bottom-right" }),
+
     h("div", { className: "vignette" }),
     h("div", { className: "noise" }),
 
@@ -1017,14 +1039,12 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
       
       h(React.Fragment, null,
         
-        // HERO IMAGE WRAPPER
+        // HERO IMAGE
         h("div", { className: "hero-img-container" },
           h("img", { src: "/images/Cover.png", className: "hero-image" }),
-          // Random Color Spots
-          h("div", { className: "color-spot spot-1" }),
-          h("div", { className: "color-spot spot-2" }),
-          h("div", { className: "color-spot spot-3" }),
-          // Floating Share Button
+          // Light Sweep Effect
+          h("div", { className: "shimmer-effect" }),
+          // Share Button
           h("div", { className: "share-btn-floating", onClick: handleShare },
             h("i", { className: "fas fa-share-alt" })
           )
@@ -1039,7 +1059,6 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
           ["Sci-Fi", "Romance", "Mystery", "Horror"].map(t =>
             h("span", { key: t, className: "tag-pill" }, t)
           )
-          // Removed 2hr read time here
         ),
 
         h("div", { className: "desc-text" }, 
@@ -1047,7 +1066,7 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
           !isTypingDone && h("span", { className: "cursor-blink" })
         ),
 
-        // READ BUTTON WITH EPIC GRADIENT
+        // READ BUTTON (No Rotation, just static gradient)
         h("div", { className: "epic-btn-wrapper" },
           h("div", { className: "cine-btn", onClick: handleStart },
             h("div", { className: "cine-btn-text" }, 
@@ -1057,17 +1076,17 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
           )
         ),
 
-        // RECOGNITION (ICONS ADDED)
+        // RECOGNITION (Now Small Buttons & Moved Down)
         h("div", { className: "rec-section" },
           h("div", { className: "rec-title" }, "SPECIAL RECOGNITION"),
-          h("div", { className: "rec-btn-container" },
-            // Minasha
-            h("div", { className: "rec-item", onClick: () => onViewCredits(getCredit('MINASHA')) },
+          h("div", { className: "rec-buttons-row" },
+            // Minasha Button
+            h("div", { className: "rec-pill-btn", onClick: () => onViewCredits(getCredit('MINASHA')) },
               h("i", { className: "fas fa-heart icon-box minasha-icon" }),
               h("span", { className: "rec-name" }, "MINASHA")
             ),
-            // Arosha
-            h("div", { className: "rec-item", onClick: () => onViewCredits(getCredit('AROSHA')) },
+            // Arosha Button
+            h("div", { className: "rec-pill-btn", onClick: () => onViewCredits(getCredit('AROSHA')) },
               h("i", { className: "fas fa-fire icon-box arosha-icon" }),
               h("span", { className: "rec-name" }, "AROSHA")
             )
@@ -1078,7 +1097,7 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
 
     // FOOTER
     h("div", { className: "system-footer" },
-      h("span", null, "v2.0.0 • SYSTEM ONLINE"),
+      h("span", null, "v3.1.0 • SYSTEM ONLINE"),
       h("i", { className: "fas fa-cog settings-icon", onClick: () => setShowSettings(true) })
     ),
 
