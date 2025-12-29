@@ -226,10 +226,10 @@ window.APP_CONFIG = {
 
                 {
             id: 21,
-            title: "-",
-            date: "-",
+            title: "Calm B4 the Storm",
+            date: "Something`s Brewing",
             locked: false,
-            pages: Array.from({ length: 21 }, (_, i) => `imageschapter21/${i + 1}.png`)
+            pages: Array.from({ length: 12 }, (_, i) => `imageschapter21/${i + 1}.png`)
         },
     ]
 };
