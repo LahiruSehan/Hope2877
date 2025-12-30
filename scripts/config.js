@@ -244,7 +244,8 @@ window.APP_CONFIG = {
             title: "Trail 2",
             date: "Isnt it hot?",
             locked: false,
-            pages: Array.from({ length: 9 }, (_, i) => `imageschapter23/${i + 1}.png`)
+            pages: Array.from({ length: 9 }, (_, i) => `imageschapter23git push
+/${i + 1}.png`)
         },
 
         
