@@ -231,5 +231,12 @@ window.APP_CONFIG = {
             locked: false,
             pages: Array.from({ length: 12 }, (_, i) => `imageschapter21/${i + 1}.png`)
         },
+                        {
+            id: 22,
+            title: "Trail 1",
+            date: "War is Coming",
+            locked: false,
+            pages: Array.from({ length: 25 }, (_, i) => `imageschapter22/${i + 1}.png`)
+        },
     ]
 };
