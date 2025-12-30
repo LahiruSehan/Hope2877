@@ -238,5 +238,15 @@ window.APP_CONFIG = {
             locked: false,
             pages: Array.from({ length: 25 }, (_, i) => `imageschapter22/${i + 1}.png`)
         },
+
+                                {
+            id: 23,
+            title: "Trail 2",
+            date: "Isnt it hot?",
+            locked: false,
+            pages: Array.from({ length: 9 }, (_, i) => `imageschapter23/${i + 1}.png`)
+        },
+
+        
     ]
 };
