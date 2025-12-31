@@ -244,8 +244,63 @@ window.APP_CONFIG = {
             title: "Trail 2",
             date: "Isnt it hot?",
             locked: false,
-            pages: Array.from({ length: 9 }, (_, i) => `imageschapter23git push
-/${i + 1}.png`)
+            pages: Array.from({ length: 9 }, (_, i) => `imageschapter23/${i + 1}.png`)
+        },
+
+                                        {
+            id: 24,
+            title: "Life",
+            date: "Silent World",
+            locked: false,
+            pages: Array.from({ length: 10 }, (_, i) => `imageschapter24/${i + 1}.png`)
+        },
+
+                                        {
+            id: 25,
+            title: "UPGRADE",
+            date: "Its time",
+            locked: false,
+            pages: Array.from({ length: 13 }, (_, i) => `imageschapter25/${i + 1}.png`)
+        },
+
+                                        {
+            id: 26,
+            title: "Betrayal",
+            date: "Evrything is LIES",
+            locked: false,
+            pages: Array.from({ length: 8 }, (_, i) => `imageschapter26/${i + 1}.png`)
+        },
+
+                                        {
+            id: 27,
+            title: "Destruction",
+            date: "NO HOPE",
+            locked: false,
+            pages: Array.from({ length: 11 }, (_, i) => `imageschapter27/${i + 1}.png`)
+        },
+
+                                        {
+            id: 28,
+            title: "FINALE",
+            date: "FINAL STANDOFF",
+            locked: false,
+            pages: Array.from({ length: 9 }, (_, i) => `imageschapter28/${i + 1}.png`)
+        },
+
+                                              {
+            id: 29,
+            title: "HIGHER POWER",
+            date: "an Endless story",
+            locked: false,
+            pages: Array.from({ length: 9 }, (_, i) => `imageschapter29/${i + 1}.png`)
+        },
+
+                                                      {
+            id: 30,
+            title: "THE END",
+            date: "No such thing as Happy Endings",
+            locked: false,
+            pages: Array.from({ length: 9 }, (_, i) => `imageschapter30/${i + 1}.png`)
         },
 
         
