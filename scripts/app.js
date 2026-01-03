@@ -1083,9 +1083,9 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
           )
         ),
 
-        h("div", { className: "sub-title-clean" }, "A FALSE HOPE"),
+        h("div", { className: "sub-title-clean" }, "THE YEAR 2877"),
         h("div", { className: "main-title-electric" }, 
-          "Hope Was Engineered", h("span", { className: "flicker-text" }, "Freedom Was Not.")
+          "A FALSE", h("span", { className: "flicker-text" }, "HOPE")
         ),
 
         h("div", { className: "tags-row" },

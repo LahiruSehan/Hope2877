@@ -15,8 +15,8 @@ window.APP_CONFIG = {
     // 🌍 Language Dictionary (English Only Active)
     translations: {
         EN: {
-            title_start: "A FALSE HOPE",
-            title_end: "Hope Was Engineered. Freedom Was Not.",
+            title_start: "THE YEAR 2877",
+            title_end: "A FALSE HOPE",
             subtitle: "HUNT THE TRUTH",
             start: "START READING",
             chapters: "CHAPTERS",
