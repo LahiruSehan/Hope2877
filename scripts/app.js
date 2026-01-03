@@ -1020,9 +1020,9 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
   };
 
   const handleShare = () => {
-    const text = "Read 'Beneath the Light of a Dying Sky'";
+    const text = "Read 'A FALSE HOPE'";
     if (navigator.share) {
-      navigator.share({ title: 'Dying Sky', text: text, url: window.location.href });
+      navigator.share({ title: 'HOPE', text: text, url: window.location.href });
     } else {
       alert("Link copied!");
     }
@@ -1083,9 +1083,9 @@ const HomePage = ({ onStartChapters, onViewCredits }) => {
           )
         ),
 
-        h("div", { className: "sub-title-clean" }, "BENEATH THE LIGHT"),
+        h("div", { className: "sub-title-clean" }, "A FALSE HOPE"),
         h("div", { className: "main-title-electric" }, 
-          "OF A ", h("span", { className: "flicker-text" }, "DYING SKY")
+          "Hope Was Engineered", h("span", { className: "flicker-text" }, "Freedom Was Not.")
         ),
 
         h("div", { className: "tags-row" },

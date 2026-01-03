@@ -15,8 +15,8 @@ window.APP_CONFIG = {
     // 🌍 Language Dictionary (English Only Active)
     translations: {
         EN: {
-            title_start: "BENEATH THE LIGHT",
-            title_end: "OF A DYING SKY",
+            title_start: "A FALSE HOPE",
+            title_end: "Hope Was Engineered. Freedom Was Not.",
             subtitle: "HUNT THE TRUTH",
             start: "START READING",
             chapters: "CHAPTERS",
@@ -28,8 +28,8 @@ window.APP_CONFIG = {
             unlock: "USE VIP KEY",
             card_pay: "PAY CARD",
             more_info: "Click name to reveal details",
-            coming_soon: "MORE CHAPTERS COMING SOON",
-            construction_desc: "Artists are sketching the rest of the Manga from the Novel HOPE 2877."
+            coming_soon: "STORY ENDS HERE",
+            construction_desc: "More BRAND NEW stories MIGHT come In the future"
         }
     },
 
@@ -284,15 +284,15 @@ window.APP_CONFIG = {
             title: "FINALE",
             date: "FINAL STANDOFF",
             locked: false,
-            pages: Array.from({ length: 9 }, (_, i) => `imageschapter28/${i + 1}.png`)
+            pages: Array.from({ length: 10 }, (_, i) => `imageschapter28/${i + 1}.png`)
         },
 
                                               {
             id: 29,
-            title: "HIGHER POWER",
+            title: "Observation",
             date: "an Endless story",
             locked: false,
-            pages: Array.from({ length: 9 }, (_, i) => `imageschapter29/${i + 1}.png`)
+            pages: Array.from({ length: 35 }, (_, i) => `imageschapter29/${i + 1}.png`)
         },
 
                                                       {
@@ -300,7 +300,7 @@ window.APP_CONFIG = {
             title: "THE END",
             date: "No such thing as Happy Endings",
             locked: false,
-            pages: Array.from({ length: 9 }, (_, i) => `imageschapter30/${i + 1}.png`)
+            pages: Array.from({ length: 13 }, (_, i) => `imageschapter30/${i + 1}.png`)
         },
 
         
